@@ -7,7 +7,7 @@ import {
 import { BindParams, Database } from "sql.js";
 import { SqliteLikeBaseDriver } from "../sqlite-base-driver";
 
-// Val Town-only migration: Local type definition (was from @libsql/client)
+// SQL.js query types
 type InStatement =
   | string
   | {

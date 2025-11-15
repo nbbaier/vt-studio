@@ -167,11 +167,67 @@ When making changes:
 - `@/*` maps to `src/*` (configured in `tsconfig.json`)
 - Always use path aliases for imports from `src/`
 
+## Styling Standards
+
+### Component Libraries
+The codebase uses **two component systems** (migration in progress):
+
+1. **Orbit Design System** (`src/components/orbit/`)
+   - Newer design system with custom `ob-*` classes
+   - Components: Button, Input, Label, Avatar, Select, Toggle
+   - Uses `ob-focus` class for focus-visible states
+   - Preferred for new development in connection/account UIs
+
+2. **shadcn/ui Components** (`src/components/ui/`)
+   - Based on Radix UI primitives
+   - Comprehensive component library (Dialog, Separator, Checkbox, etc.)
+   - Uses class-variance-authority (CVA) for button/input variants
+   - Used throughout GUI and extensions
+
+**When to use which:**
+- **Orbit**: Use for connection flows, settings pages, account management
+- **shadcn/ui**: Use for database GUI, tables, dialogs, and components not in Orbit
+- **Note**: Button, Input, and Label exist in both - check existing patterns in your file
+
+### Styling Approach
+**Primary:** Tailwind CSS 4 utility classes
+```tsx
+// Good - Tailwind utilities
+<div className="flex h-[40px] items-center border-b">
+
+// Avoid - Inline styles (except for dynamic values)
+<div style={{ height: 40, display: "flex" }}>
+```
+
+**When inline styles are acceptable:**
+1. Dynamic values from props/state: `style={{ width: columnWidth }}`
+2. CSS properties not in Tailwind: `style={{ contentVisibility: "auto" }}`
+3. Performance-critical styles (table cells)
+
+**CSS Modules:**
+- Only use for complex animations or performance-critical rendering
+- Currently used in: `src/components/gui/table-cell/styles.module.css`
+
+### Orbit Custom Classes
+Located in `src/app/globals.css`:
+- `.ob-btn` - Base button styles
+- `.ob-focus` - Focus-visible ring (use on all interactive elements)
+- `.ob-disable` - Disabled state styling
+- `.ob-size-sm`, `.ob-size-base`, `.ob-size-lg` - Size variants
+- `.interactive` - Hover/active states
+- `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-destructive` - Button variants
+
+### Accessibility Requirements
+All interactive elements must have:
+1. **Keyboard navigation**: Ensure `focus-visible` styles (use `ob-focus` or Tailwind's `focus-visible:`)
+2. **ARIA labels**: `aria-label` for icon-only buttons
+3. **ARIA roles**: `role="tablist"`, `role="tab"`, etc. for custom components
+4. **Keyboard shortcuts**: Show shortcuts in tooltips with `<kbd>` element
+
 ## Important Notes
 
 - **Database**: Only Val Town SQLite is supported (migration in progress)
 - **React**: Using React 19 with Server Components (Next.js 15)
-- **Styling**: Tailwind CSS 4 with custom design system in `components/ui/`
 - **State**: Mix of React Context and SWR for data fetching
 - **Storage**: IndexedDB for saved queries/docs, localStorage for connections
 - **Code Editor**: CodeMirror 6 with custom SQL extensions

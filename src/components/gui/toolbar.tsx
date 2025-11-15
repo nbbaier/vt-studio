@@ -49,6 +49,7 @@ export function ToolbarButton({
       )}
       disabled={disabled}
       onClick={onClick}
+      aria-label={text}
     >
       {loading ? <LucideLoader className="h-4 w-4 animate-spin" /> : icon}
       {text && <span>{text}</span>}

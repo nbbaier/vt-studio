@@ -99,8 +99,7 @@ export function QueryExplanation(props: QueryExplanationProps) {
     );
   }
 
-  // Val Town-only migration: Only SQLite is supported
-  // Convert SQLite explanation rows to MySQL-compatible format for visualization
+  // Transform SQLite EXPLAIN QUERY PLAN output into flow diagram format
   const value = convertSQLiteRowToMySQL(
     props.data.rows as unknown as ExplanationRow[]
   );

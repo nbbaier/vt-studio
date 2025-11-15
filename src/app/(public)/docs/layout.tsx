@@ -10,10 +10,6 @@ const TableContent = [
     title: "Connecting",
     sub: [
       {
-        title: "Connect to Turso",
-        href: "/docs/connect-turso",
-      },
-      {
         title: "Connect to Valtown",
         href: "/docs/connect-valtown",
       },
