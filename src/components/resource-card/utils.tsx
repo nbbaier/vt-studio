@@ -23,6 +23,6 @@ export function getDatabaseVisual(type: string) {
   return GeneralVisual;
 }
 
-export function getDatabaseColor(type: string) {
+export function getDatabaseColor() {
   return "default";
 }
