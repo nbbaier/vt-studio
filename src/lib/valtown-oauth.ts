@@ -4,7 +4,13 @@
  */
 
 const OAUTH_ISSUER = "https://val.town";
-const DEFAULT_SCOPES = "openid offline_access profile user_rw";
+// Scopes needed:
+// - openid: Basic OpenID Connect
+// - offline_access: Refresh token
+// - profile: Profile information
+// - user_rw: User data read/write (for /v1/me)
+// - sqlite: SQLite database access
+const DEFAULT_SCOPES = "openid offline_access profile user_rw sqlite";
 
 export interface OAuthClient {
   client_id: string;

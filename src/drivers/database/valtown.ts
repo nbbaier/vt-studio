@@ -96,7 +96,26 @@ export class ValtownQueryable implements QueryableBaseDriver {
       }),
     });
 
+    if (!r.ok) {
+      const errorText = await r.text();
+      throw new Error(
+        `Val Town API error (${r.status}): ${errorText || r.statusText}`
+      );
+    }
+
     const json = await r.json();
+
+    // Handle error response format
+    if (json.error) {
+      throw new Error(`Val Town API error: ${json.error}`);
+    }
+
+    if (!Array.isArray(json)) {
+      throw new Error(
+        `Unexpected response format from Val Town API: ${JSON.stringify(json)}`
+      );
+    }
+
     return json.map(transformRawResult);
   }
 
@@ -110,7 +129,19 @@ export class ValtownQueryable implements QueryableBaseDriver {
       body: JSON.stringify({ statement: stmt }),
     });
 
+    if (!r.ok) {
+      const errorText = await r.text();
+      throw new Error(
+        `Val Town API error (${r.status}): ${errorText || r.statusText}`
+      );
+    }
+
     const json = await r.json();
+
+    // Handle error response format
+    if (json.error) {
+      throw new Error(`Val Town API error: ${json.error}`);
+    }
 
     return transformRawResult(json as ResultSet);
   }
