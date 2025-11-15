@@ -1,6 +1,8 @@
 {
   "name": "@outerbase/studio",
   "version": "0.10.2",
+  "description": "A modern, browser-based SQLite database GUI purpose-built for Val Town",
+  "keywords": ["valtown", "sqlite", "database", "gui", "studio", "sql-editor", "browser-database"],
   "private": false,
   "scripts": {
     "dev": "next dev -p 3008",

@@ -1,28 +1,37 @@
 import { DocContent } from "@/components/mdx/docs";
 
 export const metadata = {
-  title: "Connect to Val.town Database using LibSQL Studio",
+  title: "Connect to Val Town Database",
 };
 
-<DocContent title="Connect to Valtown" group="Connecting">
+<DocContent title="Connect to Val Town" group="Connecting">
 
+Outerbase Studio is purpose-built for managing Val Town SQLite databases with an intuitive, browser-based interface.
 
-LibSQL Studio is an excellent SQLite GUI client that offers extensive functionality.
-Since Val.town's database is based on SQLite, LibSQL Studio is the perfect tool for managing it.
-With LibSQL Studio, connecting to your Val.town personal database is easy. Please follow the steps below:
+Connecting to your Val Town personal database is simple. Follow these steps:
 
-## Generate Token
+## Generate API Token
 
-1. Goto [API Token Setting](https://www.val.town/settings/api)
-2. Click "New" if you haven't generated token before
-3. Copy the token
+1. Go to [Val Town API Token Settings](https://www.val.town/settings/api)
+2. Click **"New"** to generate a new API token
+3. Copy the token to your clipboard
 
-## Connect
+## Connect to Your Database
 
-Open LibSQL Studio
+1. Open Outerbase Studio
+2. Click **"New Connection"** and select **"Val Town"**
+3. Paste your Val Town API token
+4. Click **"Connect"**
 
-1. Click **"New Connection"** and choose **"Valtown"**.
-2. Enter your Val.town token.
-3. Click **"Connect."**
+Your connection will be saved locally in your browser for easy access.
+
+## Managing Your Data
+
+Once connected, you can:
+- Browse and edit tables
+- Write and execute SQL queries
+- Design schemas visually
+- Create triggers and views
+- Export data in various formats
 
 </DocContent>
