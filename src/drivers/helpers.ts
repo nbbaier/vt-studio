@@ -1,4 +1,4 @@
-import { SavedConnectionRawLocalStorage } from "@/app/(theme)/connect/saved-connection-storage";
+import { SavedConnectionRawLocalStorage } from "@/lib/saved-connection-storage";
 import { ValtownQueryable } from "./database/valtown";
 import { SqliteLikeBaseDriver } from "./sqlite-base-driver";
 

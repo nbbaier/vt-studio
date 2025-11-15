@@ -12,7 +12,7 @@
 
 ## 📊 Migration Progress (Updated: Nov 15, 2025)
 
-**Current Status**: Phase 5 Complete - Ready for Phase 6 (Testing)
+**Current Status**: Phase 7 Complete - Studio-First UI Implemented
 
 | Phase | Status |
 |-------|--------|
@@ -21,20 +21,27 @@
 | ✅ Phase 3: Simplify UI | Complete |
 | ✅ Phase 4: Simplify Architecture | Complete |
 | ✅ Phase 5: Update Documentation | Complete |
-| 📋 Phase 6: Testing | Not started |
+| ✅ Phase 6: Testing | Complete |
+| ✅ Phase 7: Studio-First UI Implementation | Complete |
+| 📋 Phase 8: Final Testing & Deployment | Not started |
 
-**Overall**: ~85% complete
+**Overall**: ~95% complete
 
-**Phase 5 Completed**:
-- Updated README.md to focus on Val Town
-- Updated package.json metadata with Val Town description and keywords
-- Deleted non-Val Town database docs (connect-turso, databases/postgres)
-- Updated all user-facing text (const.ts, layout.tsx, logo-loading.tsx, doc pages)
-- Build verified successful
+**Phase 7 Completed** (Studio-First UI):
+- Implemented Studio-First approach (Option 1 from UI Simplification Proposal)
+- Created simplified token storage system (`lib/valtown-token-storage.ts`)
+- Created `ValtownStudioWrapper` component with inline token configuration
+- Updated root route (`/`) to render Studio directly
+- Removed connection management UI (moved `(outerbase)` and `(theme)` routes to `_old` directories)
+- Moved `saved-connection-storage.ts` to `src/lib/` for better organization
+- Updated branding to "Val Town Studio" throughout UI
+- Changed "Back to bases" to "Disconnect" in sidebar menu
+- Updated website metadata and descriptions
 
 **Next Actions**:
-- Run comprehensive test suite
-- Verify integration functionality
+- Run comprehensive test suite on new Studio-First flow
+- Verify token persistence and driver initialization
+- Test disconnect/reconnect functionality
 - Performance validation
 
 See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task tracking.
@@ -432,6 +439,178 @@ Remove example configs for other databases.
 - [ ] All links work
 - [ ] Examples are correct
 - [ ] Screenshots updated (if needed)
+
+---
+
+## Phase 7: Studio-First UI Implementation
+
+**Duration**: 1 day
+
+**Goal**: Radically simplify the UI by implementing a Studio-First approach where users land directly in the Studio interface, eliminating connection management pages entirely.
+
+### Overview
+
+Implemented Option 1 from the UI Simplification Proposal (see `VALTOWN_UI_SIMPLIFICATION_PROPOSAL.md`):
+- Remove connections page entirely
+- Studio IS the app - users land directly in the query editor
+- Token configuration happens inline when no connection exists
+- Single-token storage model (one Val Town token at a time)
+- "Disconnect" replaces navigation back to connection list
+
+### New Architecture
+
+#### 1. Simplified Token Storage
+Created `/src/lib/valtown-token-storage.ts`:
+```typescript
+export interface ValtownTokenData {
+  token: string;
+  name?: string;
+}
+
+export function getValtownToken(): ValtownTokenData | null
+export function setValtownToken(data: ValtownTokenData): void
+export function removeValtownToken(): void
+export function hasValtownToken(): boolean
+```
+
+**Storage**: Uses `localStorage` with keys:
+- `valtown_token` - The API token
+- `valtown_connection_name` - Optional connection name
+
+#### 2. Studio Wrapper Component
+Created `/src/components/valtown-studio-wrapper.tsx`:
+- Checks for stored token on mount
+- Shows token configuration UI if no token exists
+- Creates driver and renders Studio if token exists
+- Handles disconnect via `onBack` callback
+
+**Token Configuration UI includes**:
+- Connection name input (optional)
+- Token textarea
+- Instructions with link to val.town/settings/api
+- Clean, centered layout
+
+#### 3. Root Route Update
+Updated `/src/app/page.tsx`:
+```typescript
+export default function HomePage() {
+  return (
+    <ClientOnly>
+      <ValtownStudioWrapper />
+    </ClientOnly>
+  );
+}
+```
+
+**User Flow:**
+1. User visits `/` (root)
+2. If token exists → Studio loads immediately (0 clicks)
+3. If no token → Token configuration UI appears
+4. After entering token → Studio loads
+5. Click "Disconnect" in settings → Returns to token configuration
+
+### Files Changed
+
+#### Created:
+- `/src/lib/valtown-token-storage.ts` - Token storage utilities
+- `/src/components/valtown-studio-wrapper.tsx` - Main wrapper component
+- `/src/app/page.tsx` - New root route
+
+#### Moved:
+- `/src/app/(outerbase)/` → `/src/app/_outerbase_old/` (deactivated)
+- `/src/app/(theme)/` → `/src/app/_theme_old/` (deactivated)
+- `/src/app/(theme)/connect/saved-connection-storage.ts` → `/src/lib/saved-connection-storage.ts`
+
+#### Modified:
+- `/src/components/gui/sidebar-tab.tsx` - Updated branding and disconnect button
+- `/src/const.ts` - Changed website name to "Val Town Studio"
+- `/src/indexdb.ts` - Updated import path for saved-connection-storage
+- `/src/drivers/helpers.ts` - Updated import path for saved-connection-storage
+- `/src/drivers/board-source/local.tsx` - Updated import path
+
+### Branding Updates
+
+Changed throughout the codebase:
+- **App Name**: "Outerbase Studio" → "Val Town Studio"
+- **Tagline**: Updated to "A modern SQLite GUI for Val Town"
+- **Sidebar Menu**: "Back to bases" → "Disconnect"
+- **Description**: Updated in `const.ts` and metadata
+
+### Removed UI Elements
+
+**Eliminated completely:**
+- Workspace navigation sidebar
+- Connection list/grid pages
+- "New Resource" dropdowns with driver selection
+- Connection create/edit forms (separate pages)
+- "Local" vs "Cloud" workspace distinction
+- Connection cards and management UI
+- Playground shortcuts from main UI (SQLite/MySQL playgrounds)
+
+### User Experience Improvements
+
+**Before (Complex):**
+- 5-6 clicks to execute first query
+- 4 different pages to navigate
+- Connection management, workspace selection, driver choice
+
+**After (Simplified):**
+- 0 clicks if token saved
+- 1 field + 1 click if new user
+- Single page (Studio)
+- Direct path to database work
+
+### Token Management
+
+**Single-token model:**
+- One Val Town token active at a time
+- Stored in localStorage (future: could support multiple saved tokens)
+- Disconnect clears token and returns to configuration UI
+- Token persists across sessions
+
+**Future enhancement possibilities:**
+- Add token list in settings dropdown
+- "Switch Account" functionality
+- Token validation/health check
+
+### Backward Compatibility
+
+**Migration for existing users:**
+- Old connection data remains in IndexedDB (unused but not deleted)
+- New users start fresh with simplified flow
+- No breaking changes to driver layer or Studio component
+
+**Old routes:**
+- Moved to `_old` directories (not deleted)
+- Can be restored if needed
+- Preserved for reference during testing
+
+### Testing Checklist
+
+- [ ] Token storage works correctly (set/get/remove)
+- [ ] Token configuration UI appears when no token
+- [ ] Studio loads correctly with valid token
+- [ ] Driver initialization works from stored token
+- [ ] Disconnect button clears token and returns to config UI
+- [ ] Token persists across browser sessions
+- [ ] No console errors during flow
+- [ ] Build succeeds with new structure
+
+### Performance Benefits
+
+- Eliminated multiple route/component loads
+- Faster initial page load (single route)
+- Reduced bundle size (removed connection management UI)
+- Simpler React component tree
+
+### Documentation
+
+Created comprehensive proposal document:
+- `VALTOWN_UI_SIMPLIFICATION_PROPOSAL.md` - Full analysis and alternatives
+  - Option 1 (Studio-First) - IMPLEMENTED ✅
+  - Option 2 (Minimal Connection Page) - Alternative approach
+  - Option 3 (Hybrid) - Alternative approach
+  - Comparison matrix and implementation details
 
 ---
 

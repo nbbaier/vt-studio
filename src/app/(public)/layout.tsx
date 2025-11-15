@@ -1,5 +1,5 @@
 import { Fragment } from "react";
-import ThemeLayout from "../(theme)/theme_layout";
+import ThemeLayout from "@/components/theme-layout";
 
 export default async function RootLayout({
   children,

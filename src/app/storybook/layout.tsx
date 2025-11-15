@@ -4,7 +4,7 @@ import ThemeToggle from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Component, Layers2 } from "lucide-react";
-import ThemeLayout from "../(theme)/theme_layout";
+import ThemeLayout from "@/components/theme-layout";
 
 export default function StorybookRootLayout({
   children,
