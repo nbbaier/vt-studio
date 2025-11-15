@@ -2,19 +2,25 @@
 
 Quick reference for the moderate approach migration.
 
+**Note**: Standalone deployment - no existing connection migration needed.
+
 ## Phase 1: Audit & Document ✓
 - [ ] Test current Val Town functionality
 - [ ] Document API endpoints and auth
 - [ ] Create dependency map
 
-## Phase 2: Remove Drivers ✓
+## Phase 2: Remove Drivers & Update Types ✓
 - [ ] Delete 6 SQLite-based drivers (turso, rqlite, cloudflare-d1, starbase, sqljs, cloudflare-wae)
 - [ ] Delete postgres and mysql directories
 - [ ] Delete all connection templates except valtown
 - [ ] Remove from `/src/drivers/helpers.ts`: all driver imports except ValtownQueryable
 - [ ] Simplify `createLocalDriver()` to only support valtown
 - [ ] Remove `@libsql/client` and `libsql-stateless-easy` from package.json
+- [ ] Update `SupportedDriver` to only `"valtown"` in saved-connection-storage.ts
+- [ ] Update `SupportedDialect` to only `"sqlite"` in base-driver.ts
+- [ ] Search and remove references to other drivers in types
 - [ ] Run `npm install`
+- [ ] Run `npm run tsc` to verify
 - [ ] Verify build: `npm run build`
 
 ## Phase 3: Simplify UI ✓
@@ -23,46 +29,34 @@ Quick reference for the moderate approach migration.
 - [ ] Remove unused database icons (optional)
 - [ ] Test connection creation flow
 
-## Phase 4: Update Types ✓
-- [ ] Update `SupportedDriver` to only `"valtown"` in saved-connection-storage.ts
-- [ ] Update `SupportedDialect` to only `"sqlite"` in base-driver.ts
-- [ ] Search and remove references to other drivers in types
-- [ ] Run `npm run tsc` to verify
-
-## Phase 5: Simplify Architecture ✓
+## Phase 4: Simplify Architecture ✓
 - [ ] Add documentation comments to base-driver.ts
 - [ ] Add documentation comments to sqlite-base-driver.ts
 - [ ] Keep factory pattern but simplify
 - [ ] Review and clean unused DriverFlags options
 
-## Phase 6: Migration ✓
-- [ ] Create `/src/lib/migration/valtown-only-migration.ts`
-- [ ] Create migration notice component
-- [ ] Integrate migration into app startup
-- [ ] Test with various connection configurations
-
-## Phase 7: Documentation ✓
+## Phase 5: Documentation ✓
 - [ ] Update README.md - focus on Val Town
 - [ ] Delete non-Val Town database docs
 - [ ] Update package.json description
 - [ ] Review all user-facing text
 - [ ] Decide on branding (keep Outerbase or rename)
+- [ ] Emphasize standalone deployment for Val Town
 
-## Phase 8: Testing ✓
+## Phase 6: Testing ✓
 - [ ] All unit tests pass
 - [ ] Integration tests (create connection, query, transactions, etc.)
 - [ ] UI tests (no references to removed DBs)
 - [ ] Build tests (build, tsc, lint all pass)
-- [ ] Migration tests (no connections, val town only, mixed)
 - [ ] Performance validation (bundle size reduced)
 
 ## Final Checklist
 - [ ] All phases complete
 - [ ] Tests passing
 - [ ] Documentation updated
-- [ ] Migration handles existing connections
+- [ ] Bundle size reduced
 - [ ] Committed to feature branch
-- [ ] PR created for review
+- [ ] Ready for deployment
 
 ---
 

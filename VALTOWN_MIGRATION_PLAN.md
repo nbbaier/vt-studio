@@ -4,7 +4,9 @@
 
 **Approach**: Remove other drivers but keep lightweight architectural abstractions for maintainability.
 
-**Estimated Effort**: 3-5 days
+**Deployment Context**: Standalone deployment (no existing connection migration needed)
+
+**Estimated Effort**: 3-4 days
 
 ---
 
@@ -33,9 +35,9 @@
 
 ---
 
-## Phase 2: Remove Non-Val Town Database Drivers
+## Phase 2: Remove Drivers and Update Type System
 
-**Duration**: 1 day
+**Duration**: 1.5 days
 
 ### Files to DELETE:
 
@@ -120,9 +122,50 @@ Also remove from `overrides`:
 "@libsql/client": "^0.5.3"
 ```
 
+### Type System Updates:
+
+#### 3. `/src/app/(theme)/connect/saved-connection-storage.ts`
+
+**Before:**
+```typescript
+export type SupportedDriver =
+  | "turso"
+  | "rqlite"
+  | "valtown"
+  | "starbase"
+  | "cloudflare-d1"
+  | "cloudflare-wae"
+  | "sqlite-filehandler";
+```
+
+**After:**
+```typescript
+export type SupportedDriver = "valtown";
+```
+
+#### 4. `/src/drivers/base-driver.ts`
+
+**Before:**
+```typescript
+export type SupportedDialect = "sqlite" | "mysql" | "postgres" | "dolt";
+```
+
+**After:**
+```typescript
+export type SupportedDialect = "sqlite"; // Val Town uses SQLite dialect
+```
+
+#### 5. Global type cleanup
+
+Run global search for:
+- `"turso"`, `"postgres"`, `"mysql"`, `"rqlite"`, etc. in type definitions
+- Update or remove as needed
+
 ### Validation:
 - Run `npm install` after package.json changes
 - Ensure no import errors remain
+- Run TypeScript compiler: `npm run tsc`
+- Fix any type errors
 - Check that build succeeds: `npm run build`
 
 ---
@@ -193,66 +236,7 @@ Check `/src/components/resource-card/icon.tsx` and `/src/components/icons/outerb
 
 ---
 
-## Phase 4: Update Type System
-
-**Duration**: 0.5 day
-
-### Files to MODIFY:
-
-#### 1. `/src/app/(theme)/connect/saved-connection-storage.ts`
-
-**Before:**
-```typescript
-export type SupportedDriver =
-  | "turso"
-  | "rqlite"
-  | "valtown"
-  | "starbase"
-  | "cloudflare-d1"
-  | "cloudflare-wae"
-  | "sqlite-filehandler";
-```
-
-**After:**
-```typescript
-export type SupportedDriver = "valtown";
-```
-
-#### 2. `/src/drivers/base-driver.ts`
-
-**Before:**
-```typescript
-export type SupportedDialect = "sqlite" | "mysql" | "postgres" | "dolt";
-```
-
-**After (option 1 - keep for future):**
-```typescript
-export type SupportedDialect = "sqlite"; // Val Town uses SQLite dialect
-```
-
-**After (option 2 - simplify completely):**
-Remove `SupportedDialect` type entirely and hardcode `"sqlite"` where needed
-
-#### 3. Search for other driver-related types
-
-Run global search for:
-- `"turso"`, `"postgres"`, `"mysql"`, `"rqlite"`, etc. in type definitions
-- Update or remove as needed
-
-### Type cleanup checklist:
-- [ ] Remove driver union types except "valtown"
-- [ ] Update dialect types to "sqlite" only
-- [ ] Remove database-specific configuration interfaces
-- [ ] Update function signatures that reference removed drivers
-
-### Validation:
-- Run TypeScript compiler: `npm run tsc`
-- Fix any type errors
-- Ensure no references to removed drivers remain
-
----
-
-## Phase 5: Simplify Driver Architecture (Keep Extensibility)
+## Phase 4: Simplify Driver Architecture (Keep Extensibility)
 
 **Duration**: 0.5 day
 
@@ -312,113 +296,11 @@ export function createValtownDriver(token: string) {
 
 ---
 
-## Phase 6: Handle Existing Connections Migration
-
-**Duration**: 1 day
-
-### Migration Strategy:
-
-#### 1. Create migration utility
-
-Create `/src/lib/migration/valtown-only-migration.ts`:
-
-```typescript
-import { SavedConnectionItem } from "@/app/(theme)/connect/saved-connection-storage";
-
-export interface MigrationReport {
-  total: number;
-  valtown: number;
-  removed: string[];
-}
-
-/**
- * Migrates saved connections to Val Town only.
- * Removes all non-Val Town connections and returns a report.
- */
-export function migrateToValtownOnly(
-  connections: SavedConnectionItem[]
-): { connections: SavedConnectionItem[]; report: MigrationReport } {
-  const valtownConnections = connections.filter(
-    (conn) => conn.driver === "valtown"
-  );
-
-  const removedConnections = connections
-    .filter((conn) => conn.driver !== "valtown")
-    .map((conn) => `${conn.name} (${conn.driver})`);
-
-  return {
-    connections: valtownConnections,
-    report: {
-      total: connections.length,
-      valtown: valtownConnections.length,
-      removed: removedConnections,
-    },
-  };
-}
-```
-
-#### 2. Create migration UI component
-
-Create `/src/components/migration/valtown-migration-notice.tsx`:
-
-```typescript
-/**
- * Shows a one-time notice about the migration to Val Town only.
- * Displays which connections were removed.
- */
-export function ValtownMigrationNotice({ report }: { report: MigrationReport }) {
-  if (report.removed.length === 0) return null;
-
-  return (
-    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
-      <h3>Database Migration Notice</h3>
-      <p>
-        This app now supports only Val Town SQLite connections.
-        The following connections were removed:
-      </p>
-      <ul>
-        {report.removed.map((conn) => (
-          <li key={conn}>{conn}</li>
-        ))}
-      </ul>
-      <p>
-        You have {report.valtown} Val Town connection(s) remaining.
-      </p>
-    </div>
-  );
-}
-```
-
-#### 3. Run migration on app startup
-
-Update connection loading logic to run migration once:
-
-```typescript
-// In your connection initialization code
-const rawConnections = loadConnectionsFromStorage();
-const { connections, report } = migrateToValtownOnly(rawConnections);
-
-// Save back migrated connections
-saveConnectionsToStorage(connections);
-
-// Show notice if needed (store in localStorage to show once)
-if (!localStorage.getItem("valtown-migration-shown") && report.removed.length > 0) {
-  showMigrationNotice(report);
-  localStorage.setItem("valtown-migration-shown", "true");
-}
-```
-
-### Validation:
-- Test with existing connections of various types
-- Verify Val Town connections are preserved
-- Verify other connections are removed gracefully
-- Check migration notice displays correctly
-
----
-
-## Phase 7: Update Documentation and Branding
+## Phase 5: Update Documentation and Branding
 
 **Duration**: 0.5 day
+
+**Note**: This is a standalone deployment, so no migration handling for existing connections is needed.
 
 ### Documentation Updates:
 
@@ -429,7 +311,7 @@ if (!localStorage.getItem("valtown-migration-shown") && report.removed.length > 
 - Remove references to other databases
 - Simplify "Getting Started" to focus on Val Town
 - Update feature list to reflect Val Town only
-- Add note about previous multi-database support if relevant
+- Emphasize this is purpose-built for Val Town
 
 #### 2. Update main documentation
 
@@ -472,7 +354,7 @@ Remove example configs for other databases.
 
 ---
 
-## Phase 8: Testing and Validation
+## Phase 6: Testing and Validation
 
 **Duration**: 1 day
 
@@ -482,7 +364,6 @@ Remove example configs for other databases.
 - [ ] Val Town driver tests pass
 - [ ] Factory function tests updated
 - [ ] Type tests pass
-- [ ] Migration utility tests
 
 #### Integration Tests:
 - [ ] Create new Val Town connection
@@ -498,7 +379,6 @@ Remove example configs for other databases.
 #### UI Tests:
 - [ ] Connection creation flow
 - [ ] Connection list shows only Val Town
-- [ ] Migration notice displays (if applicable)
 - [ ] Error messages are clear
 - [ ] No references to removed databases in UI
 
@@ -508,12 +388,6 @@ Remove example configs for other databases.
 - [ ] `npm run lint` succeeds
 - [ ] No console errors
 - [ ] Bundle size reduced (check with `npm run build`)
-
-#### Migration Tests:
-- [ ] Test with no existing connections
-- [ ] Test with only Val Town connections
-- [ ] Test with mixed connections (should remove non-Val Town)
-- [ ] Test with many connections (performance)
 
 ### Performance Validation:
 - [ ] App startup time
@@ -556,7 +430,6 @@ Migration is complete when:
 - ✅ All tests pass
 - ✅ Build succeeds with no errors
 - ✅ Documentation is updated
-- ✅ Migration handles existing connections gracefully
 - ✅ Bundle size is reduced
 - ✅ Code is well-documented
 - ✅ Future extensibility is preserved
@@ -605,26 +478,22 @@ After successful migration, consider:
 | Phase | Duration | Cumulative |
 |-------|----------|------------|
 | 1. Audit & Document | 0.5 day | 0.5 day |
-| 2. Remove Drivers | 1 day | 1.5 days |
-| 3. Simplify UI | 1 day | 2.5 days |
-| 4. Update Types | 0.5 day | 3 days |
-| 5. Simplify Architecture | 0.5 day | 3.5 days |
-| 6. Migration Handling | 1 day | 4.5 days |
-| 7. Documentation | 0.5 day | 5 days |
-| 8. Testing | 1 day | **6 days** |
+| 2. Remove Drivers & Update Types | 1.5 days | 2 days |
+| 3. Simplify UI | 1 day | 3 days |
+| 4. Simplify Architecture | 0.5 day | 3.5 days |
+| 5. Documentation | 0.5 day | 4 days |
+| 6. Testing | 1 day | **5 days** |
 
-**Total Estimated Time**: 5-6 days with buffer
+**Total Estimated Time**: 4-5 days with buffer
 
 ---
 
 ## Questions to Answer Before Starting
 
-1. **Branding**: Keep "Outerbase Studio" or rebrand?
-2. **Migration**: Should we notify users about removed database support?
-3. **Backwards Compatibility**: Any old connections we must preserve?
-4. **Feature Parity**: Are there Val Town-specific features we should add?
-5. **Testing**: What's the testing strategy for this migration?
-6. **Release**: Will this be a major version bump (breaking change)?
+1. **Branding**: Keep "Outerbase Studio" or rebrand to "Val Town Studio"?
+2. **Feature Additions**: Are there Val Town-specific features we should add?
+3. **Testing Strategy**: What's the testing approach for this migration?
+4. **Release Strategy**: Version numbering and deployment plan?
 
 ---
 
