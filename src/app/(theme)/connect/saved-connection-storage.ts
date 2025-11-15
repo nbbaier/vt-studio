@@ -1,11 +1,4 @@
-export type SupportedDriver =
-  | "turso"
-  | "rqlite"
-  | "valtown"
-  | "starbase"
-  | "cloudflare-d1"
-  | "cloudflare-wae"
-  | "sqlite-filehandler";
+export type SupportedDriver = "valtown";
 
 export type SavedConnectionStorage = "remote" | "local";
 export type SavedConnectionLabel = "gray" | "red" | "yellow" | "green" | "blue";
