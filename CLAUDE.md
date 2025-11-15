@@ -11,6 +11,7 @@ The codebase is currently in **Phase 2 (90% complete)** of a migration to suppor
 ## Development Commands
 
 ### Core Commands
+
 - `npm run dev` - Start development server on port 3008
 - `npm run build` - Build production bundle
 - `npm run tsc` - Type check without emitting files
@@ -19,12 +20,14 @@ The codebase is currently in **Phase 2 (90% complete)** of a migration to suppor
 - `npm run format` - Check formatting with Prettier
 
 ### Testing
+
 - `npm test` - Run all tests
 - `jest <file-path>` - Run specific test file
 - Test files are located in `src/**/*.test.ts` or `src/**/*.test.tsx`
 - Jest is configured with Next.js integration (see `jest.config.ts`)
 
 ### Type Checking
+
 - Always run `npm run tsc` before committing to verify type correctness
 - The build uses `skipLibCheck` for faster compilation
 
@@ -105,18 +108,21 @@ src/
 ### Key Patterns
 
 #### Studio Component Flow
+
 1. Connection config → `createLocalDriver()` → `SqliteLikeBaseDriver(ValtownQueryable)`
 2. Driver wrapped in Proxy for query pipeline hooks (`studio.tsx:46-80`)
 3. Extensions manager processes queries via `beforeQuery()` pipeline
 4. Results rendered through optimized table component
 
 #### Extension System
+
 - Extensions are created per dialect: `createSQLiteExtensions()`, etc.
 - `StudioExtensionManager` manages lifecycle and hooks
 - Extensions can intercept queries via `BeforeQueryPipeline`
 - Located in `src/extensions/` and registered in `src/core/standard-extension.ts`
 
 #### Type System
+
 - `SupportedDriver` type in `src/app/(theme)/connect/saved-connection-storage.ts` - currently only `"valtown"`
 - `SupportedDialect` in `src/drivers/base-driver.ts` - currently only `"sqlite"`
 - Database operations use `DatabaseResultSet`, `DatabaseTableSchema`, etc.
@@ -131,6 +137,7 @@ This codebase is undergoing migration to Val Town-only support:
 - **Files being removed**: All non-Val Town drivers (Turso, PostgreSQL, MySQL, etc.)
 
 When making changes:
+
 - Do NOT add support for other databases
 - Do NOT reference removed drivers (turso, postgres, mysql, etc.)
 - DO maintain the driver abstraction layer for future extensibility
@@ -139,24 +146,28 @@ When making changes:
 ## Common Tasks
 
 ### Adding a New Feature to the GUI
+
 1. Create component in `src/components/gui/`
 2. If it's a new tab type, extend tab system in `src/components/gui/tabs/`
 3. Register with Studio Core Commands if needed (`src/core/command/`)
 4. Add to appropriate extension in `src/extensions/` or `src/core/standard-extension.ts`
 
 ### Modifying Val Town Driver
+
 1. Edit `src/drivers/database/valtown.ts`
 2. Ensure `ValtownQueryable` implements `QueryableBaseDriver` interface
 3. Transform API responses to `DatabaseResultSet` format
 4. Test with actual Val Town connection
 
 ### Adding SQL Parsing Features
+
 1. SQLite parsing logic is in `src/drivers/sqlite/`
 2. Parser functions: `parseCreateTableScript()`, `parseCreateTriggerScript()`, etc.
 3. Schema generation: `generateSqlSchemaChange()` in `sqlite-generate-schema.ts`
 4. Add tests in `src/drivers/sqlite/*.test.ts`
 
 ### Working with the Query Pipeline
+
 1. Query interception happens in `studio.tsx` via Proxy pattern
 2. Extensions can hook into `beforeQuery()` via `BeforeQueryPipeline`
 3. Pipeline allows statement modification before execution
@@ -170,6 +181,7 @@ When making changes:
 ## Styling Standards
 
 ### Component Libraries
+
 The codebase uses **two component systems** (migration in progress):
 
 1. **Orbit Design System** (`src/components/orbit/`)
@@ -185,12 +197,15 @@ The codebase uses **two component systems** (migration in progress):
    - Used throughout GUI and extensions
 
 **When to use which:**
+
 - **Orbit**: Use for connection flows, settings pages, account management
 - **shadcn/ui**: Use for database GUI, tables, dialogs, and components not in Orbit
 - **Note**: Button, Input, and Label exist in both - check existing patterns in your file
 
 ### Styling Approach
+
 **Primary:** Tailwind CSS 4 utility classes
+
 ```tsx
 // Good - Tailwind utilities
 <div className="flex h-[40px] items-center border-b">
@@ -200,16 +215,20 @@ The codebase uses **two component systems** (migration in progress):
 ```
 
 **When inline styles are acceptable:**
+
 1. Dynamic values from props/state: `style={{ width: columnWidth }}`
 2. CSS properties not in Tailwind: `style={{ contentVisibility: "auto" }}`
 3. Performance-critical styles (table cells)
 
 **CSS Modules:**
+
 - Only use for complex animations or performance-critical rendering
 - Currently used in: `src/components/gui/table-cell/styles.module.css`
 
 ### Orbit Custom Classes
+
 Located in `src/app/globals.css`:
+
 - `.ob-btn` - Base button styles
 - `.ob-focus` - Focus-visible ring (use on all interactive elements)
 - `.ob-disable` - Disabled state styling
@@ -218,7 +237,9 @@ Located in `src/app/globals.css`:
 - `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.btn-destructive` - Button variants
 
 ### Accessibility Requirements
+
 All interactive elements must have:
+
 1. **Keyboard navigation**: Ensure `focus-visible` styles (use `ob-focus` or Tailwind's `focus-visible:`)
 2. **ARIA labels**: `aria-label` for icon-only buttons
 3. **ARIA roles**: `role="tablist"`, `role="tab"`, etc. for custom components
@@ -234,7 +255,7 @@ All interactive elements must have:
 
 ## Testing Strategy
 
-- Unit tests for SQL parsing logic (drivers/sqlite/*.test.ts)
+- Unit tests for SQL parsing logic (drivers/sqlite/\*.test.ts)
 - Component tests use Jest + React Testing Library
 - No E2E tests currently in the codebase
 - Focus testing on driver layer and SQL utilities
