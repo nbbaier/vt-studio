@@ -4,32 +4,52 @@ import {
   DatabaseRow,
   QueryableBaseDriver,
 } from "@/drivers/base-driver";
-import { InStatement, ResultSet } from "@libsql/client";
 import { convertSqliteType } from "@/drivers/sqlite/sql-helper";
+
+// Val Town API types (previously from @libsql/client)
+export type InStatement =
+  | string
+  | {
+      sql: string;
+      args: unknown[];
+    };
+
+export interface ResultSet {
+  columns: string[];
+  columnTypes: string[];
+  rows: unknown[][];
+  rowsAffected: number;
+  lastInsertRowid?: bigint | number;
+  rowsRead?: number;
+  rowsWritten?: number;
+  queryDurationMS?: number;
+}
 
 function transformRawResult(raw: ResultSet): DatabaseResultSet {
   const headerSet = new Set();
 
-  const headers: DatabaseHeader[] = raw.columns.map((colName, colIdx) => {
-    const colType = raw.columnTypes[colIdx];
-    let renameColName = colName;
+  const headers: DatabaseHeader[] = raw.columns.map(
+    (colName: string, colIdx: number) => {
+      const colType = raw.columnTypes[colIdx];
+      let renameColName = colName;
 
-    for (let i = 0; i < 20; i++) {
-      if (!headerSet.has(renameColName)) break;
-      renameColName = `__${colName}_${i}`;
+      for (let i = 0; i < 20; i++) {
+        if (!headerSet.has(renameColName)) break;
+        renameColName = `__${colName}_${i}`;
+      }
+
+      headerSet.add(renameColName);
+
+      return {
+        name: renameColName,
+        displayName: colName,
+        originalType: colType,
+        type: convertSqliteType(colType),
+      };
     }
+  );
 
-    headerSet.add(renameColName);
-
-    return {
-      name: renameColName,
-      displayName: colName,
-      originalType: colType,
-      type: convertSqliteType(colType),
-    };
-  });
-
-  const rows = raw.rows.map((r) =>
+  const rows = raw.rows.map((r: unknown[]) =>
     headers.reduce((a, b, idx) => {
       const cellValue = r[idx];
       if (cellValue instanceof Uint8Array) {

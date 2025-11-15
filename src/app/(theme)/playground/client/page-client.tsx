@@ -229,7 +229,9 @@ export default function PlaygroundEditorBody({
       handler
         .createWritable()
         .then((writable) => {
-          writable.write(nativeDriver.export());
+          const data = nativeDriver.export();
+          // Val Town-only migration: Type cast for browser API compatibility
+          writable.write(data as unknown as FileSystemWriteChunkType);
           writable.close();
           toast.success(
             <div>
@@ -241,8 +243,10 @@ export default function PlaygroundEditorBody({
         .catch(console.error);
     } else {
       // Fallback to file download instead of direct file save.
+      const data = nativeDriver.export();
+      // Val Town-only migration: Type cast for Blob API compatibility
       saveAs(
-        new Blob([nativeDriver.export()], {
+        new Blob([data as unknown as BlobPart], {
           type: "application/x-sqlite3",
         }),
         "sqlite-dump.db"

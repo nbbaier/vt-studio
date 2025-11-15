@@ -1,46 +1,18 @@
 "use server";
 
-import { StarbaseQuery } from "@/drivers/database/starbasedb";
-import { env } from "@/env";
-import { generateId } from "@/lib/generate-id";
-import { escapeSqlValue } from "@outerbase/sdk-transform";
+// Val Town-only migration: StarbaseQuery has been removed
+// This tracking functionality is disabled until a Val Town-compatible solution is implemented
 import { type TrackEventItem } from "../../../lib/tracking";
 
-export async function insertTrackingRecord(
-  deviceId: string,
-  events: TrackEventItem[]
-) {
-  if (!env.DATABASE_ANALYTIC_URL || !env.DATABASE_ANALYTIC_AUTH_TOKEN) {
-    return {
-      success: false,
-      error: "Analytics database is not configured",
-    };
-  }
+// Val Town-only migration: Parameters kept for API compatibility but no longer used
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function insertTrackingRecord(deviceId: string, events: TrackEventItem[]) {
+  // Val Town-only migration: Analytics tracking is disabled
+  // TODO: Implement Val Town-compatible analytics tracking
+  console.warn("Analytics tracking is currently disabled during Val Town migration");
 
-  const trackingDb = new StarbaseQuery(
-    env.DATABASE_ANALYTIC_URL,
-    env.DATABASE_ANALYTIC_AUTH_TOKEN
-  );
-
-  const sql = [
-    "INSERT INTO events(id, created_at, user_id, event_name, event_data) VALUES",
-    events
-      .map(
-        (event) =>
-          "(" +
-          [
-            generateId(),
-            Date.now(),
-            deviceId,
-            event.name,
-            JSON.stringify(event.data),
-          ]
-            .map(escapeSqlValue)
-            .join(", ") +
-          ")"
-      )
-      .join(", "),
-  ].join("");
-
-  await trackingDb.query(sql);
+  return {
+    success: false,
+    error: "Analytics tracking is disabled during Val Town migration",
+  };
 }

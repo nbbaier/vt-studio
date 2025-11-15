@@ -52,9 +52,10 @@ function EditorTheme() {
               )}
             >
               <div className="pointer-events-none">
+                {/* Val Town-only migration: Changed to sqlite dialect */}
                 <SqlEditor
                   highlightVariable
-                  dialect="mysql"
+                  dialect="sqlite"
                   value={statement}
                   readOnly
                 />

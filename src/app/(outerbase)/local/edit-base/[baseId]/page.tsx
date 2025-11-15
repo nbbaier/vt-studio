@@ -44,11 +44,8 @@ export default function LocalEditBasePage() {
     if (Object.keys(errors).length > 0) return;
 
     const tmp = await updateLocalConnection(baseId, template.localTo(value));
-    router.push(
-      tmp?.content.driver === "sqlite-filehandler"
-        ? `/playground/client?s=${tmp?.content.id}`
-        : `/client/s/${tmp?.content.driver ?? "turso"}?p=${baseId}`
-    );
+    // Val Town-only migration: Only Val Town driver is supported
+    router.push(`/client/s/${tmp?.content.driver ?? "valtown"}?p=${baseId}`);
   }, [template, value, router, baseId]);
 
   // Loading the base

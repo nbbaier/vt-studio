@@ -1,3 +1,17 @@
+/**
+ * Base driver abstractions for database operations.
+ *
+ * Currently supports only Val Town SQLite connections, but the architecture
+ * allows for future database additions if needed. This abstraction layer
+ * provides a clean interface for database operations and enables extensibility.
+ *
+ * Key components:
+ * - QueryableBaseDriver: Interface for executing queries and transactions
+ * - BaseDriver: Abstract class with common database operations
+ * - DriverFlags: Feature flags for database capabilities
+ * - SupportedDialect: Currently only "sqlite" (Val Town uses SQLite)
+ */
+
 import { type ColumnHeader, ColumnType } from "@outerbase/sdk-transform";
 
 export type InValue =

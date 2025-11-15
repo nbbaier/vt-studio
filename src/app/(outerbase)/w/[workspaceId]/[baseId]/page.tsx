@@ -3,13 +3,7 @@
 import { Studio } from "@/components/gui/studio";
 import PageLoading from "@/components/page-loading";
 import { StudioExtensionManager } from "@/core/extension-manager";
-import {
-  createMySQLExtensions,
-  createPostgreSQLExtensions,
-  createSQLiteExtensions,
-} from "@/core/standard-extension";
-import MySQLLikeDriver from "@/drivers/mysql/mysql-driver";
-import PostgresLikeDriver from "@/drivers/postgres/postgres-driver";
+import { createSQLiteExtensions } from "@/core/standard-extension";
 import { SqliteLikeBaseDriver } from "@/drivers/sqlite-base-driver";
 import DataCatalogExtension from "@/extensions/data-catalog";
 import OuterbaseExtension from "@/extensions/outerbase";
@@ -62,7 +56,7 @@ export default function OuterbaseSourcePage() {
   const [outerbaseDriver, extensions] = useMemo(() => {
     if (!workspaceId || !credential) return [null, null];
 
-    const dialect = credential.type;
+    // Val Town-only migration: dialect is now always SQLite, no longer used
     const outerbaseConfig = {
       workspaceId,
       sourceId: credential.id,
@@ -75,27 +69,7 @@ export default function OuterbaseSourcePage() {
       new DataCatalogExtension(new DataCatalogOuterbaseDriver(outerbaseConfig)),
     ];
 
-    if (dialect === "postgres") {
-      return [
-        new PostgresLikeDriver(new OuterbaseQueryable(outerbaseConfig)),
-        new StudioExtensionManager([
-          ...createPostgreSQLExtensions(),
-          ...outerbaseSpecifiedDrivers,
-        ]),
-      ];
-    } else if (dialect === "mysql") {
-      return [
-        new MySQLLikeDriver(
-          new OuterbaseQueryable(outerbaseConfig),
-          credential.database
-        ),
-        new StudioExtensionManager([
-          ...createMySQLExtensions(),
-          ...outerbaseSpecifiedDrivers,
-        ]),
-      ];
-    }
-
+    // Val Town-only migration: Only SQLite dialect is supported
     return [
       new SqliteLikeBaseDriver(new OuterbaseQueryable(outerbaseConfig)),
       new StudioExtensionManager([
