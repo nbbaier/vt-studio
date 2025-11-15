@@ -4,51 +4,75 @@ Quick reference for the moderate approach migration.
 
 **Note**: Standalone deployment - no existing connection migration needed.
 
-## Phase 1: Audit & Document ✓
-- [ ] Test current Val Town functionality
-- [ ] Document API endpoints and auth
-- [ ] Create dependency map
+**Last Updated**: Nov 15, 2025
+**Current Status**: Phase 2 (90% complete) - Dependencies cleanup needed
 
-## Phase 2: Remove Drivers & Update Types ✓
-- [ ] Delete 6 SQLite-based drivers (turso, rqlite, cloudflare-d1, starbase, sqljs, cloudflare-wae)
-- [ ] Delete postgres and mysql directories
-- [ ] Delete all connection templates except valtown
-- [ ] Remove from `/src/drivers/helpers.ts`: all driver imports except ValtownQueryable
-- [ ] Simplify `createLocalDriver()` to only support valtown
-- [ ] Remove `@libsql/client` and `libsql-stateless-easy` from package.json
-- [ ] Update `SupportedDriver` to only `"valtown"` in saved-connection-storage.ts
-- [ ] Update `SupportedDialect` to only `"sqlite"` in base-driver.ts
-- [ ] Search and remove references to other drivers in types
+---
+
+## Phase 1: Audit & Document ⚠️
+- [x] Test current Val Town functionality
+- [x] Document API endpoints and auth
+- [x] Create dependency map
+
+## Phase 2: Remove Drivers & Update Types (IN PROGRESS - 90%)
+### Code Cleanup ✅
+- [x] Delete 6 SQLite-based drivers (turso, rqlite, cloudflare-d1, starbase, sqljs, cloudflare-wae)
+- [x] Delete postgres and mysql directories
+- [x] Delete all connection templates except valtown
+- [x] Remove from `/src/drivers/helpers.ts`: all driver imports except ValtownQueryable
+- [x] Simplify `createLocalDriver()` to only support valtown
+- [x] Update `SupportedDriver` to only `"valtown"` in saved-connection-storage.ts
+- [x] Update `SupportedDialect` to only `"sqlite"` in base-driver.ts
+- [x] Search and remove references to other drivers in types
+
+### Dependencies & Build 🔄 **← NEXT STEP**
+- [ ] Remove `@libsql/client` from package.json dependencies
+- [ ] Remove `@libsql/client` from package.json overrides (if present)
+- [ ] Remove `libsql-stateless-easy` from package.json (if present)
 - [ ] Run `npm install`
 - [ ] Run `npm run tsc` to verify
 - [ ] Verify build: `npm run build`
 
-## Phase 3: Simplify UI ✓
-- [ ] Update `/src/app/(outerbase)/new-resource-list.tsx` - return only val.town
-- [ ] Update ConnectionTemplateDictionary - keep only valtown
-- [ ] Remove unused database icons (optional)
-- [ ] Test connection creation flow
+## Phase 3: Simplify UI ✅
+- [x] Update `/src/app/(outerbase)/new-resource-list.tsx` - return only val.town
+- [x] Update ConnectionTemplateDictionary - keep only valtown
+- [x] Fix Val Town href for workspace mode
+- [ ] Remove unused database icons (optional - low priority)
+- [ ] Test connection creation flow (pending Phase 2 completion)
 
-## Phase 4: Simplify Architecture ✓
+## Phase 4: Simplify Architecture 📋
 - [ ] Add documentation comments to base-driver.ts
 - [ ] Add documentation comments to sqlite-base-driver.ts
-- [ ] Keep factory pattern but simplify
+- [x] Keep factory pattern but simplify (already done in helpers.ts)
 - [ ] Review and clean unused DriverFlags options
 
-## Phase 5: Documentation ✓
-- [ ] Update README.md - focus on Val Town
-- [ ] Delete non-Val Town database docs
-- [ ] Update package.json description
+## Phase 5: Documentation 📋
+- [ ] Update README.md - focus on Val Town (currently lists all old databases)
+- [ ] Delete non-Val Town database docs in `/src/app/(public)/docs/`
+- [ ] Update package.json description and keywords
 - [ ] Review all user-facing text
 - [ ] Decide on branding (keep Outerbase or rename)
 - [ ] Emphasize standalone deployment for Val Town
 
-## Phase 6: Testing ✓
+## Phase 6: Testing 📋
 - [ ] All unit tests pass
 - [ ] Integration tests (create connection, query, transactions, etc.)
 - [ ] UI tests (no references to removed DBs)
 - [ ] Build tests (build, tsc, lint all pass)
 - [ ] Performance validation (bundle size reduced)
+
+## Progress Summary
+
+| Phase | Status | Completion |
+|-------|--------|------------|
+| Phase 1: Audit & Document | ⚠️ Informal | ~80% |
+| Phase 2: Remove Drivers & Types | 🔄 In Progress | 90% |
+| Phase 3: Simplify UI | ✅ Complete | 95% |
+| Phase 4: Architecture Docs | 📋 Not Started | 0% |
+| Phase 5: Documentation | 📋 Not Started | 0% |
+| Phase 6: Testing | 📋 Not Started | 0% |
+
+**Overall Progress**: ~45%
 
 ## Final Checklist
 - [ ] All phases complete
@@ -57,6 +81,28 @@ Quick reference for the moderate approach migration.
 - [ ] Bundle size reduced
 - [ ] Committed to feature branch
 - [ ] Ready for deployment
+
+---
+
+## 🎯 Immediate Next Actions
+
+**Priority 1: Complete Phase 2 (Dependencies)**
+1. Remove `@libsql/client` from package.json
+2. Run `npm install`
+3. Verify TypeScript and build
+
+**Priority 2: Phase 4 (Architecture Documentation)**
+4. Add comments to base-driver.ts
+5. Add comments to sqlite-base-driver.ts
+
+**Priority 3: Phase 5 (Update Documentation)**
+6. Update README.md
+7. Update package.json metadata
+8. Remove old database docs
+
+**Priority 4: Phase 6 (Testing)**
+9. Run full test suite
+10. Verify build size reduction
 
 ---
 
