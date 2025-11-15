@@ -1,0 +1,2983 @@
+Val: sqliteExplorerReact by @nbbaier
+
+# Directory Structure
+
+sqliteExplorerReact/
+├── .claude/
+│   └── settings.local.json
+├── .gitignore
+├── .vtignore
+├── AGENTS.md
+├── backend/
+│   └── index.http.ts
+├── biome.json
+├── deno.json
+├── deno.lock
+├── frontend/
+│   ├── App.tsx
+│   ├── components/
+│   │   ├── AppHeader.tsx
+│   │   ├── EditorSection.tsx
+│   │   ├── ErrorBoundary.tsx
+│   │   ├── Icons.tsx
+│   │   ├── PaginationBar.tsx
+│   │   ├── Table.tsx
+│   │   ├── TablesList.tsx
+│   │   └── ThemeToggle.tsx
+│   ├── hooks/
+│   │   ├── useCodeEditor.ts
+│   │   ├── useDownload.ts
+│   │   ├── useQueryExecution.ts
+│   │   └── useTableSelection.ts
+│   ├── index.html
+│   └── main.tsx
+├── MIGRATION_GUIDE.md
+├── README.md
+└── shared/
+    ├── exportHelpers.ts
+    ├── sqlHelpers.ts
+    └── types.ts
+
+
+# Files
+
+--------------------------
+.vtignore
+--------------------------
+.git
+.vscode
+.cursor
+.DS_Store
+node_modules
+vendor
+
+
+--------------------------
+frontend/hooks/useTableSelection.ts
+--------------------------
+import { useEffect } from "https://esm.sh/react@18.2.0";
+import { generateDefaultQuery } from "../../shared/sqlHelpers.ts";
+
+/**
+ * Custom hook for managing table selection and query persistence
+ */
+export function useTableSelection(
+	selectedTable: string | null,
+	onCodeChange: (code: string) => void,
+) {
+	useEffect(() => {
+		if (!selectedTable) return;
+
+		// Try to load saved query from localStorage
+		const savedQuery = localStorage.getItem(`saved-${selectedTable}`);
+
+		if (savedQuery) {
+			onCodeChange(savedQuery);
+		} else {
+			// Generate default SELECT query
+			const defaultQuery = generateDefaultQuery(selectedTable, "table");
+			onCodeChange(defaultQuery);
+		}
+	}, [selectedTable, onCodeChange]);
+
+	// Save query to localStorage when it changes
+	const saveQuery = (tableName: string, query: string) => {
+		if (tableName && query.trim()) {
+			localStorage.setItem(`saved-${tableName}`, query);
+		}
+	};
+
+	return { saveQuery };
+}
+
+
+
+--------------------------
+frontend/hooks/useQueryExecution.ts
+--------------------------
+import { useState } from "https://esm.sh/react@18.2.0";
+import type { QueryResult } from "../../shared/types.ts";
+
+interface UseQueryExecutionResult {
+	result: QueryResult | null;
+	error: string | null;
+	isLoading: boolean;
+	executeQuery: (query: string) => Promise<void>;
+	clearResults: () => void;
+}
+
+/**
+ * Custom hook for executing SQL queries
+ */
+export function useQueryExecution(): UseQueryExecutionResult {
+	const [result, setResult] = useState<QueryResult | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const executeQuery = async (query: string) => {
+		if (!query.trim()) {
+			setError("Query cannot be empty");
+			return;
+		}
+
+		setIsLoading(true);
+		setError(null);
+		setResult(null);
+
+		try {
+			const response = await fetch("/api/query", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ query }),
+			});
+
+			// Handle authentication errors
+			if (response.status === 401) {
+				window.location.href = "/auth/login";
+				return;
+			}
+
+			const data = await response.json();
+
+			if (data.success) {
+				setResult(data.data);
+			} else {
+				setError(data.error || "Query failed");
+			}
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Unknown error occurred");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const clearResults = () => {
+		setResult(null);
+		setError(null);
+	};
+
+	return {
+		result,
+		error,
+		isLoading,
+		executeQuery,
+		clearResults,
+	};
+}
+
+
+
+--------------------------
+frontend/hooks/useDownload.ts
+--------------------------
+import { useCallback } from "https://esm.sh/react@18.2.0";
+import { getErrorMessage } from "../../shared/types.ts";
+
+type DownloadFormat = "csv" | "json";
+
+/**
+ * Custom hook for downloading query results
+ */
+export function useDownload() {
+	const downloadQuery = useCallback(
+		async (query: string, format: DownloadFormat) => {
+			if (!query.trim()) {
+				throw new Error("Cannot download: query is empty");
+			}
+
+			try {
+				const encodedQuery = encodeURIComponent(query);
+				const url = `/api/download/${format}?query=${encodedQuery}`;
+
+				// Trigger download by creating a temporary link
+				const link = document.createElement("a");
+				link.href = url;
+				link.download = `results.${format}`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+			} catch (err) {
+				// Re-throw with a formatted error message
+				throw new Error(
+					`Failed to download ${format}: ${getErrorMessage(err)}`,
+				);
+			}
+		},
+		[],
+	);
+
+	return { downloadQuery };
+}
+
+
+
+--------------------------
+frontend/hooks/useCodeEditor.ts
+--------------------------
+import type { ReactCodeMirrorRef } from "https://esm.sh/@uiw/react-codemirror@4.21.21?deps=react@18.2.0";
+import { useCallback, useRef, useState } from "https://esm.sh/react@18.2.0";
+import { getStatementAtPosition } from "../../shared/sqlHelpers.ts";
+
+interface UseCodeEditorResult {
+	code: string;
+	setCode: (code: string) => void;
+	getActiveStatement: () => string;
+	editorRef: React.MutableRefObject<ReactCodeMirrorRef | null>;
+}
+
+/**
+ * Custom hook for managing code editor state and extracting SQL statements
+ */
+export function useCodeEditor(): UseCodeEditorResult {
+	const [code, setCode] = useState("");
+	const editorRef = useRef<ReactCodeMirrorRef | null>(null);
+
+	/**
+	 * Get the SQL statement at the current cursor position
+	 * Falls back to entire code if cursor position can't be determined
+	 */
+	const getActiveStatement = useCallback((): string => {
+		if (!code.trim()) return "";
+
+		try {
+			// Try to get cursor position from CodeMirror editor
+			const editor = editorRef.current;
+			if (editor?.view?.state) {
+				const cursorPosition = editor.view.state.selection.main.head;
+				const statement = getStatementAtPosition(code, cursorPosition);
+				return statement || code;
+			}
+		} catch (err) {
+			console.error("Error getting cursor position:", err);
+		}
+
+		// Fallback to entire code if cursor position unavailable
+		return code;
+	}, [code]);
+
+	return {
+		code,
+		setCode,
+		getActiveStatement,
+		editorRef,
+	};
+}
+
+
+
+--------------------------
+shared/types.ts
+--------------------------
+// Shared TypeScript types for SQLite Explorer
+
+export type SchemaItemType = "table" | "view";
+
+export interface SchemaItem {
+	name: string;
+	type: SchemaItemType;
+}
+
+// SQL values can be string, number, boolean, null, or Buffer
+export type SQLValue = string | number | boolean | null;
+
+export interface QueryResult {
+	columns: string[];
+	rows: SQLValue[][];
+	rowsAffected?: number;
+}
+
+export interface QueryResponse {
+	success: boolean;
+	data?: QueryResult;
+	error?: string;
+}
+
+export interface SchemaResponse {
+	tables: SchemaItem[];
+	views: SchemaItem[];
+}
+
+export interface ParsedStatement {
+	start: number;
+	end: number;
+	text: string;
+	type: string;
+}
+
+// Error type guard helper
+export function isError(error: unknown): error is Error {
+	return error instanceof Error;
+}
+
+// Safe error message extractor
+export function getErrorMessage(error: unknown): string {
+	if (isError(error)) {
+		return error.message;
+	}
+	if (typeof error === "string") {
+		return error;
+	}
+	return "An unknown error occurred";
+}
+
+
+
+--------------------------
+frontend/components/ThemeToggle.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import { useEffect, useState } from "https://esm.sh/react@18.2.0";
+
+export function ThemeToggle() {
+	const [isDark, setIsDark] = useState(false);
+
+	// Initialize theme from localStorage or system preference
+	useEffect(() => {
+		const stored = localStorage.getItem("theme");
+		const prefersDark = window.matchMedia(
+			"(prefers-color-scheme: dark)",
+		).matches;
+		const shouldBeDark = stored === "dark" || (!stored && prefersDark);
+
+		setIsDark(shouldBeDark);
+		document.documentElement.classList.toggle("dark", shouldBeDark);
+	}, []);
+
+	const toggleTheme = () => {
+		const newIsDark = !isDark;
+		setIsDark(newIsDark);
+		document.documentElement.classList.toggle("dark", newIsDark);
+		localStorage.setItem("theme", newIsDark ? "dark" : "light");
+	};
+
+	return (
+		<button
+			type="button"
+			onClick={toggleTheme}
+			className="p-2 rounded-lg bg-sand-200 dark:bg-slate-800 hover:bg-sand-300 dark:hover:bg-slate-700 transition-colors duration-200"
+			aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+			title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+		>
+			{isDark ? (
+				<svg
+					aria-label="Dark mode"
+					className="w-5 h-5 text-warm-400"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<title>Dark mode</title>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+					/>
+				</svg>
+			) : (
+				<svg
+					aria-label="Light mode"
+					className="w-5 h-5 text-slate-700"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<title>Light mode</title>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+					/>
+				</svg>
+			)}
+		</button>
+	);
+}
+
+
+
+--------------------------
+frontend/components/Table.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import { useMemo } from "https://esm.sh/react@18.2.0";
+import type { SQLValue } from "../../shared/types.ts";
+
+export const PAGE_SIZE = 100;
+
+interface TableProps {
+	headers: string[];
+	rows: SQLValue[][];
+	currentPage: number;
+}
+
+export function Table({ headers, rows, currentPage }: TableProps) {
+	// Calculate pagination
+	const startIndex = (currentPage - 1) * PAGE_SIZE;
+	const endIndex = startIndex + PAGE_SIZE;
+	const paginatedRows = useMemo(
+		() => rows.slice(startIndex, endIndex),
+		[rows, startIndex, endIndex],
+	);
+	const createRows = (rows: SQLValue[][], headers: string[]) => {
+		// Check if all rows are empty
+		if (rows.every((subArray) => subArray.length === 0)) {
+			const emptyRow = headers.map((header, index) => (
+				<td
+					key={index}
+					className="px-4 py-3 text-sm text-sand-500 dark:text-slate-400 italic"
+					aria-label={header}
+				>
+					{header}
+				</td>
+			));
+
+			return <tr className="bg-sand-50 dark:bg-slate-800/50">{emptyRow}</tr>;
+		}
+
+		return rows.map((row, rowIndex) => (
+			<tr
+				key={rowIndex}
+				className="border-b border-sand-200 dark:border-slate-700 hover:bg-sand-50 dark:hover:bg-slate-800/50 transition-colors duration-150"
+			>
+				{row.map((cell, cellIndex) => (
+					<td
+						key={cellIndex}
+						className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 font-mono whitespace-nowrap"
+					>
+						{cell !== null && cell !== undefined ? (
+							String(cell)
+						) : (
+							<span className="text-sand-400 dark:text-slate-500 italic">
+								null
+							</span>
+						)}
+					</td>
+				))}
+			</tr>
+		));
+	};
+
+	const tableRows = createRows(paginatedRows, headers);
+
+	return (
+		<table className="border-collapse w-full">
+			<thead>
+				<tr>
+					{headers.map((header, index) => (
+						<th
+							key={index}
+							className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 border-b border-sand-300 dark:border-slate-700 whitespace-nowrap sticky top-0 bg-sand-100 dark:bg-slate-800"
+						>
+							{header}
+						</th>
+					))}
+				</tr>
+			</thead>
+			<tbody className="bg-white dark:bg-slate-900">{tableRows}</tbody>
+		</table>
+	);
+}
+
+
+
+--------------------------
+frontend/components/TablesList.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import { useState } from "https://esm.sh/react@18.2.0";
+import type { SchemaItem } from "../../shared/types.ts";
+import { SearchSVG, TableSVG, ViewSVG } from "./Icons.tsx";
+
+interface TablesListProps {
+	tables: SchemaItem[];
+	selectedTable: string | null;
+	onTableSelect: (name: string) => void;
+}
+
+export function TablesList({
+	tables,
+	selectedTable,
+	onTableSelect,
+}: TablesListProps) {
+	const [filter, setFilter] = useState("");
+
+	const handleClick = (name: string) => {
+		// Toggle selection: if already selected, deselect it
+		if (selectedTable === name) {
+			onTableSelect("");
+		} else {
+			onTableSelect(name);
+		}
+	};
+
+	// Filter tables based on the filter text
+	const filteredTables = tables.filter((item) =>
+		item.name.toLowerCase().includes(filter.toLowerCase()),
+	);
+
+	return (
+		<div className="flex flex-col h-full">
+			{/* Filter input */}
+			<div className="p-3 border-b border-sand-300 dark:border-slate-700">
+				<div className="relative">
+					<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+						<SearchSVG />
+					</div>
+					<input
+						type="text"
+						value={filter}
+						onChange={(e) => setFilter(e.target.value)}
+						placeholder="Filter tables..."
+						className="w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border border-sand-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-warm-500 dark:focus:ring-warm-600 focus:border-transparent"
+					/>
+				</div>
+				{filter && (
+					<div className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+						{filteredTables.length} of {tables.length} table
+						{tables.length !== 1 ? "s" : ""}
+					</div>
+				)}
+			</div>
+
+			{/* Tables list */}
+			<div className="p-3 space-y-1 overflow-y-auto flex-1">
+				{filteredTables.map((item) => {
+					const isSelected = selectedTable === item.name;
+
+					return (
+						<button
+							type="button"
+							key={item.name}
+							id={item.name}
+							onClick={() => handleClick(item.name)}
+							className={`
+              w-full flex items-center gap-2 px-3 py-1 rounded-lg text-left
+              font-medium text-sm transition-all duration-200
+              ${
+								isSelected
+									? "bg-warm-100 dark:bg-warm-900/30 text-warm-800 dark:text-warm-300 shadow-sm"
+									: "text-slate-700 dark:text-slate-300 hover:bg-sand-200 dark:hover:bg-slate-700"
+							}
+            `}
+						>
+							<span
+								className={
+									isSelected
+										? "text-warm-600 dark:text-warm-400"
+										: "text-slate-500 dark:text-slate-400"
+								}
+							>
+								{item.type === "table" ? <TableSVG /> : <ViewSVG />}
+							</span>
+							<span className="truncate">{item.name}</span>
+						</button>
+					);
+				})}
+			</div>
+		</div>
+	);
+}
+
+
+
+--------------------------
+shared/sqlHelpers.ts
+--------------------------
+import { identify } from "https://esm.sh/sql-query-identifier@2.7.0";
+import type { ParsedStatement } from "./types.ts";
+
+/**
+ * Parse SQL code into individual statements with their positions
+ */
+export function parseSQLStatements(code: string): ParsedStatement[] {
+	return identify(code, {
+		dialect: "sqlite",
+		strict: false,
+	});
+}
+
+/**
+ * Select the SQL statement at a given cursor position
+ */
+export function selectStatementFromPosition(
+	statements: ParsedStatement[],
+	position: number,
+): ParsedStatement | undefined {
+	for (const statement of statements) {
+		if (statement.end + 1 >= position) {
+			return statement;
+		}
+	}
+	return undefined;
+}
+
+/**
+ * Get the SQL statement at the current cursor position
+ * If no statement found, returns empty string
+ */
+export function getStatementAtPosition(
+	code: string,
+	cursorPosition: number,
+): string {
+	const statements = parseSQLStatements(code);
+	const statement = selectStatementFromPosition(statements, cursorPosition);
+	return statement?.text || "";
+}
+
+/**
+ * Generate a default SELECT query for a table or view
+ */
+export function generateDefaultQuery(
+	name: string,
+	_type: "table" | "view",
+): string {
+	return `SELECT * FROM ${name} LIMIT 100;`;
+}
+
+
+
+--------------------------
+.claude/settings.local.json
+--------------------------
+{
+	"permissions": {
+		"allow": [
+			"Bash(cat:*)",
+			"mcp__val-town__get_val_detail",
+			"mcp__val-town__list_files",
+			"Bash(deno check:*)",
+			"Bash(tree:*)",
+			"Bash(find:*)",
+			"Bash(git add:*)",
+			"Bash(git commit -m \"$(cat <<''EOF''\nImplement critical fixes and cleanup legacy code\n\nCritical Improvements:\n- Add React Error Boundary for graceful error handling\n- Implement pagination (100 rows/page) to prevent browser freeze\n- Enable TypeScript strict mode (noImplicitAny, strict, lock)\n- Remove all ''any'' types, add SQLValue type for type safety\n- Add error type guards (isError, getErrorMessage)\n- Remove all production console.log statements\n- Fix Hono context typing with proper UserData types\n\nType Safety Enhancements:\n- Replace any[][] with SQLValue[][] throughout\n- Add type guards for safe error handling\n- Properly type all React hooks and components\n- Add ''override'' modifiers for class methods\n- Zero type errors with strict mode enabled\n\nPerformance & UX:\n- Paginated table with First/Previous/Next/Last controls\n- Shows \"X to Y of Z rows\" indicator\n- Only displays pagination when needed (>100 rows)\n- Better error propagation in download handlers\n\nCode Cleanup:\n- Remove 3 legacy directories (scripts/, sqliteExplorerApp/, sqliteExplorerApp_DEV/)\n- Delete 11 legacy files (HTMX scripts, duplicate CSS, old helpers)\n- Remove .DS_Store files\n- Clean up duplicate export helpers\n\nDocumentation:\n- Add comprehensive README.md with setup, API docs, architecture\n- Include installation, deployment, and troubleshooting guides\n- Document project structure and development workflow\n\nStats: -1046 lines of legacy code, +160 lines of improvements\nType checks: ✓ backend ✓ frontend ✓ shared\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+		],
+		"deny": [],
+		"ask": []
+	}
+}
+
+
+
+--------------------------
+README.md
+--------------------------
+# SQLite Explorer (vReact)
+
+_Look ma, no HTMX!_
+
+A modern, web-based SQLite database browser and query tool built for
+[Val Town](https://val.town). Execute SQL queries, browse database schema, and
+export results with a clean, intuitive interface.
+
+## Features
+
+- 🔍 **Database Schema Browser** - View all tables and views with visual icons
+- ✨ **SQL Code Editor** - Syntax highlighting with CodeMirror
+- ⚡ **Query Execution** - Execute SQL queries with real-time results
+- 📊 **Paginated Results** - Handle large datasets (100 rows per page)
+- 💾 **Export Data** - Download results as CSV or JSON
+- 🎨 **Dark Mode** - Automatic theme switching with warm color palette
+- 💬 **Query Persistence** - Saves queries per table in localStorage
+- ⌨️ **Keyboard Shortcuts** - `Cmd/Ctrl+Enter` to run queries
+- 🔒 **OAuth Authentication** - Secure Val Town authentication
+- 🛡️ **Error Boundaries** - Graceful error handling and recovery
+
+## Tech Stack
+
+### Frontend
+
+- **React 18.2.0** - UI framework
+- **CodeMirror 6** - SQL editor with syntax highlighting
+- **TailwindCSS** - Styling (via Play CDN)
+- **TypeScript** - Type safety with strict mode
+
+### Backend
+
+- **Hono 4** - Lightweight web framework
+- **Turso/libSQL** - SQLite database (via Val Town)
+- **Deno** - Runtime environment
+
+### Tools
+
+- **Biome** - Linting and formatting
+- **TypeScript Strict Mode** - Enhanced type safety
+
+## Project Structure
+
+```
+.
+├── backend/
+│   └── index.http.ts                 # Hono API server / Entry Point
+├── frontend/
+│   ├── components/
+│   │   ├── AppHeader.tsx             # App header with title
+│   │   ├── EditorSection.tsx         # SQL editor with controls
+│   │   ├── ErrorBoundary.tsx         # Error boundary component
+│   │   ├── Icons.tsx                 # Icon components
+│   │   ├── PaginationBar.tsx         # Pagination controls
+│   │   ├── Table.tsx                 # Data table with pagination
+│   │   ├── TablesList.tsx            # Schema sidebar
+│   │   └── ThemeToggle.tsx           # Dark mode toggle
+│   ├── hooks/
+│   │   ├── useCodeEditor.ts          # Editor state management
+│   │   ├── useDownload.ts            # Export functionality
+│   │   ├── useQueryExecution.ts      # Query execution logic
+│   │   └── useTableSelection.ts      # Table selection logic
+│   ├── App.tsx                       # Main React application
+│   ├── index.html                    # HTML entry point
+│   └── main.tsx                      # React entry point
+└── shared/
+    ├── exportHelpers.ts              # CSV/JSON export utilities
+    ├── sqlHelpers.ts                 # SQL parsing utilities
+    └── types.ts                      # Shared TypeScript types
+```
+
+## Usage
+
+### Running Queries
+
+1. **Select a table** from the sidebar to auto-populate the editor with
+   `SELECT * FROM [table]`
+2. **Write or edit your SQL query** in the editor
+3. **Press `Cmd/Ctrl+Enter`** or click the "Run Query" button
+4. **View results** in the paginated table below
+
+### Multi-Statement Queries
+
+The editor supports multiple SQL statements. It will execute the statement at
+your cursor position when you press `Cmd/Ctrl+Enter`.
+
+### Exporting Data
+
+1. **Execute a query** to get results
+2. **Click "Download CSV"** or **"Download JSON"**
+3. File downloads automatically with the results
+
+### Keyboard Shortcuts
+
+- `Cmd/Ctrl+Enter` - Execute query at cursor
+- Click table name - Auto-populate SELECT query
+
+## API Endpoints
+
+### `GET /api/schema`
+
+Returns all tables and views in the database.
+
+**Response:**
+
+```json
+{
+  "tables": [{ "name": "users", "type": "table" }],
+  "views": [{ "name": "active_users", "type": "view" }]
+}
+```
+
+### `POST /api/query`
+
+Executes a SQL query.
+
+**Request:**
+
+```json
+{ "query": "SELECT * FROM users LIMIT 10" }
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "columns": ["id", "name", "email"],
+    "rows": [[1, "Alice", "alice@example.com"]]
+  }
+}
+```
+
+### `GET /api/download/csv?query=<sql>`
+
+Downloads query results as CSV.
+
+### `GET /api/download/json?query=<sql>`
+
+Downloads query results as JSON.
+
+## Limitations
+
+- **Admin tool only** - Not designed for public-facing applications
+- **Single database** - Works with Val Town's SQLite instance
+- **No query history** - Future enhancement planned
+- **100 row pagination** - Configurable in `Table.tsx`
+
+## Migration History
+
+This project was migrated from HTMX to React on November 14, 2024. See
+`MIGRATION_GUIDE.md` for details on the migration process.
+
+
+--------------------------
+frontend/components/PaginationBar.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import type React from "https://esm.sh/react@18.2.0";
+import type { QueryResult } from "../../shared/types.ts";
+import { FirstSVG, LastSVG, NextSVG, PreviousSVG } from "./Icons.tsx";
+import { PAGE_SIZE } from "./Table.tsx";
+
+interface PaginationBarProps {
+	currentPage: number;
+	result: QueryResult;
+	setCurrentPage: (value: React.SetStateAction<number>) => void;
+}
+
+interface PageButtonProps {
+	icon: React.ReactNode;
+	onClick: () => void;
+	disabled: boolean;
+}
+
+const PageButton = ({ icon, onClick, disabled }: PageButtonProps) => (
+	<button
+		type="button"
+		onClick={onClick}
+		disabled={disabled}
+		className="px-2 py-1 text-sm rounded bg-white dark:bg-slate-700 border border-sand-300 dark:border-slate-600 hover:bg-sand-100 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+	>
+		{icon}
+	</button>
+);
+
+export function PaginationBar({
+	currentPage,
+	result,
+	setCurrentPage,
+}: PaginationBarProps) {
+	return (
+		result &&
+		result.rows.length > PAGE_SIZE && (
+			<div className="border-b border-sand-300 dark:border-slate-700 bg-sand-50 dark:bg-slate-800 px-4 py-2 flex items-center justify-between flex-shrink-0">
+				<div className="text-sm text-slate-600 dark:text-slate-400">
+					Showing {(currentPage - 1) * PAGE_SIZE + 1} to{" "}
+					{Math.min(currentPage * PAGE_SIZE, result.rows.length)} of{" "}
+					{result.rows.length} rows
+				</div>
+				<div className="flex gap-2">
+					<PageButton
+						onClick={() => setCurrentPage(1)}
+						disabled={currentPage === 1}
+						icon={<FirstSVG />}
+					/>
+					<PageButton
+						onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+						disabled={currentPage === 1}
+						icon={<PreviousSVG />}
+					/>
+					<span className="px-2 py-1 text-sm text-slate-700 dark:text-slate-300">
+						Page {currentPage} / {Math.ceil(result.rows.length / PAGE_SIZE)}
+					</span>
+					<PageButton
+						onClick={() =>
+							setCurrentPage((p) =>
+								Math.min(Math.ceil(result.rows.length / PAGE_SIZE), p + 1),
+							)
+						}
+						disabled={currentPage === Math.ceil(result.rows.length / PAGE_SIZE)}
+						icon={<NextSVG />}
+					/>
+					<PageButton
+						onClick={() =>
+							setCurrentPage(Math.ceil(result.rows.length / PAGE_SIZE))
+						}
+						disabled={currentPage === Math.ceil(result.rows.length / PAGE_SIZE)}
+						icon={<LastSVG />}
+					/>
+				</div>
+			</div>
+		)
+	);
+}
+
+
+
+--------------------------
+MIGRATION_GUIDE.md
+--------------------------
+# SQLite Explorer - React Migration Guide
+
+## Migration Completed ✅
+
+The SQLite Explorer has been successfully migrated from server-rendered JSX with HTMX to a React SPA with Hono backend, following Val Town best practices.
+
+## New Project Structure
+
+```
+project-sqlite/
+├── backend/
+│   └── index.http.ts          # Main Hono server with API routes
+├── frontend/
+│   ├── components/
+│   │   ├── Icons.tsx          # SVG icon components
+│   │   ├── Table.tsx          # Query results table
+│   │   ├── TablesList.tsx     # Database schema browser
+│   │   ├── EditorSection.tsx  # SQL editor with CodeMirror
+│   │   └── Separator.tsx      # Panel separators
+│   ├── hooks/
+│   │   ├── useCodeEditor.ts   # Editor state & SQL extraction
+│   │   ├── useQueryExecution.ts # Query execution logic
+│   │   ├── useTableSelection.ts # Table selection & persistence
+│   │   └── useDownload.ts     # Download functionality
+│   ├── App.tsx                # Main application component
+│   ├── main.tsx               # React entry point
+│   ├── index.html             # HTML template
+│   ├── reset.css              # CSS reset
+│   └── style.css              # Application styles
+└── shared/
+    ├── types.ts               # Shared TypeScript types
+    ├── sqlHelpers.ts          # SQL parsing utilities
+    └── exportHelpers.ts       # CSV/JSON export functions
+```
+
+## Technology Stack
+
+### Frontend
+
+-  **React 18.2.0** - UI framework
+-  **@uiw/react-codemirror** - SQL code editor
+-  **@codemirror/lang-sql** - SQL syntax highlighting
+-  **TailwindCSS (twind)** - Utility-first CSS via CDN
+-  **Custom CSS** - Layout and component styles
+
+### Backend
+
+-  **Hono 4** - Lightweight web framework
+-  **Val Town SQLite** - Database (Turso/libSQL)
+-  **Val Town utilities** - File serving, auth, iframe handling
+
+### Utilities
+
+-  **sql-query-identifier** - SQL statement parsing
+-  **@json2csv/plainjs** - CSV export
+
+## Key Features
+
+✅ **All original features preserved:**
+
+-  Database schema browser (tables & views)
+-  SQL editor with syntax highlighting
+-  Query execution with results display
+-  CSV and JSON export
+-  Query persistence per table (localStorage)
+-  Keyboard shortcuts (Cmd+Enter to run)
+-  Password authentication
+-  Error handling and display
+
+✅ **Architecture improvements:**
+
+-  React state management (hooks-based)
+-  Clean separation of concerns
+-  Reusable components
+-  TypeScript types for type safety
+-  API-based data fetching
+-  Better code organization
+
+## API Endpoints
+
+The backend exposes the following REST API endpoints:
+
+-  `GET /api/schema` - Returns all tables and views
+-  `POST /api/query` - Executes SQL query, returns results
+-  `GET /api/download/csv?query=...` - Downloads results as CSV
+-  `GET /api/download/json?query=...` - Downloads results as JSON
+-  `GET /` - Serves React application
+-  `GET /frontend/*` - Serves frontend assets
+-  `GET /shared/*` - Serves shared utilities
+
+## How It Works
+
+### Application Flow
+
+1. **Initial Load**
+
+   -  Backend serves `frontend/index.html`
+   -  React app bootstraps via `frontend/main.tsx`
+   -  App component mounts and fetches database schema
+
+2. **Table Selection**
+
+   -  User clicks table/view in sidebar
+   -  `useTableSelection` hook loads saved query from localStorage OR generates default `SELECT * FROM table`
+   -  Editor updates with query
+
+3. **Query Execution**
+
+   -  User edits SQL in CodeMirror editor
+   -  Press Cmd+Enter or click Run button
+   -  `useCodeEditor` extracts statement at cursor position
+   -  `useQueryExecution` sends POST to `/api/query`
+   -  Results displayed in table below editor
+
+4. **Data Export**
+   -  Click Download CSV/JSON button
+   -  `useDownload` hook triggers download from `/api/download/*`
+   -  Browser downloads file
+
+### State Management
+
+The app uses React hooks for state management:
+
+-  **App.tsx** - Global state (schema, selected table)
+-  **useCodeEditor** - Editor content, cursor position, statement extraction
+-  **useQueryExecution** - Query results, errors, loading state
+-  **useTableSelection** - Table selection, localStorage sync
+-  **useDownload** - Download operations
+
+## Testing Checklist
+
+### Core Functionality
+
+-  [ ] Application loads without errors
+-  [ ] Database schema loads and displays in sidebar
+-  [ ] Clicking a table loads default SELECT query
+-  [ ] SQL editor has syntax highlighting
+-  [ ] Code editor accepts text input
+-  [ ] Cmd+Enter executes query
+-  [ ] Run button executes query
+-  [ ] Query results display correctly in table
+-  [ ] SQL errors display in red text
+
+### Features
+
+-  [ ] Download CSV button works
+-  [ ] Download JSON button works
+-  [ ] Buttons are disabled when editor is empty
+-  [ ] Buttons are enabled when editor has content
+-  [ ] Loading indicator shows during query execution
+-  [ ] Saved queries persist in localStorage
+-  [ ] Selecting a table loads saved query (if exists)
+
+### Edge Cases
+
+-  [ ] Empty query handling
+-  [ ] Invalid SQL error messages
+-  [ ] Multi-statement SQL (executes statement at cursor)
+-  [ ] Large result sets display properly
+-  [ ] Views vs tables distinguished by icons
+
+## Deployment
+
+### Val Town Deployment
+
+1. Ensure the project is in the Val Town recommended structure
+2. The main entry point is `backend/index.http.ts`
+3. The file should be set as type "http"
+4. All authentication and iframe handling is already configured
+
+### Local Development
+
+For local development outside Val Town, you'll need to:
+
+1. Replace Val Town-specific imports:
+
+   -  `https://esm.town/v/std/sqlite` → Use better-sqlite3 or Turso client
+   -  `https://esm.town/v/std/utils` → Implement file serving manually
+   -  Remove Val Town auth middleware (or implement custom auth)
+
+2. Set up a dev server with Vite or similar
+
+## Key Differences from Original
+
+### Removed
+
+-  ❌ HTMX (replaced with React state + fetch)
+-  ❌ Hyperscript (replaced with React event handlers)
+-  ❌ code-mirror web component (replaced with @uiw/react-codemirror)
+-  ❌ Server-side JSX rendering (now client-side React)
+
+### Added
+
+-  ✅ React components and hooks
+-  ✅ TypeScript types
+-  ✅ REST API endpoints
+-  ✅ Client-side state management
+-  ✅ Better code organization
+-  ✅ DownloadSVG icon
+
+### Changed
+
+-  🔄 Form submission → API calls via fetch
+-  🔄 Hyperscript click handlers → React onClick
+-  🔄 HTMX target swapping → React state updates
+-  🔄 Server-rendered components → Client-rendered React
+-  🔄 Inline scripts → React hooks
+
+## Known Limitations
+
+-  Panel resizing is visual only (resize functionality not yet implemented)
+   -  Can use `react-resizable-panels` library if needed
+-  Authentication still uses Val Town-specific middleware
+-  File serving uses Val Town utilities
+
+## Future Enhancements
+
+Potential improvements to consider:
+
+-  [ ] Query history panel (show recent queries)
+-  [ ] Saved queries UI (beyond localStorage)
+-  [ ] Query formatting button (using sql-formatter)
+-  [ ] Dark mode support
+-  [ ] Table schema viewer (show column names/types)
+-  [ ] Query execution time display
+-  [ ] Result pagination for large datasets
+-  [ ] Export options (limit rows, custom filename)
+-  [ ] Keyboard shortcut help panel
+-  [ ] Multiple tabs for queries
+
+## Troubleshooting
+
+### Application doesn't load
+
+-  Check browser console for errors
+-  Verify `/frontend/index.html` is being served
+-  Check that all imports resolve correctly
+
+### Query execution fails
+
+-  Check backend console for errors
+-  Verify `/api/query` endpoint is accessible
+-  Check authentication is working
+
+### Editor not working
+
+-  Verify CodeMirror dependencies loaded from esm.sh
+-  Check React version is pinned to 18.2.0
+-  Look for import errors in browser console
+
+### Downloads not working
+
+-  Check `/api/download/*` endpoints
+-  Verify query parameter is being passed
+-  Check browser download settings
+
+## Resources
+
+-  [Val Town Docs](https://docs.val.town)
+-  [React Docs](https://react.dev)
+-  [Hono Docs](https://hono.dev)
+-  [CodeMirror 6 Docs](https://codemirror.net)
+
+---
+
+**Migration completed on:** 2025-11-14
+**Framework:** React 18 + Hono 4
+**Status:** Ready for testing
+
+
+
+--------------------------
+frontend/main.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import React from "https://esm.sh/react@18.2.0";
+import ReactDOM from "https://esm.sh/react-dom@18.2.0/client";
+import { App } from "./App.tsx";
+import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
+
+const root = document.getElementById("root");
+
+if (root) {
+	ReactDOM.createRoot(root).render(
+		<React.StrictMode>
+			<ErrorBoundary>
+				<App />
+			</ErrorBoundary>
+		</React.StrictMode>,
+	);
+} else {
+	// Show error to user
+	document.body.innerHTML =
+		'<div style="padding: 20px; color: red;">Failed to initialize application: Root element not found</div>';
+}
+
+
+
+--------------------------
+backend/index.http.ts
+--------------------------
+import {
+	getOAuthUserData,
+	oauthMiddleware,
+} from "https://esm.town/v/std/oauth/middleware.ts";
+import { sqlite } from "https://esm.town/v/std/sqlite";
+import {
+	readFile,
+	serveFile,
+} from "https://esm.town/v/std/utils@85-main/index.ts";
+import { Hono } from "npm:hono@4";
+import { sqlToCSV, sqlToJSON } from "../shared/exportHelpers.ts";
+import type { QueryResponse, SchemaResponse } from "../shared/types.ts";
+import { getErrorMessage } from "../shared/types.ts";
+
+type UserData = Awaited<ReturnType<typeof getOAuthUserData>>;
+type Variables = { user: UserData };
+
+const app = new Hono<{ Variables: Variables }>();
+
+app.onError((err, _c) => {
+	throw err;
+});
+
+app.get("/frontend/*", (c) => serveFile(c.req.path, import.meta.url));
+app.get("/shared/*", (c) => serveFile(c.req.path, import.meta.url));
+
+app.use("/api/*", async (c, next) => {
+	const user = await getOAuthUserData(c.req.raw);
+	if (!user) return c.json({ error: "Unauthorized. Please log in." }, 401);
+	c.set("user", user);
+	await next();
+});
+
+// API Routes
+
+app.get("/api/schema", async (c) => {
+	try {
+		const data = await sqlite.batch([
+			`SELECT name FROM sqlite_schema WHERE type ='table' AND name NOT LIKE 'sqlite_%';`,
+			`SELECT name FROM sqlite_schema WHERE type ='view' AND name NOT LIKE 'sqlite_%';`,
+		]);
+
+		const tables = data[0].rows.map((row) => ({
+			name: row[0] as string,
+			type: "table" as const,
+		}));
+
+		const views = data[1].rows.map((row) => ({
+			name: row[0] as string,
+			type: "view" as const,
+		}));
+
+		const response: SchemaResponse = { tables, views };
+		return c.json(response);
+	} catch (err) {
+		return c.json({ error: getErrorMessage(err) }, 500);
+	}
+});
+
+app.post("/api/query", async (c) => {
+	try {
+		const body = await c.req.json();
+		const query = body.query as string;
+
+		if (!query || !query.trim()) {
+			return c.json({ success: false, error: "Query is required" }, 400);
+		}
+
+		const result = await sqlite.execute(query);
+
+		const response: QueryResponse = {
+			success: true,
+			data: {
+				columns: result.columns,
+				rows: result.rows,
+			},
+		};
+
+		return c.json(response);
+	} catch (err) {
+		return c.json({
+			success: false,
+			error: getErrorMessage(err),
+		});
+	}
+});
+
+app.get("/api/download/csv", async (c) => {
+	try {
+		const query = c.req.query("query");
+
+		if (!query) {
+			return c.text("Query parameter is required", 400);
+		}
+
+		const result = await sqlite.execute(query);
+		const csv = sqlToCSV({ columns: result.columns, rows: result.rows });
+
+		return new Response(csv, {
+			headers: {
+				"Content-Type": "text/csv",
+				"Content-Disposition": 'attachment; filename="results.csv"',
+			},
+		});
+	} catch (err) {
+		return c.text(`Failed to download CSV: ${getErrorMessage(err)}`, 500);
+	}
+});
+
+app.get("/api/download/json", async (c) => {
+	try {
+		const query = c.req.query("query");
+		if (!query) return c.text("Query parameter is required", 400);
+
+		const result = await sqlite.execute(query);
+		const jsonData = sqlToJSON({
+			columns: result.columns,
+			rows: result.rows,
+		});
+
+		return Response.json(jsonData, {
+			headers: {
+				"Content-Disposition": 'attachment; filename="results.json"',
+			},
+		});
+	} catch (err) {
+		return c.text(`Failed to download JSON: ${getErrorMessage(err)}`, 500);
+	}
+});
+
+app.get("/", async (c) => {
+	try {
+		const html = await readFile("/frontend/index.html", import.meta.url);
+		return c.html(html);
+	} catch (err) {
+		return c.text(`Error loading application: ${getErrorMessage(err)}`, 500);
+	}
+});
+
+export default oauthMiddleware(app.fetch);
+
+
+
+--------------------------
+frontend/index.html
+--------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQLite Explorer</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Warm neutral palette
+            sand: {
+              50: '#fdfcfb',
+              100: '#faf8f5',
+              200: '#f5f1ea',
+              300: '#ede6da',
+              400: '#ddd2bf',
+              500: '#c9b9a0',
+              600: '#b09980',
+              700: '#8f7a62',
+              800: '#6b5d4d',
+              900: '#4a423a',
+            },
+            warm: {
+              50: '#fef9f3',
+              100: '#fdf2e6',
+              200: '#fae0c0',
+              300: '#f5ca99',
+              400: '#eba863',
+              500: '#d88a3f',
+              600: '#b86f2e',
+              700: '#8f5627',
+              800: '#6b4123',
+              900: '#4a2e1a',
+            },
+          },
+          fontFamily: {
+            sans: ['"Source Sans 3"', '"Source Sans Pro"', 'system-ui', 'sans-serif'],
+            mono: ['"Fira Code"', '"M Plus Code Latin"', 'monospace'],
+          },
+        },
+      },
+    }
+  </script>
+
+  <!-- Client-side error catching -->
+  <script src="https://esm.town/v/std/catch"></script>
+</head>
+<body class="bg-sand-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+  <div id="root"></div>
+  <script type="module" src="/frontend/main.tsx"></script>
+</body>
+</html>
+
+
+
+--------------------------
+frontend/components/Icons.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+import {
+	ChevronLeft,
+	ChevronRight,
+	ChevronsLeft,
+	ChevronsRight,
+	Download,
+	Eye,
+	PanelsTopLeft,
+	PanelTop,
+	Play,
+	Search,
+	Table2,
+} from "https://esm.sh/lucide-react@0.479.0?deps=react@18.2.0";
+
+export const FirstSVG = () => <ChevronsLeft className="size-4" />;
+export const LastSVG = () => <ChevronsRight className="size-4" />;
+export const PreviousSVG = () => <ChevronLeft className="size-4" />;
+export const NextSVG = () => <ChevronRight className="size-4" />;
+export const RunSVG = () => <Play className="size-4" />;
+export const TableSVG = () => <Table2 className="size-4" />;
+export const ViewSVG = () => <Eye className="size-4" />;
+export const DownloadSVG = () => <Download className="size-4" />;
+export const SearchSVG = () => <Search className="size-4" />;
+export const SidebarSVG = ({
+	isSidebarOpen,
+	className = "size-4",
+}: {
+	isSidebarOpen: boolean;
+	className: string;
+}) => {
+	return isSidebarOpen ? (
+		<PanelsTopLeft className={className} />
+	) : (
+		<PanelTop className={className} />
+	);
+};
+
+
+
+--------------------------
+.gitignore
+--------------------------
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
+
+
+
+--------------------------
+shared/exportHelpers.ts
+--------------------------
+import { Parser } from "https://esm.sh/@json2csv/plainjs";
+import type { QueryResult, SQLValue } from "./types.ts";
+
+export const sqlToJSON = (result: QueryResult): Record<string, SQLValue>[] => {
+	const { columns, rows } = result;
+
+	return rows.map((row) =>
+		columns.reduce(
+			(obj, col, index) => {
+				obj[col] = row[index];
+				return obj;
+			},
+			{} as Record<string, SQLValue>,
+		),
+	);
+};
+
+export const sqlToCSV = (result: QueryResult): string => {
+	const { columns } = result;
+	const records = sqlToJSON(result);
+	return new Parser({ fields: columns }).parse(records);
+};
+
+
+
+--------------------------
+frontend/components/ErrorBoundary.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import React from "https://esm.sh/react@18.2.0";
+
+interface Props {
+	children: React.ReactNode;
+	fallback?: React.ReactNode;
+}
+
+interface State {
+	hasError: boolean;
+	error: Error | null;
+}
+
+export class ErrorBoundary extends React.Component<Props, State> {
+	constructor(props: Props) {
+		super(props);
+		this.state = { hasError: false, error: null };
+	}
+
+	static getDerivedStateFromError(error: Error): State {
+		return { hasError: true, error };
+	}
+
+	override componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
+		// In production, you could send to error tracking service
+		// For now, errors are just stored in state and displayed
+		void error;
+		void errorInfo;
+	}
+
+	override render() {
+		if (this.state.hasError) {
+			if (this.props.fallback) {
+				return this.props.fallback;
+			}
+
+			return (
+				<div className="flex items-center justify-center min-h-screen bg-stone-50 dark:bg-stone-900">
+					<div className="max-w-md p-8 bg-white dark:bg-stone-800 rounded-lg shadow-lg border border-stone-200 dark:border-stone-700">
+						<h2 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">
+							Something went wrong
+						</h2>
+						<p className="text-stone-700 dark:text-stone-300 mb-4">
+							The application encountered an unexpected error. Please try
+							refreshing the page.
+						</p>
+						{this.state.error && (
+							<details className="mt-4 p-4 bg-stone-100 dark:bg-stone-900 rounded text-sm">
+								<summary className="cursor-pointer font-semibold text-stone-600 dark:text-stone-400 mb-2">
+									Error Details
+								</summary>
+								<pre className="text-red-600 dark:text-red-400 overflow-auto whitespace-pre-wrap">
+									{this.state.error.message}
+									{"\n\n"}
+									{this.state.error.stack}
+								</pre>
+							</details>
+						)}
+						<button
+							type="button"
+							onClick={() => window.location.reload()}
+							className="mt-4 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
+						>
+							Refresh Page
+						</button>
+					</div>
+				</div>
+			);
+		}
+
+		return this.props.children;
+	}
+}
+
+
+
+--------------------------
+frontend/components/EditorSection.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import { sql } from "https://esm.sh/@codemirror/lang-sql@6.5.4";
+import { EditorView } from "https://esm.sh/@codemirror/view@6.22.0";
+import CodeMirror, {
+	type ReactCodeMirrorRef,
+} from "https://esm.sh/@uiw/react-codemirror@4.21.21?deps=react@18.2.0";
+import { useCallback, useEffect, useMemo } from "https://esm.sh/react@18.2.0";
+import { DownloadSVG, RunSVG } from "./Icons.tsx";
+
+interface EditorSectionProps {
+	code: string;
+	onCodeChange: (code: string) => void;
+	onRun: () => void;
+	onDownloadJSON: () => void;
+	onDownloadCSV: () => void;
+	isLoading: boolean;
+	editorRef?: React.MutableRefObject<ReactCodeMirrorRef | null>;
+}
+
+interface ControlButtonProps {
+	icon: React.ReactNode;
+	label: string;
+	onClick: () => void;
+	disabled?: boolean;
+}
+
+const ControlButton = ({
+	icon,
+	label,
+	onClick,
+	disabled,
+}: ControlButtonProps) => (
+	<button
+		type="button"
+		onClick={onClick}
+		disabled={disabled}
+		className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${
+			disabled
+				? "bg-sand-200 dark:bg-slate-700 text-sand-400 dark:text-slate-500 cursor-not-allowed"
+				: "bg-sand-200 dark:bg-slate-700 hover:bg-sand-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 active:scale-95"
+		}`}
+	>
+		{icon}
+		{label}
+	</button>
+);
+
+export function EditorSection({
+	code,
+	onCodeChange,
+	onRun,
+	onDownloadJSON,
+	onDownloadCSV,
+	isLoading,
+	editorRef,
+}: EditorSectionProps) {
+	const handleChange = useCallback(
+		(value: string) => {
+			onCodeChange(value);
+		},
+		[onCodeChange],
+	);
+
+	// Handle Cmd+Enter keyboard shortcut
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+				event.preventDefault();
+				onRun();
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [onRun]);
+
+	// Custom theme matching our warm neutral color scheme
+	const theme = useMemo(() => {
+		const isDark = document.documentElement.classList.contains("dark");
+		return EditorView.theme(
+			{
+				"&": {
+					backgroundColor: isDark ? "#1e293b" : "#ffffff",
+					color: isDark ? "#e2e8f0" : "#334155",
+					height: "100%",
+				},
+				".cm-scroller": {
+					overflow: "auto",
+					height: "100%",
+				},
+				".cm-content": {
+					caretColor: isDark ? "#f5ca99" : "#d88a3f",
+				},
+				".cm-cursor, .cm-dropCursor": {
+					borderLeftColor: isDark ? "#f5ca99" : "#d88a3f",
+				},
+				"&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
+					{
+						backgroundColor: isDark ? "#334155" : "#f5f1ea",
+					},
+				".cm-activeLine": {
+					backgroundColor: isDark ? "#334155" : "#fdfcfb",
+				},
+				".cm-gutters": {
+					backgroundColor: isDark ? "#0f172a" : "#faf8f5",
+					color: isDark ? "#64748b" : "#94a3b8",
+					border: "none",
+					minHeight: "100%",
+				},
+				".cm-activeLineGutter": {
+					backgroundColor: isDark ? "#1e293b" : "#f5f1ea",
+				},
+			},
+			{ dark: isDark },
+		);
+	}, []);
+
+	const isDisabled = !code.trim() || isLoading;
+
+	return (
+		<div className="h-full bg-white dark:bg-slate-800 flex flex-col">
+			<div className="flex-1 pb-4 min-h-0 flex flex-col">
+				<CodeMirror
+					value={code}
+					height="100%"
+					minHeight="200px"
+					extensions={[sql(), theme]}
+					onChange={handleChange}
+					className="border border-sand-300 dark:border-slate-600 rounded-none overflow-hidden font-mono text-sm flex-1"
+					basicSetup={{
+						lineNumbers: true,
+						highlightActiveLineGutter: true,
+						highlightActiveLine: true,
+						foldGutter: true,
+					}}
+					ref={editorRef}
+				/>
+			</div>
+
+			<div className="flex items-center gap-2 px-4 pb-4">
+				<ControlButton
+					icon={<RunSVG />}
+					label="Run"
+					onClick={onRun}
+					disabled={isDisabled}
+				/>
+				<ControlButton
+					icon={<DownloadSVG />}
+					label="JSON"
+					onClick={onDownloadJSON}
+					disabled={isDisabled}
+				/>
+				<ControlButton
+					icon={<DownloadSVG />}
+					label="CSV"
+					onClick={onDownloadCSV}
+					disabled={isDisabled}
+				/>
+
+				{isLoading && (
+					<span className="ml-2 text-sm text-sand-500 dark:text-slate-400 animate-pulse">
+						loading...
+					</span>
+				)}
+			</div>
+		</div>
+	);
+}
+
+
+
+--------------------------
+deno.lock
+--------------------------
+{
+  "version": "5",
+  "specifiers": {
+    "npm:@biomejs/biome@^2.3.5": "2.3.5",
+    "npm:@libsql/client@0.6.0": "0.6.0",
+    "npm:@valtown/sdk@0.37.0": "0.37.0",
+    "npm:@valtown/sdk@1.9.0": "1.9.0",
+    "npm:badge-maker@*": "5.0.2",
+    "npm:hono@*": "4.10.1",
+    "npm:hono@4": "4.10.1",
+    "npm:mime-types@2.1.35": "2.1.35",
+    "npm:preact-render-to-string@*": "6.6.2_preact@10.27.2",
+    "npm:pretty-ms@*": "9.3.0",
+    "npm:zod@*": "4.1.12"
+  },
+  "npm": {
+    "@biomejs/biome@2.3.5": {
+      "integrity": "sha512-HvLhNlIlBIbAV77VysRIBEwp55oM/QAjQEin74QQX9Xb259/XP/D5AGGnZMOyF1el4zcvlNYYR3AyTMUV3ILhg==",
+      "optionalDependencies": [
+        "@biomejs/cli-darwin-arm64",
+        "@biomejs/cli-darwin-x64",
+        "@biomejs/cli-linux-arm64",
+        "@biomejs/cli-linux-arm64-musl",
+        "@biomejs/cli-linux-x64",
+        "@biomejs/cli-linux-x64-musl",
+        "@biomejs/cli-win32-arm64",
+        "@biomejs/cli-win32-x64"
+      ],
+      "bin": true
+    },
+    "@biomejs/cli-darwin-arm64@2.3.5": {
+      "integrity": "sha512-fLdTur8cJU33HxHUUsii3GLx/TR0BsfQx8FkeqIiW33cGMtUD56fAtrh+2Fx1uhiCsVZlFh6iLKUU3pniZREQw==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@biomejs/cli-darwin-x64@2.3.5": {
+      "integrity": "sha512-qpT8XDqeUlzrOW8zb4k3tjhT7rmvVRumhi2657I2aGcY4B+Ft5fNwDdZGACzn8zj7/K1fdWjgwYE3i2mSZ+vOA==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
+    },
+    "@biomejs/cli-linux-arm64-musl@2.3.5": {
+      "integrity": "sha512-eGUG7+hcLgGnMNl1KHVZUYxahYAhC462jF/wQolqu4qso2MSk32Q+QrpN7eN4jAHAg7FUMIo897muIhK4hXhqg==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@biomejs/cli-linux-arm64@2.3.5": {
+      "integrity": "sha512-u/pybjTBPGBHB66ku4pK1gj+Dxgx7/+Z0jAriZISPX1ocTO8aHh8x8e7Kb1rB4Ms0nA/SzjtNOVJ4exVavQBCw==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@biomejs/cli-linux-x64-musl@2.3.5": {
+      "integrity": "sha512-awVuycTPpVTH/+WDVnEEYSf6nbCBHf/4wB3lquwT7puhNg8R4XvonWNZzUsfHZrCkjkLhFH/vCZK5jHatD9FEg==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@biomejs/cli-linux-x64@2.3.5": {
+      "integrity": "sha512-XrIVi9YAW6ye0CGQ+yax0gLfx+BFOtKaNX74n+xHWla6Cl6huUmcKNO7HPx7BiKnJUzrxXY1qYlm7xMvi08X4g==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@biomejs/cli-win32-arm64@2.3.5": {
+      "integrity": "sha512-DlBiMlBZZ9eIq4H7RimDSGsYcOtfOIfZOaI5CqsWiSlbTfqbPVfWtCf92wNzx8GNMbu1s7/g3ZZESr6+GwM/SA==",
+      "os": ["win32"],
+      "cpu": ["arm64"]
+    },
+    "@biomejs/cli-win32-x64@2.3.5": {
+      "integrity": "sha512-nUmR8gb6yvrKhtRgzwo/gDimPwnO5a4sCydf8ZS2kHIJhEmSmk+STsusr1LHTuM//wXppBawvSQi2xFXJCdgKQ==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@libsql/client@0.6.0": {
+      "integrity": "sha512-qhQzTG/y2IEVbL3+9PULDvlQFWJ/RnjFXECr/Nc3nRngGiiMysDaOV5VUzYk7DulUX98EA4wi+z3FspKrUplUA==",
+      "dependencies": [
+        "@libsql/core",
+        "@libsql/hrana-client",
+        "js-base64",
+        "libsql"
+      ]
+    },
+    "@libsql/core@0.6.2": {
+      "integrity": "sha512-c2P4M+4u/4b2L02A0KjggO3UW51rGkhxr/7fzJO0fEAqsqrWGxuNj2YtRkina/oxfYvAof6xjp8RucNoIV/Odw==",
+      "dependencies": [
+        "js-base64"
+      ]
+    },
+    "@libsql/darwin-arm64@0.3.19": {
+      "integrity": "sha512-rmOqsLcDI65zzxlUOoEiPJLhqmbFsZF6p4UJQ2kMqB+Kc0Rt5/A1OAdOZ/Wo8fQfJWjR1IbkbpEINFioyKf+nQ==",
+      "os": ["darwin"],
+      "cpu": ["arm64"]
+    },
+    "@libsql/darwin-x64@0.3.19": {
+      "integrity": "sha512-q9O55B646zU+644SMmOQL3FIfpmEvdWpRpzubwFc2trsa+zoBlSkHuzU9v/C+UNoPHQVRMP7KQctJ455I/h/xw==",
+      "os": ["darwin"],
+      "cpu": ["x64"]
+    },
+    "@libsql/hrana-client@0.6.2": {
+      "integrity": "sha512-MWxgD7mXLNf9FXXiM0bc90wCjZSpErWKr5mGza7ERy2FJNNMXd7JIOv+DepBA1FQTIfI8TFO4/QDYgaQC0goNw==",
+      "dependencies": [
+        "@libsql/isomorphic-fetch",
+        "@libsql/isomorphic-ws",
+        "js-base64",
+        "node-fetch@3.3.2"
+      ]
+    },
+    "@libsql/isomorphic-fetch@0.2.5": {
+      "integrity": "sha512-8s/B2TClEHms2yb+JGpsVRTPBfy1ih/Pq6h6gvyaNcYnMVJvgQRY7wAa8U2nD0dppbCuDU5evTNMEhrQ17ZKKg=="
+    },
+    "@libsql/isomorphic-ws@0.1.5": {
+      "integrity": "sha512-DtLWIH29onUYR00i0GlQ3UdcTRC6EP4u9w/h9LxpUZJWRMARk6dQwZ6Jkd+QdwVpuAOrdxt18v0K2uIYR3fwFg==",
+      "dependencies": [
+        "@types/ws",
+        "ws"
+      ]
+    },
+    "@libsql/linux-arm64-gnu@0.3.19": {
+      "integrity": "sha512-mgeAUU1oqqh57k7I3cQyU6Trpdsdt607eFyEmH5QO7dv303ti+LjUvh1pp21QWV6WX7wZyjeJV1/VzEImB+jRg==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@libsql/linux-arm64-musl@0.3.19": {
+      "integrity": "sha512-VEZtxghyK6zwGzU9PHohvNxthruSxBEnRrX7BSL5jQ62tN4n2JNepJ6SdzXp70pdzTfwroOj/eMwiPt94gkVRg==",
+      "os": ["linux"],
+      "cpu": ["arm64"]
+    },
+    "@libsql/linux-x64-gnu@0.3.19": {
+      "integrity": "sha512-2t/J7LD5w2f63wGihEO+0GxfTyYIyLGEvTFEsMO16XI5o7IS9vcSHrxsvAJs4w2Pf907uDjmc7fUfMg6L82BrQ==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@libsql/linux-x64-musl@0.3.19": {
+      "integrity": "sha512-BLsXyJaL8gZD8+3W2LU08lDEd9MIgGds0yPy5iNPp8tfhXx3pV/Fge2GErN0FC+nzt4DYQtjL+A9GUMglQefXQ==",
+      "os": ["linux"],
+      "cpu": ["x64"]
+    },
+    "@libsql/win32-x64-msvc@0.3.19": {
+      "integrity": "sha512-ay1X9AobE4BpzG0XPw1gplyLZPGHIgJOovvW23gUrukRegiUP62uzhpRbKNogLlUOynyXeq//prHgPXiebUfWg==",
+      "os": ["win32"],
+      "cpu": ["x64"]
+    },
+    "@neon-rs/load@0.0.4": {
+      "integrity": "sha512-kTPhdZyTQxB+2wpiRcFWrDcejc4JI6tkPuS7UZCG4l6Zvc5kU/gGQ/ozvHTh1XR5tS+UlfAfGuPajjzQjCiHCw=="
+    },
+    "@types/node-fetch@2.6.13": {
+      "integrity": "sha512-QGpRVpzSaUs30JBSGPjOg4Uveu384erbHBoT1zeONvyCfwQxIkUshLAOqN/k9EjGviPRmWTTe6aH2qySWKTVSw==",
+      "dependencies": [
+        "@types/node@24.2.0",
+        "form-data"
+      ]
+    },
+    "@types/node@18.19.129": {
+      "integrity": "sha512-hrmi5jWt2w60ayox3iIXwpMEnfUvOLJCRtrOPbHtH15nTjvO7uhnelvrdAs0dO0/zl5DZ3ZbahiaXEVb54ca/A==",
+      "dependencies": [
+        "undici-types@5.26.5"
+      ]
+    },
+    "@types/node@24.2.0": {
+      "integrity": "sha512-3xyG3pMCq3oYCNg7/ZP+E1ooTaGB4cG8JWRsqqOYQdbWNY4zbaV0Ennrd7stjiJEFZCaybcIgpTjJWHRfBSIDw==",
+      "dependencies": [
+        "undici-types@7.10.0"
+      ]
+    },
+    "@types/ws@8.18.1": {
+      "integrity": "sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==",
+      "dependencies": [
+        "@types/node@24.2.0"
+      ]
+    },
+    "@valtown/sdk@0.37.0": {
+      "integrity": "sha512-8YnynWRljje10MDRGJdftC5qU5FguFLYLDIauEjDUb5IlZbVevMdiunJpK7i37jDBm/QljCmIjPdPUpDE89snw==",
+      "dependencies": [
+        "@types/node@18.19.129",
+        "@types/node-fetch",
+        "abort-controller",
+        "agentkeepalive",
+        "form-data-encoder",
+        "formdata-node",
+        "node-fetch@2.7.0"
+      ]
+    },
+    "@valtown/sdk@1.9.0": {
+      "integrity": "sha512-xV8B02a+IJZYkxMk7CVS5hcNjyJ2XhZvJ3iXxqaILVbNsaq9BCAzSvYS+GteaFxG0OO9YiWSSNh68047o+Rk+g==",
+      "dependencies": [
+        "@types/node@18.19.129",
+        "@types/node-fetch",
+        "abort-controller",
+        "agentkeepalive",
+        "form-data-encoder",
+        "formdata-node",
+        "node-fetch@2.7.0"
+      ]
+    },
+    "abort-controller@3.0.0": {
+      "integrity": "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==",
+      "dependencies": [
+        "event-target-shim"
+      ]
+    },
+    "agentkeepalive@4.6.0": {
+      "integrity": "sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==",
+      "dependencies": [
+        "humanize-ms"
+      ]
+    },
+    "anafanafo@2.0.0": {
+      "integrity": "sha512-Nlfq7NC4AOkTJerWRIZcOAiMNtIDVIGWGvQ98O7Jl6Kr2Dk0dX5u4MqN778kSRTy5KRqchpLdF2RtLFEz9FVkQ==",
+      "dependencies": [
+        "char-width-table-consumer"
+      ]
+    },
+    "asynckit@0.4.0": {
+      "integrity": "sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q=="
+    },
+    "badge-maker@5.0.2": {
+      "integrity": "sha512-Xd3YUmKPEShQcn6PFB03Wxq0RNJRFwVVroyRz0qIjSXwniYUGsGWNHqtNsQYi/Sbs8Ni7qAEf7LKgDOtcAoCDg==",
+      "dependencies": [
+        "anafanafo",
+        "css-color-converter"
+      ],
+      "bin": true
+    },
+    "binary-search@1.3.6": {
+      "integrity": "sha512-nbE1WxOTTrUWIfsfZ4aHGYu5DOuNkbxGokjV6Z2kxfJK3uaAb8zNK1muzOeipoLHZjInT4Br88BHpzevc681xA=="
+    },
+    "call-bind-apply-helpers@1.0.2": {
+      "integrity": "sha512-Sp1ablJ0ivDkSzjcaJdxEunN5/XvksFJ2sMBFfq6x0ryhQV/2b/KwFe21cMpmHtPOSij8K99/wSfoEuTObmuMQ==",
+      "dependencies": [
+        "es-errors",
+        "function-bind"
+      ]
+    },
+    "char-width-table-consumer@1.0.0": {
+      "integrity": "sha512-Fz4UD0LBpxPgL9i29CJ5O4KANwaMnX/OhhbxzvNa332h+9+nRKyeuLw4wA51lt/ex67+/AdsoBQJF3kgX2feYQ==",
+      "dependencies": [
+        "binary-search"
+      ]
+    },
+    "color-convert@0.5.3": {
+      "integrity": "sha512-RwBeO/B/vZR3dfKL1ye/vx8MHZ40ugzpyfeVG5GsiuGnrlMWe2o8wxBbLCpw9CsxV+wHuzYlCiWnybrIA0ling=="
+    },
+    "color-name@1.1.4": {
+      "integrity": "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA=="
+    },
+    "combined-stream@1.0.8": {
+      "integrity": "sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==",
+      "dependencies": [
+        "delayed-stream"
+      ]
+    },
+    "css-color-converter@2.0.0": {
+      "integrity": "sha512-oLIG2soZz3wcC3aAl/7Us5RS8Hvvc6I8G8LniF/qfMmrm7fIKQ8RIDDRZeKyGL2SrWfNqYspuLShbnjBMVWm8g==",
+      "dependencies": [
+        "color-convert",
+        "color-name",
+        "css-unit-converter"
+      ]
+    },
+    "css-unit-converter@1.1.2": {
+      "integrity": "sha512-IiJwMC8rdZE0+xiEZHeru6YoONC4rfPMqGm2W85jMIbkFvv5nFTwJVFHam2eFrN6txmoUYFAFXiv8ICVeTO0MA=="
+    },
+    "data-uri-to-buffer@4.0.1": {
+      "integrity": "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A=="
+    },
+    "delayed-stream@1.0.0": {
+      "integrity": "sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ=="
+    },
+    "detect-libc@2.0.2": {
+      "integrity": "sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw=="
+    },
+    "dunder-proto@1.0.1": {
+      "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
+      "dependencies": [
+        "call-bind-apply-helpers",
+        "es-errors",
+        "gopd"
+      ]
+    },
+    "es-define-property@1.0.1": {
+      "integrity": "sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g=="
+    },
+    "es-errors@1.3.0": {
+      "integrity": "sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw=="
+    },
+    "es-object-atoms@1.1.1": {
+      "integrity": "sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==",
+      "dependencies": [
+        "es-errors"
+      ]
+    },
+    "es-set-tostringtag@2.1.0": {
+      "integrity": "sha512-j6vWzfrGVfyXxge+O0x5sh6cvxAog0a/4Rdd2K36zCMV5eJ+/+tOAngRO8cODMNWbVRdVlmGZQL2YS3yR8bIUA==",
+      "dependencies": [
+        "es-errors",
+        "get-intrinsic",
+        "has-tostringtag",
+        "hasown"
+      ]
+    },
+    "event-target-shim@5.0.1": {
+      "integrity": "sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ=="
+    },
+    "fetch-blob@3.2.0": {
+      "integrity": "sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==",
+      "dependencies": [
+        "node-domexception",
+        "web-streams-polyfill@3.3.3"
+      ]
+    },
+    "form-data-encoder@1.7.2": {
+      "integrity": "sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A=="
+    },
+    "form-data@4.0.4": {
+      "integrity": "sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==",
+      "dependencies": [
+        "asynckit",
+        "combined-stream",
+        "es-set-tostringtag",
+        "hasown",
+        "mime-types"
+      ]
+    },
+    "formdata-node@4.4.1": {
+      "integrity": "sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==",
+      "dependencies": [
+        "node-domexception",
+        "web-streams-polyfill@4.0.0-beta.3"
+      ]
+    },
+    "formdata-polyfill@4.0.10": {
+      "integrity": "sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==",
+      "dependencies": [
+        "fetch-blob"
+      ]
+    },
+    "function-bind@1.1.2": {
+      "integrity": "sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA=="
+    },
+    "get-intrinsic@1.3.0": {
+      "integrity": "sha512-9fSjSaos/fRIVIp+xSJlE6lfwhES7LNtKaCBIamHsjr2na1BiABJPo0mOjjz8GJDURarmCPGqaiVg5mfjb98CQ==",
+      "dependencies": [
+        "call-bind-apply-helpers",
+        "es-define-property",
+        "es-errors",
+        "es-object-atoms",
+        "function-bind",
+        "get-proto",
+        "gopd",
+        "has-symbols",
+        "hasown",
+        "math-intrinsics"
+      ]
+    },
+    "get-proto@1.0.1": {
+      "integrity": "sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==",
+      "dependencies": [
+        "dunder-proto",
+        "es-object-atoms"
+      ]
+    },
+    "gopd@1.2.0": {
+      "integrity": "sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg=="
+    },
+    "has-symbols@1.1.0": {
+      "integrity": "sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ=="
+    },
+    "has-tostringtag@1.0.2": {
+      "integrity": "sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==",
+      "dependencies": [
+        "has-symbols"
+      ]
+    },
+    "hasown@2.0.2": {
+      "integrity": "sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==",
+      "dependencies": [
+        "function-bind"
+      ]
+    },
+    "hono@4.10.1": {
+      "integrity": "sha512-rpGNOfacO4WEPClfkEt1yfl8cbu10uB1lNpiI33AKoiAHwOS8lV748JiLx4b5ozO/u4qLjIvfpFsPXdY5Qjkmg=="
+    },
+    "humanize-ms@1.2.1": {
+      "integrity": "sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==",
+      "dependencies": [
+        "ms"
+      ]
+    },
+    "js-base64@3.7.8": {
+      "integrity": "sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow=="
+    },
+    "libsql@0.3.19": {
+      "integrity": "sha512-Aj5cQ5uk/6fHdmeW0TiXK42FqUlwx7ytmMLPSaUQPin5HKKKuUPD62MAbN4OEweGBBI7q1BekoEN4gPUEL6MZA==",
+      "dependencies": [
+        "@neon-rs/load",
+        "detect-libc"
+      ],
+      "optionalDependencies": [
+        "@libsql/darwin-arm64",
+        "@libsql/darwin-x64",
+        "@libsql/linux-arm64-gnu",
+        "@libsql/linux-arm64-musl",
+        "@libsql/linux-x64-gnu",
+        "@libsql/linux-x64-musl",
+        "@libsql/win32-x64-msvc"
+      ],
+      "os": ["darwin", "linux", "win32"],
+      "cpu": ["x64", "arm64", "wasm32"]
+    },
+    "math-intrinsics@1.1.0": {
+      "integrity": "sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g=="
+    },
+    "mime-db@1.52.0": {
+      "integrity": "sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg=="
+    },
+    "mime-types@2.1.35": {
+      "integrity": "sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==",
+      "dependencies": [
+        "mime-db"
+      ]
+    },
+    "ms@2.1.3": {
+      "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="
+    },
+    "node-domexception@1.0.0": {
+      "integrity": "sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==",
+      "deprecated": true
+    },
+    "node-fetch@2.7.0": {
+      "integrity": "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==",
+      "dependencies": [
+        "whatwg-url"
+      ]
+    },
+    "node-fetch@3.3.2": {
+      "integrity": "sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==",
+      "dependencies": [
+        "data-uri-to-buffer",
+        "fetch-blob",
+        "formdata-polyfill"
+      ]
+    },
+    "parse-ms@4.0.0": {
+      "integrity": "sha512-TXfryirbmq34y8QBwgqCVLi+8oA3oWx2eAnSn62ITyEhEYaWRlVZ2DvMM9eZbMs/RfxPu/PK/aBLyGj4IrqMHw=="
+    },
+    "preact-render-to-string@6.6.2_preact@10.27.2": {
+      "integrity": "sha512-VJ++Pkzv6+ZOmeN/9Qvx0mRdXqnei1Lo3uu9bGvYHhoMI1VUkDT44hcpGbiokl/kuuYTayYa3yvmYTLZMplfMA==",
+      "dependencies": [
+        "preact"
+      ]
+    },
+    "preact@10.27.2": {
+      "integrity": "sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg=="
+    },
+    "pretty-ms@9.3.0": {
+      "integrity": "sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ==",
+      "dependencies": [
+        "parse-ms"
+      ]
+    },
+    "tr46@0.0.3": {
+      "integrity": "sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw=="
+    },
+    "undici-types@5.26.5": {
+      "integrity": "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
+    },
+    "undici-types@7.10.0": {
+      "integrity": "sha512-t5Fy/nfn+14LuOc2KNYg75vZqClpAiqscVvMygNnlsHBFpSXdJaYtXMcdNLpl/Qvc3P2cB3s6lOV51nqsFq4ag=="
+    },
+    "web-streams-polyfill@3.3.3": {
+      "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw=="
+    },
+    "web-streams-polyfill@4.0.0-beta.3": {
+      "integrity": "sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug=="
+    },
+    "webidl-conversions@3.0.1": {
+      "integrity": "sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ=="
+    },
+    "whatwg-url@5.0.0": {
+      "integrity": "sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==",
+      "dependencies": [
+        "tr46",
+        "webidl-conversions"
+      ]
+    },
+    "ws@8.18.3": {
+      "integrity": "sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg=="
+    },
+    "zod@4.1.12": {
+      "integrity": "sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ=="
+    }
+  },
+  "redirects": {
+    "https://esm.sh/@json2csv/plainjs": "https://esm.sh/@json2csv/plainjs@7.0.6",
+    "https://esm.sh/@types/react-dom@~18.2.25/client.d.ts": "https://esm.sh/@types/react-dom@18.2.25/client.d.ts",
+    "https://esm.sh/@types/react@~18.2.79/index.d.ts": "https://esm.sh/@types/react@18.2.79/index.d.ts",
+    "https://esm.sh/@types/react@~18.2.79/jsx-runtime.d.ts": "https://esm.sh/@types/react@18.2.79/jsx-runtime.d.ts",
+    "https://esm.sh/preact/jsx-runtime": "https://esm.sh/preact@10.27.2/jsx-runtime",
+    "https://esm.town/v/std/API_URL": "https://esm.town/v/std/API_URL?v=5",
+    "https://esm.town/v/std/ValTownBlobError": "https://esm.town/v/std/ValTownBlobError?v=2",
+    "https://esm.town/v/std/ValTownBlobNotFoundError": "https://esm.town/v/std/ValTownBlobNotFoundError?v=2",
+    "https://esm.town/v/std/blob": "https://esm.town/v/std/blob?v=13",
+    "https://esm.town/v/std/oauth/middleware.ts": "https://esm.town/v/std/oauth@172-main/middleware.ts",
+    "https://esm.town/v/std/sqlite": "https://esm.town/v/std/sqlite?v=6",
+    "https://esm.town/v/std/utils/index.ts": "https://esm.town/v/std/utils@196-main/index.ts"
+  },
+  "remote": {
+    "https://esm.sh/@codemirror/lang-sql@6.5.4": "cab7d12aa08cd1c22ddc983d90e174229d36e62e57fdb441969b4ed66937dc94",
+    "https://esm.sh/@codemirror/view@6.22.0": "564be27874b7c2b0a9b8834947f1b52b2bac0c23410136828adf8dcdb72f6b5e",
+    "https://esm.sh/@json2csv/plainjs@7.0.6": "acc8af37aa8824688f818dbaae3d52730dc6c3582db6f0c93cd926448fb3caf7",
+    "https://esm.sh/@uiw/react-codemirror@4.21.21?deps=react@18.2.0": "fa3bab229b11b67368ce613534db502ccb58131f1831ab7ee04d67b4512e35eb",
+    "https://esm.sh/lucide-react@0.479.0/X-ZHJlYWN0QDE4LjIuMA/denonext/lucide-react.mjs": "7649775980650efc330224ae77e399916d407ae5f30204ee891ab1e316dd3a40",
+    "https://esm.sh/lucide-react@0.479.0?deps=react@18.2.0": "a511cd32ce85e45105715be8e428e64462d2adf5d2d9b53d8ce305453053d540",
+    "https://esm.sh/preact@10.27.2/jsx-runtime": "47eea90062ca8af935c0018026958ab025fea5ef1307ee07f73eff4386200167",
+    "https://esm.sh/react-dom@18.2.0/client": "f43f7bb47905958ce487302ca818ba5a845a6029daa7ea22ef097a575b72045b",
+    "https://esm.sh/react@18.2.0": "fed8aeb7d240bb42a2167c9c7c6e842e128c7630cbcb08c4d61c9c1926f89c75",
+    "https://esm.sh/react@18.2.0/denonext/react.mjs": "a986c2876dc2f73879f395e677dc34cb751f260e69db16364810655f884df173",
+    "https://esm.sh/react@18.2.0/jsx-runtime": "0bb3cca902d25a6827ac8153c8038b637e21bd20180bd58e827515d67de80582",
+    "https://esm.sh/sql-query-identifier@2.7.0": "ed78d3f99b7714eea7febca3e9102ea7d76fcef36ba4cdd4de346483f3f867fd",
+    "https://esm.town/v/std/API_URL?v=5": "46109f905a50e32281d3ffbe7b9c8209a778290c5274d83d131fba2d26c4974d",
+    "https://esm.town/v/std/ValTownBlobError?v=2": "5f078bdb92be6111fc3e039a223d2e7c606eec737fb5ba664dc9d9931edfc04e",
+    "https://esm.town/v/std/ValTownBlobNotFoundError?v=2": "0f4f41f3504a33fca793e83a73f2d12de8ca5acbcc397ad8e29510d32527a6ac",
+    "https://esm.town/v/std/blob?v=13": "1ddf1e6a329b18d2109333ad589ebbeef86aa6957e51bf12df48f51180067bfd",
+    "https://esm.town/v/std/oauth@172-main/crypto.ts": "97c603adf621881d00a55cf86d743b36c5913ae3b93584d41fecca1b4cee682e",
+    "https://esm.town/v/std/oauth@172-main/middleware.ts": "936fccebd8e8cb6531c80ea609bab5a1d1ffc75f90ff28122371c74a5e9df6a3",
+    "https://esm.town/v/std/oauth@172-main/oauth.ts": "f12ebe685d79eb2afba366121c7b529e0203e67ab4920809684cca1ade192b7b",
+    "https://esm.town/v/std/oauth@172-main/session.ts": "89c0363087649d9586c0c59ce7d7c6b572f94663722aa4353f3a8b54a5b48f77",
+    "https://esm.town/v/std/sqlite?v=6": "9b20a6ae261b6e3e15bd50cc5268bb4f0713f86f5ae4a525c97982c2162e1519",
+    "https://esm.town/v/std/utils@105-main/parseImportMeta/project.ts": "1ebbe08847a68e921c988511b0ad1d0f18ead83d9b755503e6b4787d443bb2db",
+    "https://esm.town/v/std/utils@196-main/file.ts": "ae1bba38dc3dd1111ac81bdad8a8d6672be2ee0a561991ec5927880ecfae31b1",
+    "https://esm.town/v/std/utils@196-main/index.ts": "333d7454f47cc0dfa6996fd41c12076d3c604871c3c519b308947f3d619de1a5",
+    "https://esm.town/v/std/utils@196-main/is-main.ts": "602b3f833e2a2d08f301b52dced89943f45ff422d5e904cd3608fa15f96a2fd8",
+    "https://esm.town/v/std/utils@196-main/parseImportMeta.ts": "55f0e3e896ca0d950bc6ee27f8208b6c066707f6e030ec22ea360f12aa30fdac",
+    "https://esm.town/v/std/utils@196-main/serve-file.ts": "cd7fd9b0c418b8a89ec2b0ac0fb0eb782321de2b13895c3825725b7b826b171a",
+    "https://esm.town/v/std/utils@196-main/static.tsx": "274bec2ed7492b8bcfc5784f6b765550b7454517d6e20a55dce8dbfe5e53e376",
+    "https://esm.town/v/std/utils@196-main/test.tsx": "996acd34c6b6b273043cbcb4822ac3a47d0650c78b22a25c3349a309cd94a79d",
+    "https://esm.town/v/std/utils@85-main/file/index.ts": "f7b4d1f95fb1ef1cbcb3bc0d2fe83194f18403c7d35115a9f066cba4ef6b84d0",
+    "https://esm.town/v/std/utils@85-main/index.ts": "3d060a58ccd352517da960077ffd78b80c1051ca2117cb37adbff0365cb45efb",
+    "https://esm.town/v/std/utils@85-main/parseImportMeta/project.ts": "1a47e75e21faf22b38fb07e6ead284b6a381a48970a39490e585507a8bb47bbf",
+    "https://esm.town/v/std/utils@85-main/serve-file/index.ts": "1386c1fe12e8e9a41e3561b0a1e55f332bc559fe98fa81f99434b4f642275cd4",
+    "https://esm.town/v/std/utils@85-main/test/index.tsx": "41fc8ccb29945e8cf65263dc61a6840decf9f62fb035be8d0651267ac84b573d"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:@biomejs/biome@^2.3.5"
+    ]
+  }
+}
+
+
+
+--------------------------
+deno.json
+--------------------------
+{
+	"$schema": "https://raw.githubusercontent.com/denoland/deno/348900b8b79f4a434cab4c74b3bc8d4d2fa8ee74/cli/schemas/config-file.v1.json",
+	"compilerOptions": {
+		"lib": [
+			"dom",
+			"dom.iterable",
+			"dom.asynciterable",
+			"deno.ns",
+			"deno.unstable"
+		],
+		"noImplicitAny": true,
+		"strict": true,
+		"types": ["https://www.val.town/types/valtown.d.ts"]
+	},
+	"experimental": {
+		"unstable-node-globals": true,
+		"unstable-sloppy-imports": true,
+		"unstable-temporal": true,
+		"unstable-worker-options": true
+	},
+	"imports": {
+		"@biomejs/biome": "npm:@biomejs/biome@^2.3.5"
+	},
+	"lint": {
+		"files": {
+			"include": ["deno:/https/esm.town/**/*"]
+		},
+		"rules": {
+			"exclude": ["no-explicit-any", "no-import-prefix"]
+		}
+	},
+	"lock": true,
+	"nodeModulesDir": "auto"
+}
+
+
+
+--------------------------
+biome.json
+--------------------------
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.5/schema.json",
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": { "ignoreUnknown": false },
+	"formatter": { "enabled": true, "indentStyle": "tab" },
+	"linter": { "enabled": true, "rules": { "recommended": true } },
+	"javascript": { "formatter": { "quoteStyle": "double" } },
+	"assist": {
+		"enabled": true,
+		"actions": { "source": { "organizeImports": "on" } }
+	}
+}
+
+
+
+--------------------------
+frontend/App.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import { useEffect, useState } from "https://esm.sh/react@18.2.0";
+import type { QueryResult, SchemaItem } from "../shared/types.ts";
+import { AppHeader } from "./components/AppHeader.tsx";
+import { EditorSection } from "./components/EditorSection.tsx";
+import { PaginationBar } from "./components/PaginationBar.tsx";
+import { Table } from "./components/Table.tsx";
+import { TablesList } from "./components/TablesList.tsx";
+import { useCodeEditor } from "./hooks/useCodeEditor.ts";
+import { useDownload } from "./hooks/useDownload.ts";
+import { useQueryExecution } from "./hooks/useQueryExecution.ts";
+import { useTableSelection } from "./hooks/useTableSelection.ts";
+
+export function App() {
+	const [tables, setTables] = useState<SchemaItem[]>([]);
+	const [selectedTable, setSelectedTable] = useState<string | null>(null);
+	const [isLoadingSchema, setIsLoadingSchema] = useState(true);
+	const [isAuthenticated, setIsAuthenticated] = useState(true);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+	const [currentPage, setCurrentPage] = useState(1);
+
+	const { code, setCode, getActiveStatement, editorRef } = useCodeEditor();
+	const { result, error, isLoading, executeQuery } = useQueryExecution();
+	const { saveQuery } = useTableSelection(selectedTable, setCode);
+	const { downloadQuery } = useDownload();
+
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [result]);
+
+	useEffect(() => {
+		const loadSchema = async () => {
+			try {
+				const response = await fetch("/api/schema");
+				if (response.status === 401) {
+					setIsAuthenticated(false);
+					return;
+				}
+				const data = await response.json();
+				const allItems = [...data.tables, ...data.views];
+				setTables(allItems);
+				setIsAuthenticated(true);
+			} catch (_err) {
+				setTables([]);
+			} finally {
+				setIsLoadingSchema(false);
+			}
+		};
+
+		loadSchema();
+	}, []);
+
+	useEffect(() => {
+		const handleResize = () => {
+			if (window.innerWidth < 1024) {
+				setIsSidebarOpen(false);
+			} else {
+				setIsSidebarOpen(true);
+			}
+		};
+		handleResize();
+		window.addEventListener("resize", handleResize);
+		return () => window.removeEventListener("resize", handleResize);
+	}, []);
+
+	const handleRun = () => {
+		const statement = getActiveStatement();
+		if (statement) {
+			executeQuery(statement);
+			if (selectedTable) {
+				saveQuery(selectedTable, statement);
+			}
+		}
+	};
+
+	const handleDownloadJSON = async () => {
+		const statement = getActiveStatement();
+		if (statement) {
+			await downloadQuery(statement, "json");
+		}
+	};
+
+	const handleDownloadCSV = async () => {
+		const statement = getActiveStatement();
+		if (statement) {
+			await downloadQuery(statement, "csv");
+		}
+	};
+
+	if (!isAuthenticated) {
+		return (
+			<div className="h-screen flex flex-col overflow-hidden">
+				<AppHeader containerWidthClass="max-w-7xl mx-auto" />
+				<main className="flex-1 flex flex-col items-center justify-center gap-4 px-4">
+					<p className="text-xl text-slate-700 dark:text-slate-300">
+						Please log in to access the SQLite Explorer
+					</p>
+					<a
+						href="/auth/login"
+						className="px-6 py-3 bg-warm-500 hover:bg-warm-600 text-white rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
+					>
+						Login with Val Town
+					</a>
+				</main>
+			</div>
+		);
+	}
+
+	return (
+		<div className="h-screen flex flex-col overflow-hidden">
+			<AppHeader
+				showSidebarToggle
+				isSidebarOpen={isSidebarOpen}
+				onSidebarToggle={() => setIsSidebarOpen((prev) => !prev)}
+				actions={
+					<a
+						href="/auth/logout"
+						className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg transition-colors duration-200"
+					>
+						Logout
+					</a>
+				}
+			/>
+			<main className="flex-1 flex overflow-hidden min-h-0">
+				{/* Sidebar */}
+				{isSidebarOpen && (
+					<div className="w-64 border-r border-sand-300 dark:border-slate-700 bg-white dark:bg-slate-800 overflow-y-auto flex-shrink-0">
+						{isLoadingSchema ? (
+							<div className="p-4 text-sand-500 dark:text-slate-400">
+								Loading schema...
+							</div>
+						) : (
+							<TablesList
+								tables={tables}
+								selectedTable={selectedTable}
+								onTableSelect={setSelectedTable}
+							/>
+						)}
+					</div>
+				)}
+
+				<div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+					<div className="h-80 border-b border-sand-300 dark:border-slate-700 flex-shrink-0">
+						<EditorSection
+							code={code}
+							onCodeChange={setCode}
+							onRun={handleRun}
+							onDownloadJSON={handleDownloadJSON}
+							onDownloadCSV={handleDownloadCSV}
+							isLoading={isLoading}
+							editorRef={editorRef}
+						/>
+					</div>
+
+					<PaginationBar
+						currentPage={currentPage}
+						result={result ?? ({ columns: [], rows: [] } as QueryResult)}
+						setCurrentPage={setCurrentPage}
+					/>
+
+					<div className="flex-1 overflow-auto bg-white dark:bg-slate-900 min-h-0">
+						{error && (
+							<div className="text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+								{error}
+							</div>
+						)}
+						{result && (
+							<Table
+								headers={result.columns}
+								rows={result.rows}
+								currentPage={currentPage}
+							/>
+						)}
+						{!error && !result && (
+							<div className="flex items-center justify-center h-full text-sand-500 dark:text-slate-400">
+								Run a query to see results here
+							</div>
+						)}
+					</div>
+				</div>
+			</main>
+		</div>
+	);
+}
+
+
+
+--------------------------
+frontend/components/AppHeader.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+
+import type { ReactNode } from "https://esm.sh/react@18.2.0";
+import { SidebarSVG } from "./Icons.tsx";
+import { ThemeToggle } from "./ThemeToggle.tsx";
+
+interface AppHeaderProps {
+	showSidebarToggle?: boolean;
+	isSidebarOpen?: boolean;
+	onSidebarToggle?: () => void;
+	containerWidthClass?: string;
+	actions?: ReactNode;
+}
+
+export function AppHeader({
+	showSidebarToggle = false,
+	isSidebarOpen = true,
+	onSidebarToggle,
+	containerWidthClass = "max-w-full mx-auto",
+	actions,
+}: AppHeaderProps) {
+	return (
+		<header className="border-b border-sand-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-4 flex-shrink-0">
+			<div
+				className={`flex items-center justify-between ${containerWidthClass}`}
+			>
+				<div className="flex items-center gap-3">
+					{showSidebarToggle && (
+						<button
+							type="button"
+							onClick={onSidebarToggle}
+							className="p-2 rounded-lg bg-sand-200 dark:bg-slate-700 hover:bg-sand-300 dark:hover:bg-slate-600 transition-colors duration-200"
+							aria-label="Toggle sidebar"
+						>
+							<SidebarSVG isSidebarOpen={isSidebarOpen} className="w-5 h-5" />
+						</button>
+					)}
+					<h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+						SQLite Explorer
+					</h1>
+				</div>
+				<div className="flex items-center gap-3">
+					<ThemeToggle />
+					{actions}
+				</div>
+			</div>
+		</header>
+	);
+}
+
+
+
+--------------------------
+AGENTS.md
+--------------------------
+You are an advanced assistant specialized in generating Val Town code.
+
+## Core Guidelines
+
+- Ask clarifying questions when requirements are ambiguous
+- Provide complete, functional solutions rather than skeleton implementations
+- Test your logic against edge cases before presenting the final solution
+- Ensure all code follows Val Town's specific platform requirements
+- If a section of code that you're working on is getting too complex, consider
+  refactoring it into subcomponents
+
+## Code Standards
+
+- Generate code in TypeScript or TSX
+- Add appropriate TypeScript types and interfaces for all data structures
+- Prefer official SDKs or libraries than writing API calls directly
+- Ask the user to supply API or library documentation if you are at all unsure
+  about it
+- **Never bake in secrets into the code** - always use environment variables
+- Include comments explaining complex logic (avoid commenting obvious
+  operations)
+- Follow modern ES6+ conventions and functional programming practices if
+  possible
+
+## Types of triggers
+
+### 1. HTTP Trigger
+
+- Create web APIs and endpoints
+- Handle HTTP requests and responses
+- Example structure:
+
+```ts
+export default async function (req: Request) {
+  return new Response("Hello World");
+}
+```
+
+Files that are HTTP triggers have http in their name like `foobar.http.tsx`
+
+### 2. Cron Triggers
+
+- Run on a schedule
+- Use cron expressions for timing
+- Example structure:
+
+```ts
+export default async function () {
+  // Scheduled task code
+}
+```
+
+Files that are Cron triggers have cron in their name like `foobar.cron.tsx`
+
+### 3. Email Triggers
+
+- Process incoming emails
+- Handle email-based workflows
+- Example structure:
+
+```ts
+export default async function (email: Email) {
+  // Process email
+}
+```
+
+Files that are Email triggers have email in their name like `foobar.email.tsx`
+
+## Val Town Standard Libraries
+
+Val Town provides several hosted services and utility functions.
+
+### Blob Storage
+
+```ts
+import { blob } from "https://esm.town/v/std/blob";
+await blob.setJSON("myKey", { hello: "world" });
+let blobDemo = await blob.getJSON("myKey");
+let appKeys = await blob.list("app_");
+await blob.delete("myKey");
+```
+
+### SQLite
+
+```ts
+import { sqlite } from "https://esm.town/v/stevekrouse/sqlite";
+const TABLE_NAME = "todo_app_users_2";
+// Create table - do this before usage and change table name when modifying schema
+await sqlite.execute(`CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL
+)`);
+// Query data
+const result = await sqlite.execute(
+  `SELECT * FROM ${TABLE_NAME} WHERE id = ?`,
+  [1],
+);
+```
+
+Note: When changing a SQLite table's schema, change the table's name (e.g., add
+_2 or _3) to create a fresh table.
+
+### OpenAI
+
+```ts
+import { OpenAI } from "https://esm.town/v/std/openai";
+const openai = new OpenAI();
+const completion = await openai.chat.completions.create({
+  messages: [
+    { role: "user", content: "Say hello in a creative way" },
+  ],
+  model: "gpt-4o-mini",
+  max_tokens: 30,
+});
+```
+
+### Email
+
+```ts
+import { email } from "https://esm.town/v/std/email";
+// By default emails the owner of the val
+await email({
+  subject: "Hi",
+  text: "Hi",
+  html: "<h1>Hi</h1>",
+});
+```
+
+## Val Town Utility Functions
+
+Val Town provides several utility functions to help with common project tasks.
+
+### Importing Utilities
+
+Always import utilities with version pins to avoid breaking changes:
+
+```ts
+import {
+  parseProject,
+  readFile,
+  serveFile,
+} from "https://esm.town/v/std/utils@85-main/index.ts";
+```
+
+### Available Utilities
+
+#### **serveFile** - Serve project files with proper content types
+
+For example, in Hono:
+
+```ts
+// serve all files in frontend/ and shared/
+app.get("/frontend/*", (c) => serveFile(c.req.path, import.meta.url));
+app.get("/shared/*", (c) => serveFile(c.req.path, import.meta.url));
+```
+
+#### **readFile** - Read files from within the project:
+
+```ts
+// Read a file from the project
+const fileContent = await readFile("/frontend/index.html", import.meta.url);
+```
+
+#### **listFiles** - List all files in the project
+
+```ts
+const files = await listFiles(import.meta.url);
+```
+
+#### **parseProject** - Extract information about the current project from import.meta.url
+
+This is useful for including info for linking back to a val, ie in "view source"
+urls:
+
+```ts
+const projectVal = parseProject(import.meta.url);
+console.log(projectVal.username); // Owner of the project
+console.log(projectVal.name); // Project name
+console.log(projectVal.version); // Version number
+console.log(projectVal.branch); // Branch name
+console.log(projectVal.links.self.project); // URL to the project page
+```
+
+However, it's _extremely importing_ to note that `parseProject` and other
+Standard Library utilities ONLY RUN ON THE SERVER. If you need access to this
+data on the client, run it in the server and pass it to the client by splicing
+it into the HTML page or by making an API request for it.
+
+## Val Town Platform Specifics
+
+- **Redirects:** Use
+  `return new Response(null, { status: 302, headers: { Location: "/place/to/redirect" }})`
+  instead of `Response.redirect` which is broken
+- **Images:** Avoid external images or base64 images. Use emojis, unicode
+  symbols, or icon fonts/libraries instead
+- **AI Image:** To inline generate an AI image use:
+  `<img src="https://maxm-imggenurl.web.val.run/the-description-of-your-image" />`
+- **Storage:** DO NOT use the Deno KV module for storage
+- **Browser APIs:** DO NOT use the `alert()`, `prompt()`, or `confirm()` methods
+- **Weather Data:** Use open-meteo for weather data (doesn't require API keys)
+  unless otherwise specified
+- **View Source:** Add a view source link by importing & using
+  `import.meta.url.replace("ems.sh", "val.town)"` (or passing this data to the
+  client) and include `target="_top"` attribute
+- **Error Debugging:** Add
+  `<script src="https://esm.town/v/std/catch"></script>` to HTML to capture
+  client-side errors
+- **Error Handling:** Only use try...catch when there's a clear local
+  resolution; Avoid catches that merely log or return 500s. Let errors bubble up
+  with full context
+- **Environment Variables:** Use `Deno.env.get('keyname')` when you need to, but
+  generally prefer APIs that don't require keys
+- **Imports:** Use `https://esm.sh` for npm and Deno dependencies to ensure
+  compatibility on server and browser
+- **Storage Strategy:** Only use backend storage if explicitly required; prefer
+  simple static client-side sites
+- **React Configuration:** When using React libraries, pin versions with
+  `?deps=react@18.2.0,react-dom@18.2.0` and start the file with
+  `/** @jsxImportSource https://esm.sh/react@18.2.0 */`
+- Ensure all React dependencies and sub-dependencies are pinned to the same
+  version
+- **Styling:** Default to using TailwindCSS via
+  `<script src="https://cdn.twind.style" crossorigin></script>` unless otherwise
+  specified
+
+## Project Structure and Design Patterns
+
+### Recommended Directory Structure
+
+```
+├── backend/
+│   ├── database/
+│   │   ├── migrations.ts    # Schema definitions
+│   │   ├── queries.ts       # DB query functions
+│   │   └── README.md
+│   └── routes/              # Route modules
+│       ├── [route].ts
+│       └── static.ts        # Static file serving
+│   ├── index.ts             # Main entry point
+│   └── README.md
+├── frontend/
+│   ├── components/
+│   │   ├── App.tsx
+│   │   └── [Component].tsx
+│   ├── favicon.svg
+│   ├── index.html           # Main HTML template
+│   ├── index.tsx            # Frontend JS entry point
+│   ├── README.md
+│   └── style.css
+├── README.md
+└── shared/
+    ├── README.md
+    └── utils.ts             # Shared types and functions
+```
+
+### Backend (Hono) Best Practices
+
+- Hono is the recommended API framework
+- Main entry point should be `backend/index.ts`
+- **Static asset serving:** Use the utility functions to read and serve project
+  files:
+  ```ts
+  import {
+    readFile,
+    serveFile,
+  } from "https://esm.town/v/std/utils@85-main/index.ts";
+
+  // serve all files in frontend/ and shared/
+  app.get("/frontend/*", (c) => serveFile(c.req.path, import.meta.url));
+  app.get("/shared/*", (c) => serveFile(c.req.path, import.meta.url));
+
+  // For index.html, often you'll want to bootstrap with initial data
+  app.get("/", async (c) => {
+    let html = await readFile("/frontend/index.html", import.meta.url);
+
+    // Inject data to avoid extra round-trips
+    const initialData = await fetchInitialData();
+    const dataScript = `<script>
+      window.__INITIAL_DATA__ = ${JSON.stringify(initialData)};
+    </script>`;
+
+    html = html.replace("</head>", `${dataScript}</head>`);
+    return c.html(html);
+  });
+  ```
+- Create RESTful API routes for CRUD operations
+- Always include this snippet at the top-level Hono app to re-throwing errors to
+  see full stack traces:
+  ```ts
+  // Unwrap Hono errors to see original error details
+  app.onError((err, c) => {
+    throw err;
+  });
+  ```
+
+### Database Patterns
+
+- Run migrations on startup or comment out for performance
+- Change table names when modifying schemas rather than altering
+- Export clear query functions with proper TypeScript typing
+
+## Common Gotchas and Solutions
+
+1. **Environment Limitations:**
+   - Val Town runs on Deno in a serverless context, not Node.js
+   - Code in `shared/` must work in both frontend and backend environments
+   - Cannot use `Deno` keyword in shared code
+   - Use `https://esm.sh` for imports that work in both environments
+
+2. **SQLite Peculiarities:**
+   - Limited support for ALTER TABLE operations
+   - Create new tables with updated schemas and copy data when needed
+   - Always run table creation before querying
+
+3. **React Configuration:**
+   - All React dependencies must be pinned to 18.2.0
+   - Always include `@jsxImportSource https://esm.sh/react@18.2.0` at the top of
+     React files
+   - Rendering issues often come from mismatched React versions
+
+4. **File Handling:**
+   - Val Town only supports text files, not binary
+   - Use the provided utilities to read files across branches and forks
+   - For files in the project, use `readFile` helpers
+
+5. **API Design:**
+   - `fetch` handler is the entry point for HTTP vals
+   - Run the Hono app with
+     `export default app.fetch // This is the entry point for HTTP vals`
+
