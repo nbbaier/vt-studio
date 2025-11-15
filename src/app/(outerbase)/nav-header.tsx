@@ -36,17 +36,6 @@ export default function NavigationHeader() {
           <Gear />
           Settings
         </Link>
-        {/* <Link
-          className={
-            pathname.endsWith(`/${workspaceId}/billing`)
-              ? selectedTabClassName
-              : tabClassName
-          }
-          href={`/w/${workspaceId}/billing`}
-        >
-          <Cardholder />
-          Billing
-        </Link> */}
 
         <div className="flex flex-1 items-center justify-end font-bold">
           {currentWorkspace?.name ?? ""}

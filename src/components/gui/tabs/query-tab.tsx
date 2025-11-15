@@ -371,16 +371,35 @@ export default function QueryWindow({
               )}
 
               <div className="flex">
-                <button
-                  onClick={() => onRunClicked()}
-                  className={cn(
-                    buttonVariants({ size: "sm" }),
-                    "rounded-r-none"
-                  )}
-                >
-                  <LucidePlay className="mr-2 h-4 w-4" />
-                  Run
-                </button>
+                {/*
+                  Determine the correct modifier key for the platform.
+                  This is safe in browser environments.
+                */}
+                {typeof navigator !== "undefined" && (
+                  (() => {
+                    const modifierKey = navigator.platform && navigator.platform.includes("Mac") ? "Cmd" : "Ctrl";
+                    return (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => onRunClicked()}
+                            className={cn(
+                              buttonVariants({ size: "sm" }),
+                              "rounded-r-none"
+                            )}
+                            aria-label={`Run query (${modifierKey}+Enter)`}
+                          >
+                            <LucidePlay className="mr-2 h-4 w-4" />
+                            Run
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          Run query <kbd className="ml-1 rounded border px-1 text-xs">{modifierKey}+Enter</kbd>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })()
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button

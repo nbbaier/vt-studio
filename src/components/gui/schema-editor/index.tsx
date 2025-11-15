@@ -81,6 +81,7 @@ export default function SchemaEditor({
             onClick={onSave}
             disabled={!hasChange || !value.name?.new || !value.schemaName}
             size={"sm"}
+            aria-label="Save schema changes"
           >
             <LucideSave className="mr-2 h-4 w-4" />
             Save
@@ -91,6 +92,7 @@ export default function SchemaEditor({
             onClick={onDiscard}
             disabled={!hasChange}
             className="text-red-500"
+            aria-label="Discard schema changes"
           >
             Discard Change
           </Button>
@@ -99,7 +101,7 @@ export default function SchemaEditor({
             <Separator orientation="vertical" />
           </div>
 
-          <Button variant="ghost" onClick={onAddColumn} size={"sm"}>
+          <Button variant="ghost" onClick={onAddColumn} size={"sm"} aria-label="Add new column">
             <LucidePlus className="mr-1 h-4 w-4" />
             Add Column
           </Button>

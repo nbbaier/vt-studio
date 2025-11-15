@@ -199,6 +199,8 @@ export default function WindowTabs({
             <div
               className="window-tab-scrollbar flex h-[40px]"
               ref={tabContainerRef}
+              role="tablist"
+              aria-label="Window tabs"
             >
               <SortableContext
                 items={tabs.map((tab) => tab.key)}
@@ -238,8 +240,7 @@ export default function WindowTabs({
               {menu && (
                 <div
                   ref={tabMenuRef}
-                  style={{ zIndex: 50, position: "sticky" }}
-                  className={`right-0 flex h-[40px] items-center border-b bg-neutral-100 dark:bg-neutral-900`}
+                  className="sticky right-0 z-50 flex h-[40px] items-center border-b bg-neutral-100 dark:bg-neutral-900"
                 >
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger>

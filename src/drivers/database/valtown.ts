@@ -6,7 +6,7 @@ import {
 } from "@/drivers/base-driver";
 import { convertSqliteType } from "@/drivers/sqlite/sql-helper";
 
-// Val Town API types (previously from @libsql/client)
+// Val Town API types
 export type InStatement =
   | string
   | {

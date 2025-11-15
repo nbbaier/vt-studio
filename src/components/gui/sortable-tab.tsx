@@ -40,6 +40,9 @@ export const WindowTabItemButton = forwardRef<
 
   return (
     <button
+      role="tab"
+      aria-selected={selected}
+      aria-label={title}
       className={cn(
         "relative flex h-[40px] max-w-[300px] min-w-[170px] items-center border-x bg-neutral-100 px-2 text-left text-sm text-neutral-500 hover:text-black dark:bg-neutral-900 dark:hover:text-white",
         isDragging && "z-20",
