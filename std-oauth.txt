@@ -1,0 +1,876 @@
+Val: oauth by @std
+
+# Directory Structure
+
+oauth/
+├── crypto.ts
+├── example.tsx
+├── middleware.ts
+├── oauth.ts
+├── README.md
+├── session.ts
+└── TESTING.md
+
+
+# Files
+
+--------------------------
+TESTING.md
+--------------------------
+# OAuth Testing Guide
+
+Test the @std/oauth library using Playwright MCP tools.
+
+## Prerequisites
+
+- Val Town MCP server access
+- Playwright MCP tools (`mcp__playwright__*`)
+- Test email: `stevekrouse-6ca82204b4fa11f0ad790224a6c84d84@valtown.email`
+- Login link retrieval: Use `@stevekrouse/login-to-val-town-shim` val
+
+## Find the Demo URL
+
+The example app runs at the endpoint URL for `example.tsx` in the `std/oauth` val.
+
+Use Val Town MCP to get it:
+```javascript
+mcp__val-town__list_files({
+  val: "std/oauth"
+});
+```
+
+Look for `example.tsx` in the results - the `endpoint` URL in its `links` object is the demo URL (typically `https://std--[id].web.val.run`).
+
+## Login to Val Town (if needed)
+
+If not already logged in to Val Town in the browser:
+
+1. Navigate to sign-in:
+   ```javascript
+   mcp__playwright__browser_navigate({
+     url: "https://www.val.town/auth/signin/"
+   });
+   ```
+
+2. Enter test email and click Continue
+
+3. Retrieve login link from SQLite:
+   ```javascript
+   mcp__val-town__sqlite_execute({
+     sql: "SELECT text, timestamp FROM login_to_val_town_shim_emails ORDER BY timestamp DESC LIMIT 1"
+   });
+   ```
+
+4. Extract the `https://clerk.val.town/v1/verify?...` URL from the email text
+
+5. Navigate to login URL to complete sign-in
+
+## Test OAuth Flow
+
+### 1. Navigate to demo app
+
+```javascript
+mcp__playwright__browser_navigate({
+  url: "https://std--91178458b42e11f0b6f30224a6c84d84.web.val.run"
+});
+```
+
+**Expected:** Page shows "Not logged in" with "Log in" link
+
+### 2. Click "Log in"
+
+```javascript
+mcp__playwright__browser_click({ 
+  element: "Log in link", 
+  ref: "[ref from snapshot]" 
+});
+```
+
+**Expected:** Redirects to Val Town OAuth authorization page showing requested permissions
+
+### 3. Click "Allow"
+
+```javascript
+mcp__playwright__browser_click({ 
+  element: "Allow button", 
+  ref: "[ref from snapshot]" 
+});
+```
+
+**Expected:** 
+- Redirects back to demo app
+- Shows "Logged in as: steve_test_claude_code"
+- Shows User ID
+
+### 4. Verify session persists
+
+Refresh or navigate to home again - should still be logged in.
+
+### 5. Test logout
+
+```javascript
+mcp__playwright__browser_click({ 
+  element: "Log out link", 
+  ref: "[ref from snapshot]" 
+});
+```
+
+**Expected:** Returns to "Not logged in" state
+
+## What's Being Tested
+
+- OAuth authorization code flow with PKCE
+- Dynamic client registration
+- Session cookie creation with encrypted data
+- Username fetched from `/v1/me` API
+- Session persistence across requests
+- Logout functionality
+
+## Scopes Required
+
+The default scopes include:
+- `openid` - Basic OpenID Connect
+- `offline_access` - Refresh token
+- `profile` - Profile information
+- `user_r` - Read user data
+- `user_rw` - Write user data (needed for `/v1/me` access)
+
+
+
+--------------------------
+session.ts
+--------------------------
+// Session management using encrypted cookies
+import { encrypt, decrypt } from "./crypto.ts";
+
+export interface SessionData {
+  userId: string; // Val Town user ID
+  username: string; // Val Town username
+  accessToken: string;
+  refreshToken?: string;
+  idToken?: string;
+  expiresAt: number; // Unix timestamp in milliseconds
+}
+
+const SESSION_DURATION_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+/**
+ * Encrypt session data into a cookie-safe string
+ */
+export async function encryptSession(
+  data: SessionData,
+  redirectUri: string,
+): Promise<string> {
+  const payload = JSON.stringify(data);
+  return await encrypt(payload, redirectUri);
+}
+
+/**
+ * Decrypt and validate a session cookie
+ * Returns null if invalid or expired
+ */
+export async function decryptSession(
+  encryptedSession: string,
+  redirectUri: string,
+): Promise<SessionData | null> {
+  try {
+    const decrypted = await decrypt(encryptedSession, redirectUri);
+    const session = JSON.parse(decrypted) as SessionData;
+
+    // Validate expiry
+    if (Date.now() >= session.expiresAt) {
+      return null;
+    }
+
+    return session;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Create a new session with default 30-day expiry
+ */
+export function createSessionData(
+  userId: string,
+  username: string,
+  accessToken: string,
+  options: {
+    refreshToken?: string;
+    idToken?: string;
+  } = {},
+): SessionData {
+  return {
+    userId,
+    username,
+    accessToken,
+    refreshToken: options.refreshToken,
+    idToken: options.idToken,
+    expiresAt: Date.now() + SESSION_DURATION_MS,
+  };
+}
+
+
+
+--------------------------
+README.md
+--------------------------
+# Login with Val Town OAuth Middleware
+
+OAuth authentication middleware for Val Town vals.
+
+## Features
+
+- OAuth 2.0 Authorization Code flow with PKCE
+- Dynamic client registration
+- Encrypted session cookies (stateless)
+- No database required
+
+## Usage
+
+```tsx
+/** @jsxImportSource https://esm.sh/hono/jsx */
+import { Hono } from "https://esm.sh/hono";
+import {
+  getOAuthUserData,
+  oauthMiddleware,
+} from "https://esm.town/v/std/oauth/middleware";
+
+const app = new Hono();
+
+app.get("/", async (c) => {
+  const user = await getOAuthUserData(c.req.raw);
+
+  return c.html(
+    <html>
+      <body>
+        {user
+          ? <p>Logged in as {user.username}</p>
+          : <a href="/auth/login">Log in</a>}
+      </body>
+    </html>,
+  );
+});
+
+// Simple usage with defaults
+export default oauthMiddleware(app.fetch);
+```
+
+## API
+
+### `oauthMiddleware(appFetch)` or `oauthMiddleware(options, appFetch)`
+
+Wraps your application to handle OAuth routes. Supports two calling styles:
+
+1. **Handler only** (backwards compatible): `oauthMiddleware(appFetch)`
+2. **Options first** (Deno.serve style): `oauthMiddleware(options, appFetch)`
+
+**Options:**
+
+- `scopes?: string[]` - OAuth scopes (default:
+  `["openid", "offline_access", "profile", "user_rw"]`)
+- `clientName?: string` - OAuth client name
+
+**Auto-handled routes:**
+
+- `/auth/login` - Start OAuth flow
+- `/auth/callback` - OAuth callback
+- `/auth/logout` - Clear session
+
+### `getOAuthUserData(req: Request)`
+
+Extract user data from session cookie.
+
+**Returns:** `SessionData | null`
+
+```typescript
+interface SessionData {
+  userId: string;
+  username: string;
+  accessToken: string;
+  refreshToken?: string;
+  idToken?: string;
+  expiresAt: number;
+}
+```
+
+## Environment Variables
+
+- `OAUTH_STATE_ENCRYPTION_KEY` (optional) - Encryption key for state and
+  sessions
+  - Auto-generated if not set
+  - Set manually (e.g., `openssl rand -base64 32`) for better performance
+
+## How It Works
+
+1. User clicks `/auth/login`
+2. Redirects to Val Town OAuth
+3. User authorizes
+4. Callback receives code, exchanges for tokens
+5. User data fetched from `/v1/me` API using access token
+6. Session encrypted and stored in cookie
+7. Use `getOAuthUserData(req)` to access user data
+
+Sessions last 30 days and are stored as encrypted cookies (no server-side
+storage).
+
+
+--------------------------
+oauth.ts
+--------------------------
+import { parseVal } from "https://esm.town/v/std/utils/index.ts";
+import { blob } from "https://esm.town/v/std/blob";
+import { decrypt, encrypt } from "./crypto.ts";
+
+const OAUTH_ISSUER = "https://www.val.town";
+
+// Client cache: stores most recent client in memory
+let cachedClient: any = null;
+
+export function getDefaultClientName(): string {
+  try {
+    const val = parseVal(import.meta.url);
+    return `${val.name} by ${val.username}`;
+  } catch {
+    return "Generic Val Town App";
+  }
+}
+
+// Extract redirect URI from request
+export function getRedirectUri(req: Request): string {
+  const origin = new URL(req.url).origin;
+  return `${origin}/auth/callback`;
+}
+
+// Generate PKCE code verifier and challenge
+export async function generatePKCE() {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  const codeVerifier = btoa(String.fromCharCode(...array))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+
+  const encoder = new TextEncoder();
+  const data = encoder.encode(codeVerifier);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+
+  return { codeVerifier, codeChallenge };
+}
+
+// Encode state with embedded code_verifier, client_id, and timestamp
+export async function encodeState(
+  codeVerifier: string,
+  clientId: string,
+  redirectUri: string,
+): Promise<string> {
+  const payload = JSON.stringify({
+    verifier: codeVerifier,
+    clientId: clientId,
+    timestamp: Date.now(),
+  });
+  return await encrypt(payload, redirectUri);
+}
+
+// Decode and validate state
+export async function decodeState(
+  state: string,
+  redirectUri: string,
+): Promise<{ codeVerifier: string; clientId: string }> {
+  const decrypted = await decrypt(state, redirectUri);
+  const payload = JSON.parse(decrypted);
+
+  // Validate timestamp (10 minute expiry)
+  const age = Date.now() - payload.timestamp;
+  if (age > 10 * 60 * 1000) {
+    throw new Error("State expired - please restart the OAuth flow");
+  }
+
+  return { codeVerifier: payload.verifier, clientId: payload.clientId };
+}
+
+// Get or create OAuth client with two-tier caching
+export async function getOrCreateClient(
+  redirectUri: string,
+  clientName?: string,
+): Promise<string> {
+  // Check memory cache - if redirect URI matches, return immediately (no blob fetch needed)
+  if (cachedClient?.redirect_uris?.[0] === redirectUri) {
+    return cachedClient.client_id;
+  }
+
+  // Check blob storage
+  const blobClient = await blob.getJSON(`oauth_client:${redirectUri}`);
+  if (blobClient?.redirect_uris?.[0] === redirectUri) {
+    cachedClient = blobClient;
+    return blobClient.client_id;
+  }
+
+  // Register new client
+  const newClient = await registerPublicClient(redirectUri, clientName);
+  cachedClient = newClient;
+  await blob.setJSON(`oauth_client:${redirectUri}`, newClient);
+  return newClient.client_id;
+}
+
+// Register a new public OAuth client via Dynamic Client Registration
+export async function registerPublicClient(
+  redirectUri: string,
+  clientName = getDefaultClientName(),
+): Promise<any> {
+  const response = await fetch(`${OAUTH_ISSUER}/oauth/reg`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      redirect_uris: [redirectUri],
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      client_name: clientName,
+      token_endpoint_auth_method: "none", // Public client - no secret authentication
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Client registration failed: ${error}`);
+  }
+
+  const clientData = await response.json();
+  return clientData;
+}
+
+
+--------------------------
+middleware.ts
+--------------------------
+import {
+  decodeState,
+  encodeState,
+  generatePKCE,
+  getDefaultClientName,
+  getOrCreateClient,
+  getRedirectUri,
+} from "./oauth.ts";
+import {
+  createSessionData,
+  decryptSession,
+  encryptSession,
+  SessionData,
+} from "./session.ts";
+
+const OAUTH_ISSUER = "https://val.town";
+const DEFAULT_SCOPES = "openid offline_access profile user_rw";
+const SESSION_COOKIE_NAME = "vt_session";
+
+type AppFetch = (req: Request) => Promise<Response> | Response;
+export type Options = {
+  scopes?: string[];
+  clientName?: string;
+};
+
+// Helper function to extract cookie from request
+function getCookie(req: Request, name: string): string | undefined {
+  const cookieHeader = req.headers.get("Cookie");
+  if (!cookieHeader) return undefined;
+
+  const cookies = cookieHeader.split(";").map((c) => c.trim());
+  for (const cookie of cookies) {
+    const [cookieName, ...cookieValue] = cookie.split("=");
+    if (cookieName === name) {
+      return cookieValue.join("=");
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Extract OAuth user data from the encrypted session cookie
+ * @param req - The Request object
+ * @returns SessionData or null if not authenticated
+ */
+export async function getOAuthUserData(
+  req: Request,
+): Promise<SessionData | null> {
+  const sessionCookie = getCookie(req, SESSION_COOKIE_NAME);
+  if (!sessionCookie) return null;
+
+  try {
+    const origin = new URL(req.url).origin;
+    const redirectUri = `${origin}/auth/callback`;
+    return await decryptSession(sessionCookie, redirectUri);
+  } catch (error) {
+    console.error("Failed to decrypt session:", error);
+    return null;
+  }
+}
+
+export function oauthMiddleware(appFetch: AppFetch): AppFetch;
+export function oauthMiddleware(opts: Options, appFetch: AppFetch): AppFetch;
+export function oauthMiddleware(
+  optsOrAppFetch: Options | AppFetch,
+  appFetch?: AppFetch,
+): AppFetch {
+  if (typeof optsOrAppFetch === "function") {
+    return createMiddleware(optsOrAppFetch, {});
+  } else {
+    return createMiddleware(appFetch, optsOrAppFetch);
+  }
+}
+
+// Internal middleware creation function
+function createMiddleware(appFetch: AppFetch, opts: Options): AppFetch {
+  return async (req: Request) => {
+    const url = new URL(req.url);
+
+    if (url.pathname === "/auth/login") return handleLogin(req, opts);
+    if (url.pathname === "/auth/callback") return handleCallback(req);
+    if (url.pathname === "/auth/logout") return handleLogout(req);
+
+    return appFetch(req);
+  };
+}
+
+// Home page - initiate OAuth flow
+async function handleLogin(req: Request, opts: Options) {
+  try {
+    const redirectUri = getRedirectUri(req);
+    const clientName = opts.clientName ?? getDefaultClientName();
+    const clientId = await getOrCreateClient(redirectUri, clientName);
+
+    const { codeVerifier, codeChallenge } = await generatePKCE();
+
+    const state = await encodeState(codeVerifier, clientId, redirectUri);
+
+    const scopes = opts.scopes?.join(" ") ?? DEFAULT_SCOPES;
+
+    const authUrl = new URL(`${OAUTH_ISSUER}/oauth/auth`);
+    authUrl.searchParams.set("client_id", clientId);
+    authUrl.searchParams.set("redirect_uri", redirectUri);
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set("scope", scopes);
+    authUrl.searchParams.set("code_challenge", codeChallenge);
+    authUrl.searchParams.set("code_challenge_method", "S256");
+    authUrl.searchParams.set("state", state);
+    authUrl.searchParams.set("prompt", "login consent");
+
+    // redirect to authURL
+    return new Response(null, {
+      headers: {
+        Location: authUrl.toString(),
+      },
+      status: 302,
+    });
+  } catch (error) {
+    console.error("OAuth error:", error);
+    const errorMsg = error?.message || error?.toString() || "Unknown error";
+    const errorStack = error?.stack || "";
+    return new Response(
+      `<!DOCTYPE html>
+      <html>
+        <head>
+          <title>OAuth Error</title>
+        </head>
+        <body>
+          <h1>Registration Error</h1>
+          <p>Failed to register OAuth client: ${errorMsg}</p>
+          <pre>${errorStack}</pre>
+          <p><a href="/">Try again</a></p>
+        </body>
+      </html>
+    `,
+      { headers: { "Content-Type": "text/html" } },
+    );
+  }
+}
+
+// Decode JWT without verification (for ID token)
+function decodeJWT(token: string): any {
+  const parts = token.split(".");
+  if (parts.length !== 3) throw new Error("Invalid JWT");
+
+  const payload = parts[1];
+  const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+  return JSON.parse(decoded);
+}
+
+// OAuth callback handler
+async function handleCallback(req: Request) {
+  const url = new URL(req.url);
+  const code = url.searchParams.get("code");
+  const state = url.searchParams.get("state");
+
+  if (!code) return new Response("Missing code", { status: 400 });
+  if (!state) return new Response("Missing state", { status: 400 });
+
+  try {
+    const redirectUri = getRedirectUri(req);
+    const { codeVerifier, clientId } = await decodeState(state, redirectUri);
+
+    // Exchange authorization code for tokens
+    const tokenResponse = await fetch(`${OAUTH_ISSUER}/oauth/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: redirectUri,
+        client_id: clientId,
+        code_verifier: codeVerifier,
+      }),
+    });
+
+    if (!tokenResponse.ok) {
+      const error = await tokenResponse.text();
+      return new Response(`Token exchange failed: ${error}`, { status: 500 });
+    }
+
+    const tokens = await tokenResponse.json();
+
+    // Decode ID token to get user ID
+    const idTokenData = tokens.id_token ? decodeJWT(tokens.id_token) : null;
+    const userId = idTokenData?.sub || "unknown";
+
+    // Fetch username from Val Town API using access token
+    let username = userId;
+    try {
+      const meResponse = await fetch("https://api.val.town/v1/me", {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+      });
+
+      if (meResponse.ok) {
+        const meData = await meResponse.json();
+        username = meData.username || userId;
+      }
+    } catch (e) {
+      console.error("Failed to fetch username from /v1/me:", e);
+    }
+
+    // Create session data
+    const sessionData = createSessionData(
+      userId,
+      username,
+      tokens.access_token,
+      {
+        refreshToken: tokens.refresh_token,
+        idToken: tokens.id_token,
+      },
+    );
+
+    // Encrypt session for cookie
+    const encryptedSession = await encryptSession(sessionData, redirectUri);
+
+    // Set secure session cookie and redirect to home
+    const headers = new Headers();
+    headers.set("Location", "/");
+    headers.set(
+      "Set-Cookie",
+      `${SESSION_COOKIE_NAME}=${encryptedSession}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${
+        30 * 24 * 60 * 60
+      }`,
+    );
+
+    return new Response(null, {
+      status: 302,
+      headers,
+    });
+  } catch (error) {
+    console.error("OAuth callback error:", error);
+    return new Response(`Authentication failed: ${error.message}`, {
+      status: 500,
+    });
+  }
+}
+
+// Logout handler
+async function handleLogout(req: Request) {
+  // Clear session cookie by setting Max-Age=0
+  const headers = new Headers();
+  headers.set("Location", "/");
+  headers.set(
+    "Set-Cookie",
+    `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+  );
+
+  return new Response(null, {
+    status: 302,
+    headers,
+  });
+}
+
+
+--------------------------
+example.tsx
+--------------------------
+/** @jsxImportSource https://esm.sh/hono/jsx */
+import { Hono } from "https://esm.sh/hono";
+import { getOAuthUserData, oauthMiddleware } from "./middleware.ts";
+
+const app = new Hono();
+
+app.get("/", async (c) => {
+  const user = await getOAuthUserData(c.req.raw);
+
+  return c.html(
+    <html>
+      <body>
+        <h1>Login with Val Town OAuth Demo</h1>
+        {user
+          ? (
+            <>
+              <p>Logged in as: {user.username}</p>
+              <p>
+                <a href="/auth/logout">Log out</a>
+              </p>
+            </>
+          )
+          : (
+            <p>
+              <a href="/auth/login" target="_top">Log in</a>
+            </p>
+          )}
+      </body>
+    </html>,
+  );
+});
+
+// Export server
+export default oauthMiddleware(app.fetch);
+
+
+--------------------------
+crypto.ts
+--------------------------
+// Shared encryption utilities for OAuth state and session management
+import { blob } from "https://esm.town/v/std/blob";
+
+// Encryption key cache: stores encryption key material in memory
+let cachedEncryptionKey: string | null = null;
+
+// Get or create encryption key material with three-tier caching
+export async function getOrCreateEncryptionKeyMaterial(
+  redirectUri: string,
+): Promise<string> {
+  // Check memory cache
+  if (cachedEncryptionKey) {
+    console.log("Using cached encryption key from memory");
+    return cachedEncryptionKey;
+  }
+
+  // Check environment variable (fastest - no I/O)
+  const envKey = Deno.env.get("OAUTH_STATE_ENCRYPTION_KEY");
+  if (envKey) {
+    console.log("Using encryption key from environment variable");
+    cachedEncryptionKey = envKey;
+    return envKey;
+  }
+
+  // Check blob storage (scoped to redirect URI)
+  const blobKey = `oauth_encryption_key:${redirectUri}`;
+  try {
+    const storedKey = await blob.getJSON(blobKey);
+    if (storedKey) {
+      console.log("Using encryption key from blob storage");
+      cachedEncryptionKey = storedKey;
+      return storedKey;
+    }
+  } catch (error) {
+    console.log("Blob not found or invalid format, will generate new key");
+    // Blob doesn't exist or is in old format, will create new one below
+  }
+
+  // Generate new random key (32 bytes = 256 bits)
+  console.log("Generating new encryption key");
+  const randomBytes = new Uint8Array(32);
+  crypto.getRandomValues(randomBytes);
+  const newKey = btoa(String.fromCharCode(...randomBytes));
+
+  // Store in blob for persistence
+  console.log("Storing new encryption key in blob storage");
+  await blob.setJSON(blobKey, newKey);
+  cachedEncryptionKey = newKey;
+
+  return newKey;
+}
+
+// Derive encryption key from key material
+export async function getEncryptionKey(redirectUri: string): Promise<CryptoKey> {
+  const keyMaterialString = await getOrCreateEncryptionKeyMaterial(redirectUri);
+  const encoder = new TextEncoder();
+  const keyMaterial = encoder.encode(keyMaterialString);
+  const keyHash = await crypto.subtle.digest("SHA-256", keyMaterial);
+
+  return await crypto.subtle.importKey(
+    "raw",
+    keyHash,
+    { name: "AES-GCM" },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+// Encrypt data into a URL-safe string
+export async function encrypt(data: string, redirectUri: string): Promise<string> {
+  const key = await getEncryptionKey(redirectUri);
+  const encoder = new TextEncoder();
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV for GCM
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    encoder.encode(data),
+  );
+
+  // Combine IV + encrypted data
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted), iv.length);
+
+  // Base64url encode
+  return btoa(String.fromCharCode(...combined))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+}
+
+// Decrypt URL-safe string back to data
+export async function decrypt(
+  encryptedData: string,
+  redirectUri: string,
+): Promise<string> {
+  try {
+    const key = await getEncryptionKey(redirectUri);
+
+    // Base64url decode
+    const combined = Uint8Array.from(
+      atob(encryptedData.replace(/-/g, "+").replace(/_/g, "/")),
+      (c) => c.charCodeAt(0),
+    );
+
+    // Extract IV and encrypted data
+    const iv = combined.slice(0, 12);
+    const encrypted = combined.slice(12);
+
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv },
+      key,
+      encrypted,
+    );
+
+    const decoder = new TextDecoder();
+    return decoder.decode(decrypted);
+  } catch {
+    throw new Error("Failed to decrypt data - invalid or tampered");
+  }
+}
+
+
