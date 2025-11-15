@@ -81,13 +81,11 @@ function TokenConfigurationUI({
           </div>
 
           <div className="mb-6">
-            <label
-              htmlFor="token"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="token" className="mb-2 block text-sm font-medium">
               Val Town API Token
             </label>
-            <textarea
+            <input
+              type="password"
               id="token"
               value={token}
               onChange={(e) => {
@@ -95,15 +93,14 @@ function TokenConfigurationUI({
                 setError("");
               }}
               placeholder="Paste your Val Town API token here"
-              rows={3}
               className="w-full rounded-md border bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
 
           <div className="bg-secondary mb-6 rounded-md p-4">
-            <p className="mb-2 text-sm font-medium">How to get your token:</p>
-            <ol className="ml-4 list-decimal space-y-1 text-sm">
+            <p className="mb-2 text-sm font-medium">How to create an API token:</p>
+            <ol className="ml-4 list-decimal space-y-2 text-sm">
               <li>
                 Go to{" "}
                 <Link
@@ -115,6 +112,13 @@ function TokenConfigurationUI({
                 </Link>
               </li>
               <li>Click &quot;New&quot; to generate a new token</li>
+              <li>
+                <strong>Required scopes:</strong>
+                <ul className="ml-4 mt-1 list-disc space-y-0.5">
+                  <li className="font-mono text-xs">sqlite:read</li>
+                  <li className="font-mono text-xs">sqlite:write</li>
+                </ul>
+              </li>
               <li>Copy the token and paste it above</li>
             </ol>
           </div>
