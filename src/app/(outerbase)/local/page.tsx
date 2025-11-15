@@ -28,11 +28,9 @@ export default function LocalConnectionPage() {
 
   const baseResources = useMemo(() => {
     return (localBases ?? []).map((conn) => {
+      // Val Town-only migration: Only Val Town driver is supported
       return {
-        href:
-          conn.content.driver === "sqlite-filehandler"
-            ? `/playground/client?s=${conn.id}`
-            : `/client/s/${conn.content.driver ?? "turso"}?p=${conn.id}`,
+        href: `/client/s/${conn.content.driver ?? "valtown"}?p=${conn.id}`,
         name: conn.content.name,
         lastUsed: conn.updated_at,
         id: conn.id,

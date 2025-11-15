@@ -5,7 +5,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useStudioContext } from "@/context/driver-provider";
 import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { ChevronsUpDown } from "lucide-react";
 import { ChangeEvent, useCallback, useMemo } from "react";
@@ -20,7 +19,7 @@ export default function ColumnDefaultValueInput({
   disabled?: boolean;
   onChange: (constraint: DatabaseTableColumnConstraint) => void;
 }>) {
-  const { databaseDriver } = useStudioContext();
+  // Val Town-only migration: databaseDriver no longer needed (was for dialect check)
   const display = useMemo(() => {
     if (
       constraint?.defaultValue !== undefined &&
@@ -138,17 +137,16 @@ export default function ColumnDefaultValueInput({
             />
             <Label htmlFor="no-default-value">No Default Value</Label>
           </div>
-          {databaseDriver.getFlags().dialect !== "postgres" && (
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="auto-increment"
-                disabled={disabled}
-                checked={!!constraint?.autoIncrement}
-                onCheckedChange={onAutoIncrementChange}
-              />
-              <Label htmlFor="auto-increment">Autoincrement</Label>
-            </div>
-          )}
+          {/* Val Town-only migration: SQLite supports autoincrement */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="auto-increment"
+              disabled={disabled}
+              checked={!!constraint?.autoIncrement}
+              onCheckedChange={onAutoIncrementChange}
+            />
+            <Label htmlFor="auto-increment">Autoincrement</Label>
+          </div>
           <div className="flex items-center space-x-2">
             <Checkbox
               id="custom-value"

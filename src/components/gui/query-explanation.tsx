@@ -28,17 +28,10 @@ const queryExplanationRowSchema = z.object({
 });
 
 export function isExplainQueryPlan(sql: string, dialect: SupportedDialect) {
-  if (!["sqlite", "mysql"].includes(dialect)) return false;
+  // Val Town-only migration: Only SQLite is supported
+  if (dialect !== "sqlite") return false;
 
   if (sql.toLowerCase().startsWith("explain query plan")) {
-    return true;
-  }
-
-  if (sql.toLowerCase().startsWith("explain format=json")) {
-    return true;
-  }
-
-  if (sql.toLowerCase().startsWith("explain (format json)")) {
     return true;
   }
 
@@ -65,34 +58,22 @@ function buildQueryExplanationTree(nodes: ExplanationRow[]) {
 }
 
 function mapExplanationRows(props: QueryExplanationProps) {
-  let isExplanationRows = null;
-
-  if (props.dialect === "sqlite") {
-    isExplanationRows = z.array(queryExplanationRowSchema).safeParse(
-      props.data.rows.map((r) => ({
-        ...r,
-        id: Number(r.id),
-        parent: Number(r.parent),
-        notused: Number(r.notused),
-      }))
-    );
-  }
-
-  if (props.dialect === "mysql") {
-    const row = (props.data.rows || [])[0];
-    const explain = String(row.EXPLAIN);
+  // Val Town-only migration: Only SQLite is supported
+  if (props.dialect !== "sqlite") {
     return {
-      _tag: "SUCCESS",
-      value: JSON.parse(explain),
+      _tag: "ERROR" as const,
+      value: new Error("Only SQLite dialect is supported"),
     };
   }
 
-  if (props.dialect === "postgres") {
-    return {
-      _tag: "SUCCESS" as const,
-      value: "Postgres dialect is not supported yet",
-    };
-  }
+  const isExplanationRows = z.array(queryExplanationRowSchema).safeParse(
+    props.data.rows.map((r) => ({
+      ...r,
+      id: Number(r.id),
+      parent: Number(r.parent),
+      notused: Number(r.notused),
+    }))
+  );
 
   if (isExplanationRows?.error) {
     return { _tag: "ERROR" as const, value: isExplanationRows.error };
@@ -118,21 +99,15 @@ export function QueryExplanation(props: QueryExplanationProps) {
     );
   }
 
-  let value = tree.value;
-
-  if (props.dialect === "sqlite") {
-    value = convertSQLiteRowToMySQL(
-      props.data.rows as unknown as ExplanationRow[]
-    );
-  }
+  // Val Town-only migration: Only SQLite is supported
+  // Convert SQLite explanation rows to MySQL-compatible format for visualization
+  const value = convertSQLiteRowToMySQL(
+    props.data.rows as unknown as ExplanationRow[]
+  );
 
   return (
     <div className="p-5 font-mono h-full overflow-y-auto">
-      {["mysql", "sqlite"].includes(props.dialect as string) ? (
-        <QueryExplanationDiagram items={value} />
-      ) : (
-        <p className="text-destructive">{value}</p>
-      )}
+      <QueryExplanationDiagram items={value} />
     </div>
   );
 }

@@ -20,12 +20,10 @@ export default function LocalNewBasePage() {
   const { driver } = useParams<{ driver: string }>();
   const router = useRouter();
   const searchParams = useSearchParams()
+  // Val Town-only migration: Removed starbase-specific config
   const [value, setValue] = useState<CommonConnectionConfig>({
     name: "",
     host: searchParams.get("url") ?? "",
-    ...(driver === "starbase" ? {
-      starbase_type: searchParams.get("type") ?? "internal"
-    } : {}),
     token: searchParams.get("access-key") ?? ""
    });
   const [loading, setLoading] = useState(false);
@@ -60,11 +58,10 @@ export default function LocalNewBasePage() {
     const newConnection = await createLocalConnection(template.localTo(value));
 
     // Redirect to the connection page
+    // Val Town-only migration: Only Val Town driver is supported
     mutate("/local/bases");
     router.replace(
-      newConnection.content.driver === "sqlite-filehandler"
-        ? `/playground/client?s=${newConnection.id}`
-        : `/client/s/${newConnection.content.driver ?? "turso"}?p=${newConnection.id}`
+      `/client/s/${newConnection.content.driver ?? "valtown"}?p=${newConnection.id}`
     );
   }, [template, value, router]);
 

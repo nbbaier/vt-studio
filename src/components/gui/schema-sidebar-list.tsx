@@ -328,16 +328,9 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
             });
           } else if (item.data.type === "schema") {
             if (databaseDriver.getFlags().supportUseStatement) {
-              const dialect = databaseDriver.getFlags().dialect;
-              const switch_keyword =
-                dialect === "postgres" ? "SET search_path TO " : "USE ";
+              // Val Town-only migration: Only SQLite is supported, which uses USE statement
+              const switch_keyword = "USE ";
               const name = [databaseDriver.escapeId(item.name)];
-              if (dialect === "postgres") {
-                name.push(databaseDriver.escapeId("$user"));
-                if (item.name !== "public") {
-                  name.push(databaseDriver.escapeId("public"));
-                }
-              }
               databaseDriver.query(switch_keyword + name.join(",")).then(() => {
                 refresh();
               });

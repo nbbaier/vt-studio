@@ -1,3 +1,20 @@
+/**
+ * SQLite base driver implementation.
+ *
+ * This driver provides SQLite-specific functionality for database operations.
+ * Val Town is the primary implementation using this driver, as Val Town uses SQLite.
+ *
+ * Key features:
+ * - Schema parsing and manipulation (tables, triggers, views)
+ * - SQL generation for schema changes
+ * - SQLite-specific type conversions
+ * - Database introspection via sqlite_master
+ *
+ * The driver extends CommonSQLImplement and uses a QueryableBaseDriver for
+ * actual query execution, allowing different backends (Val Town API, local SQLite, etc.)
+ * to be used interchangeably.
+ */
+
 import {
   convertSqliteType,
   escapeIdentity,

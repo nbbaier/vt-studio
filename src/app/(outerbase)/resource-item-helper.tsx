@@ -48,7 +48,8 @@ export function getResourceItemPropsFromBase(
     id: base.id,
     type: base.sources[0]?.type ?? "database",
     name: base.name,
-    color: getDatabaseColor(base.sources[0]?.type ?? "database"),
+    // Val Town-only migration: getDatabaseColor no longer takes arguments
+    color: getDatabaseColor(),
     href: `/w/${workspace.short_name}/${base.short_name}`,
     lastUsed: base.last_analytics_event?.created_at
       ? new Date(base.last_analytics_event?.created_at).getTime()

@@ -20,11 +20,3 @@ export function createStandardExtensions() {
 export function createSQLiteExtensions() {
   return [...createStandardExtensions(), new TriggerEditorExtension()];
 }
-
-export function createMySQLExtensions() {
-  return [...createStandardExtensions(), new TriggerEditorExtension()];
-}
-
-export function createPostgreSQLExtensions() {
-  return createStandardExtensions();
-}

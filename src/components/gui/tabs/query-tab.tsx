@@ -141,17 +141,12 @@ export default function QueryWindow({
 
       let statement = editorState.doc.sliceString(segment.from, segment.to);
 
+      // Val Town-only migration: Only SQLite EXPLAIN syntax is supported
       if (
         explained &&
         statement.toLowerCase().indexOf("explain query plan") !== 0
       ) {
-        if (databaseDriver.getFlags().dialect === "sqlite") {
-          statement = "explain query plan " + statement;
-        } else if (databaseDriver.getFlags().dialect === "mysql") {
-          statement = "explain format=json " + statement;
-        } else if (databaseDriver.getFlags().dialect === "postgres") {
-          statement = "explain (format json) " + statement;
-        }
+        statement = "explain query plan " + statement;
       }
 
       if (statement) {
