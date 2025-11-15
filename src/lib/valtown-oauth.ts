@@ -4,16 +4,14 @@
  */
 
 const OAUTH_ISSUER = "https://val.town";
-// OAuth scopes use different format than API token scopes
-// Based on @std/oauth library patterns:
+// OAuth scopes - using same as @std/oauth library
+// Note: @std/oauth doesn't request SQLite scopes explicitly
+// Testing if OAuth tokens inherit all user permissions
 // - openid: Basic OpenID Connect
 // - offline_access: Refresh token
 // - profile: Profile information
 // - user_rw: User data read/write (for /v1/me)
-// - sqlite_r: SQLite database read
-// - sqlite_rw: SQLite database read/write
-const DEFAULT_SCOPES =
-  "openid offline_access profile user_rw sqlite_r sqlite_rw";
+const DEFAULT_SCOPES = "openid offline_access profile user_rw";
 
 export interface OAuthClient {
   client_id: string;
