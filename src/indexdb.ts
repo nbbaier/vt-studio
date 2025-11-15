@@ -1,5 +1,5 @@
 import Dexie, { EntityTable } from "dexie";
-import { SavedConnectionRawLocalStorage } from "./app/(theme)/connect/saved-connection-storage";
+import { SavedConnectionRawLocalStorage } from "./lib/saved-connection-storage";
 import { DashboardProps } from "./components/board";
 
 export interface LocalDashboardData extends DashboardProps {

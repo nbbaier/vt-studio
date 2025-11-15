@@ -71,9 +71,9 @@ export default function SidebarTab({ tabs }: Readonly<SidebarTabProps>) {
                   className="p-1 px-2 text-white"
                   style={{ background: "#000C" }}
                 >
-                  <div className="font-bold">Outerbase Studio</div>
+                  <div className="font-bold">Val Town Studio</div>
                   <div className="-mt-0.5 text-xs">
-                    v{process.env.NEXT_PUBLIC_STUDIO_VERSION}
+                    A modern SQLite GUI for Val Town
                   </div>
                 </div>
               </div>
@@ -87,7 +87,7 @@ export default function SidebarTab({ tabs }: Readonly<SidebarTabProps>) {
               {config.onBack && (
                 <DropdownMenuItem onClick={config.onBack}>
                   <ArrowLeft className="mr-2" />
-                  Back to bases
+                  Disconnect
                 </DropdownMenuItem>
               )}
               {config.onBack && <DropdownMenuSeparator />}

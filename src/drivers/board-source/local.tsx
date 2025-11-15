@@ -1,4 +1,4 @@
-import { SavedConnectionRawLocalStorage } from "@/app/(theme)/connect/saved-connection-storage";
+import { SavedConnectionRawLocalStorage } from "@/lib/saved-connection-storage";
 import { BaseDriver, DatabaseResultSet, DatabaseSchemas } from "../base-driver";
 import { createLocalDriver } from "../helpers";
 import { BoardSource, BoardSourceDriver } from "./base-source";

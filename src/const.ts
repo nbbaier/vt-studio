@@ -5,5 +5,5 @@ export enum MessageChannelName {
 }
 
 export const TAB_PREFIX_SAVED_QUERY = "saved-query-";
-export const WEBSITE_NAME = "Outerbase Studio";
-export const WEBSITE_GENERAL_DESCRIPTION = `${WEBSITE_NAME} is a fully-featured, lightweight GUI client purpose-built for managing Val Town SQLite databases. It runs entirely in your browser, so there's no need to download anything`;
+export const WEBSITE_NAME = "Val Town Studio";
+export const WEBSITE_GENERAL_DESCRIPTION = `${WEBSITE_NAME} is a modern, fully-featured SQLite GUI purpose-built for Val Town. It runs entirely in your browser, so there's no need to download anything`;
