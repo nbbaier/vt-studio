@@ -8,7 +8,9 @@ export function getCreateResourceTypeList(
     {
       name: "val.town",
       icon: ValTownIcon,
-      href: workspaceId ? "" : "/local/new-base/valtown",
+      href: workspaceId
+        ? `/w/${workspaceId}/new-base/valtown`
+        : "/local/new-base/valtown",
     },
   ];
 }
