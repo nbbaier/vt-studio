@@ -15,7 +15,7 @@ export default function ThemeLayout({
   overrideThemeVariables?: Record<string, string>;
 }>) {
   useEffect(() => {
-    if (overrideThemeVariables && typeof window === "undefined") {
+    if (overrideThemeVariables && typeof window !== "undefined") {
       Object.entries(overrideThemeVariables).forEach(([key, value]) => {
         document.body.style.setProperty(key, value);
       });
