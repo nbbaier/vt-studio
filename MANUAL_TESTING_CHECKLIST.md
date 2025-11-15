@@ -59,9 +59,11 @@ This checklist covers manual testing for the Studio-First UI implementation and 
 ### 3. Database Operations
 
 - [ ] **Execute a simple query**
+
   ```sql
   SELECT 1 as test;
   ```
+
   - Query executes successfully
   - Results display in table view
   - No errors in console
@@ -73,6 +75,7 @@ This checklist covers manual testing for the Studio-First UI implementation and 
   - Should load table data in main view
 
 - [ ] **Create a new table** (if permitted)
+
   ```sql
   CREATE TABLE test_migration (
     id INTEGER PRIMARY KEY,
@@ -80,23 +83,28 @@ This checklist covers manual testing for the Studio-First UI implementation and 
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
   ```
+
   - Execute successfully
   - Table appears in schema sidebar
   - Can browse table contents
 
 - [ ] **Insert data**
+
   ```sql
   INSERT INTO test_migration (name) VALUES ('Test Row 1');
   ```
+
   - Executes successfully
   - Can query the data back
 
 - [ ] **Transaction support**
+
   ```sql
   BEGIN TRANSACTION;
   INSERT INTO test_migration (name) VALUES ('Transaction Test');
   COMMIT;
   ```
+
   - Transaction executes successfully
 
 ### 4. Token Persistence
@@ -292,6 +300,7 @@ Throughout all testing, monitor browser console for:
 ## ✅ Success Criteria
 
 All tests above should pass with:
+
 - ✅ No critical bugs or errors
 - ✅ Smooth user experience for first-time and returning users
 - ✅ Token persistence working correctly
@@ -306,6 +315,7 @@ All tests above should pass with:
 ## 🐛 Bug Reporting
 
 If any test fails, document:
+
 1. **Test step that failed**
 2. **Expected behavior**
 3. **Actual behavior**
@@ -318,14 +328,15 @@ If any test fails, document:
 
 ## 📋 Test Results
 
-**Tester Name**: _____________
-**Test Date**: _____________
-**Browser**: _____________
-**OS**: _____________
+**Tester Name**: **\*\***\_**\*\***
+**Test Date**: **\*\***\_**\*\***
+**Browser**: **\*\***\_**\*\***
+**OS**: **\*\***\_**\*\***
 
 **Overall Result**: ⬜ PASS / ⬜ FAIL / ⬜ PASS WITH ISSUES
 
 **Notes**:
+
 ```
 [Add any observations, issues found, or recommendations here]
 ```
@@ -335,6 +346,7 @@ If any test fails, document:
 ## Next Steps After Manual Testing
 
 Once all manual tests pass:
+
 1. Document any issues found and create tickets
 2. Perform final bundle size analysis
 3. Update migration documentation to "Complete"
