@@ -10,6 +10,27 @@
 
 ---
 
+## 📊 Migration Progress (Updated: Nov 15, 2025)
+
+**Current Status**: Phase 2 (90% complete) - Dependencies cleanup in progress
+
+| Phase | Status |
+|-------|--------|
+| ✅ Phase 1: Audit & Document | Complete (informal) |
+| 🔄 Phase 2: Remove Drivers & Update Types | 90% - Dependencies cleanup needed |
+| ✅ Phase 3: Simplify UI | Complete |
+| 📋 Phase 4: Simplify Architecture | Not started |
+| 📋 Phase 5: Update Documentation | Not started |
+| 📋 Phase 6: Testing | Not started |
+
+**Overall**: ~45% complete
+
+**Next Action**: Remove `@libsql/client` from package.json, run npm install, and verify build
+
+See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task tracking.
+
+---
+
 ## Phase 1: Audit and Document Current Val Town Implementation
 
 **Duration**: 0.5 day
