@@ -1,20 +1,12 @@
-# Outerbase Studio
+# Outerbase Studio for Val Town
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/outerbase/studio)
+**Outerbase Studio** is a lightweight, browser-based SQLite database GUI purpose-built for [Val Town](https://val.town). Manage your Val Town SQLite databases with an intuitive interface designed for simplicity and productivity.
 
-**Outerbase Studio** is a lightweight, browser-based GUI for managing SQL databases, designed for simplicity and versatility. Initially built for LibSQL and SQLite, it now supports a broad range of databases, including:
+**Database Support:**
 
-**Supported Databases:**
+- **Val Town SQLite** - Full-featured support for Val Town's SQLite API
 
-- **SQLite-based Database**
-  - Turso/LibSQL
-  - SQLite (local files)
-  - Cloudflare D1
-  - rqlite
-  - StarbaseDB
-  - Val.town
-- MySQL (beta, limited features)
-- PostgreSQL (beta, limited features)
+This version is optimized exclusively for Val Town, providing seamless integration with Val Town's hosted SQLite databases.
 
 ---
 
@@ -23,19 +15,14 @@ Give it a try directly from your browser
 [![LibSQL Studio, sqlite online editor](https://github.com/user-attachments/assets/5d92ce58-9ce6-4cd7-9c65-4763d2d3b231)](https://libsqlstudio.com)
 [![Libsql studio playground](https://github.com/user-attachments/assets/dcf7e246-fe72-4351-ab10-ae2d1658087d)](https://libsqlstudio.com/playground/client?template=chinook)
 
-## Desktop App
-
-You can download [Windows and Mac desktop app here](https://github.com/outerbase/studio-desktop/releases/).
-
-Outerbase Studio Desktop is a lightweight Electron wrapper for the Outerbase Studio web version. It enables support for drivers that aren't feasible in a browser environment, such as MySQL and PostgreSQL.
-
 ## Features
 
 ![libsqlstudio-git-preview (7)](https://github.com/user-attachments/assets/1d7a3d90-61e3-4a77-83a5-4bb096bbfb4b)
 
-- **Query Editor**: It features a user-friendly query editor equipped with auto-completion and function hint tooltips. It allows you to execute multiple queries simultaneously and view their results efficiently.
-- **Data Editor**: It comes with a powerful data editor, allowing you to stage all your changes and preview them before committing. The data table is highly optimized and lightweight, capable of rendering thousands of rows and columns efficiently.
-- **Schema Editor**: It allows you to quickly create, modify, and remove table columns with just a few clicks without writing any SQL.
-- **Connection Manager**: It includes a flexible connection manager, allowing you to store your connections locally in your browser. You can also store them on a server and share your connections across multiple devices.
+- **Query Editor**: User-friendly SQL editor with auto-completion and function hints optimized for SQLite. Execute multiple queries simultaneously and view results efficiently.
+- **Data Editor**: Powerful data editor with staging capabilities - preview all changes before committing. Highly optimized table renderer handles thousands of rows and columns smoothly.
+- **Schema Editor**: Visual schema designer - create, modify, and remove table columns without writing SQL.
+- **Val Town Integration**: Seamless authentication with Val Town API tokens. Your connections are stored securely in your browser's local storage.
+- **SQLite Features**: Full support for SQLite-specific features including triggers, views, indexes, and foreign keys.
 
-The features mentioned above are just a few of the many we offer. Give it a try to explore everything we have in store
+Built specifically for Val Town's SQLite implementation, optimized for the best possible experience with Val Town databases.

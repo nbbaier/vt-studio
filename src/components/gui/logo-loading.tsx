@@ -17,7 +17,7 @@ export default function LogoLoading() {
       </div>
 
       <div>
-        <h1 className="text-2xl font-semibold">LibSQL Studio</h1>
+        <h1 className="text-2xl font-semibold">Outerbase Studio</h1>
       </div>
     </div>
   );
