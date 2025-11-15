@@ -161,7 +161,7 @@ export default function SidebarTab({ tabs }: Readonly<SidebarTabProps>) {
                 style={{
                   contentVisibility: selected ? "auto" : "hidden",
                 }}
-                className={`absolute inset-0 flex ${selected ? "z-0" : "-z-10"}`}
+                className={cn("absolute inset-0 flex", selected ? "z-0" : "-z-10")}
               >
                 {loadedIndex[tabIndex] && tab.content}
               </div>
