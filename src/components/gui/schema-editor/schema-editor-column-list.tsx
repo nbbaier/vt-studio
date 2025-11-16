@@ -50,7 +50,7 @@ import ColumnTypeSelector from "./column-type-selector";
 import ColumnUniquePopup from "./column-unique-popup";
 
 export type ColumnChangeEvent = (
-  newValue: Partial<DatabaseTableColumn> | null
+  newValue: Partial<DatabaseTableColumn> | null,
 ) => void;
 
 export interface SchemaEditorOptions {
@@ -60,7 +60,7 @@ export interface SchemaEditorOptions {
 function changeColumnOnIndex(
   idx: number,
   value: Partial<DatabaseTableColumn> | null,
-  onChange: Dispatch<SetStateAction<DatabaseTableSchemaChange>>
+  onChange: Dispatch<SetStateAction<DatabaseTableSchemaChange>>,
 ) {
   onChange((prev) => {
     if (prev) {
@@ -182,7 +182,7 @@ function ColumnItem({
     (newValue: Partial<DatabaseTableColumn> | null) => {
       changeColumnOnIndex(idx, newValue, onChange);
     },
-    [idx, onChange]
+    [idx, onChange],
   );
 
   const column = value.new || value.old;
@@ -429,7 +429,7 @@ export default function SchemaEditorColumnList({
         }));
       }
     },
-    [columns, onChange]
+    [columns, onChange],
   );
 
   const headerCounter = useMemo(() => {

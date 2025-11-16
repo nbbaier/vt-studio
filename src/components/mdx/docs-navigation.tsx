@@ -43,7 +43,7 @@ export function DocNavigation({
                       key={content.title}
                       className={cn(
                         "border-l border-gray-200 py-1.5 pl-4",
-                        pathname === content.href ? "font-bold" : ""
+                        pathname === content.href ? "font-bold" : "",
                       )}
                     >
                       <Link href={content.href ?? ""}>{content.title}</Link>

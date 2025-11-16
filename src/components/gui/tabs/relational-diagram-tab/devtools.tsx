@@ -23,7 +23,7 @@ import { Button } from "../../../ui/button";
 export function ViewportLogger() {
   const viewport = useStore(
     (s) =>
-      `x: ${s.transform[0].toFixed(2)}, y: ${s.transform[1].toFixed(2)}, zoom: ${s.transform[2].toFixed(2)}`
+      `x: ${s.transform[0].toFixed(2)}, y: ${s.transform[1].toFixed(2)}, zoom: ${s.transform[2].toFixed(2)}`,
   );
 
   return <div>{viewport}</div>;
@@ -68,10 +68,10 @@ export function ChangeLogger({ limit = 20 }: ChangeLoggerProps) {
   const handleNodeChanges: OnNodesChange = useCallback(
     (newChanges: NodeChange[]) => {
       setChanges((prevChanges) =>
-        [...newChanges, ...prevChanges].slice(0, limit)
+        [...newChanges, ...prevChanges].slice(0, limit),
       );
     },
-    [limit]
+    [limit],
   );
 
   useEffect(() => {
@@ -87,9 +87,11 @@ export function ChangeLogger({ limit = 20 }: ChangeLoggerProps) {
       {changes.length === 0 ? (
         <NoChanges />
       ) : (
-        changes.map((change, index) => (
-          <ChangeInfo key={index} change={change} />
-        ))
+        changes.map((change, index) => {
+          const id = "id" in change ? change.id : `change-${index}`;
+          const changeKey = `${change.type}-${id}-${index}`;
+          return <ChangeInfo key={changeKey} change={change} />;
+        })
       )}
     </>
   );
@@ -137,7 +139,7 @@ type NodeInfoProps = {
   absPosition: XYPosition;
   width?: number;
   height?: number;
-  data: any;
+  data: Record<string, unknown>;
 };
 
 function NodeInfo({

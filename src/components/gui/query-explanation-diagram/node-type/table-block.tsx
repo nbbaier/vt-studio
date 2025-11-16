@@ -67,7 +67,7 @@ export function TableBlock(props: ExplainNodeProps) {
             <small>
               {formatCost(
                 Number(props.data.cost_info.read_cost) +
-                  Number(props.data.cost_info.eval_cost)
+                  Number(props.data.cost_info.eval_cost),
               )}
             </small>
           </div>

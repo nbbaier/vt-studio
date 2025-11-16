@@ -42,6 +42,7 @@ const TextComponent = ({ value }: OuterbaseChartProps) => {
         className="flex-1 self-start text-neutral-900 dark:text-neutral-100"
       >
         <span
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: we are using a trusted source
           dangerouslySetInnerHTML={{
             __html: markdown,
           }}
@@ -54,7 +55,14 @@ const TextComponent = ({ value }: OuterbaseChartProps) => {
 const SingleValueComponent = ({ value, data }: OuterbaseChartProps) => {
   const firstRecord = data.length > 0 ? data[0] : null;
   const keys = Object.keys(firstRecord ?? {});
-  let firstRecordValue = firstRecord ? firstRecord[keys[0] ?? ""] : "";
+  const rawValue = firstRecord ? firstRecord[keys[0] ?? ""] : undefined;
+  let firstRecordValue: string | number | null | undefined =
+    rawValue != null &&
+    (typeof rawValue === "string" || typeof rawValue === "number")
+      ? rawValue
+      : rawValue != null
+        ? String(rawValue)
+        : "";
   const formattedValue = value.params.options?.format;
 
   if (formattedValue === "percent") {
@@ -117,7 +125,7 @@ const SingleValueComponent = ({ value, data }: OuterbaseChartProps) => {
   return (
     <div className="h-full w-full">
       <div style={style} className="truncate font-bold">
-        {firstRecordValue}
+        {firstRecordValue != null ? String(firstRecordValue) : ""}
       </div>
     </div>
   );
@@ -138,15 +146,21 @@ const TableComponent = ({ data }: OuterbaseChartProps) => {
           </tr>
         </thead>
         <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
-              {Object.keys(row).map((key) => (
-                <td className="border px-4 py-2" key={key}>
-                  {row[key] || ""}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {data.map((row, index) => {
+            const rowKey = Object.values(row).join("-") || `row-${index}`;
+            return (
+              <tr key={rowKey}>
+                {Object.keys(row).map((key) => {
+                  const cellValue = row[key];
+                  return (
+                    <td className="border px-4 py-2" key={key}>
+                      {cellValue != null ? String(cellValue) : ""}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

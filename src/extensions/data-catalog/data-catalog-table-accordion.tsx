@@ -35,22 +35,16 @@ export default function DataCatalogTableAccordion({
   driver,
   hasDefinitionOnly,
 }: DataCatalogTableAccordionProps) {
-  const modelTable = driver.getTable(table.schemaName, table.tableName!);
-  const virtualJoinList = modelTable?.relations ?? [];
-
   const [collapsible, setCollapsible] = useState(false);
   const { search } = useDataCatalogContext();
   const [open, setOpen] = useState(false);
 
-  const tableMetadata = modelTable?.metadata;
-
-  // Check if any of the column match?
   const matchColumns = useMemo(() => {
     if (!search || search.toLowerCase() === table.tableName?.toLowerCase()) {
       return table.columns;
     }
     return table.columns.filter((column) =>
-      column.name.toLowerCase().includes(search.toLowerCase())
+      column.name.toLowerCase().includes(search.toLowerCase()),
     );
   }, [search, table]);
 
@@ -61,14 +55,22 @@ export default function DataCatalogTableAccordion({
     return true;
   }, [search, table]);
 
+  if (!table.tableName) {
+    return null;
+  }
+  const modelTable = driver.getTable(table.schemaName, table.tableName);
+  const virtualJoinList = modelTable?.relations ?? [];
+
+  const tableMetadata = modelTable?.metadata;
+
   // this will work only toggle check box
   if (hasDefinitionOnly) {
     const columnsDefinition = table.columns
       .map((col) => {
         const modelColumn = driver.getColumn(
           table.schemaName,
-          table.tableName!,
-          col.name
+          table.tableName ?? "",
+          col.name,
         );
         return modelColumn?.definition;
       })
@@ -89,7 +91,7 @@ export default function DataCatalogTableAccordion({
           {open && (
             <TableMetadataModal
               schemaName={table.schemaName}
-              tableName={table.tableName!}
+              tableName={table.tableName}
               data={tableMetadata}
               onClose={() => {
                 setOpen(false);
@@ -171,7 +173,7 @@ export default function DataCatalogTableAccordion({
                 <ChevronDown
                   className={cn(
                     "h-4 w-4 transform transition-transform duration-200",
-                    collapsible ? "rotate-180" : "rotate-0"
+                    collapsible ? "rotate-180" : "rotate-0",
                   )}
                 />
               </CollapsibleTrigger>

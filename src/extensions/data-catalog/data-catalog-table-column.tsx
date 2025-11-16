@@ -32,30 +32,48 @@ export default function DataCatalogTableColumn({
   hasDefinitionOnly,
 }: DataCatalogTableColumnProps) {
   const { driver, search } = useDataCatalogContext();
-
-  const modelColumn = driver.getColumn(
-    table.schemaName,
-    table.tableName!,
-    column.name
-  );
   const [open, setOpen] = useState(false);
   const [enabled, setEnabled] = useState<boolean>(() => {
+    if (!table.tableName) {
+      return true;
+    }
+    const modelColumn = driver.getColumn(
+      table.schemaName,
+      table.tableName,
+      column.name,
+    );
     return modelColumn?.hide ?? true;
   });
 
   const handleClickToggle = useCallback(() => {
+    if (!table.tableName || !column.name) return;
+    const modelColumn = driver.getColumn(
+      table.schemaName,
+      table.tableName,
+      column.name,
+    );
     driver
-      .updateColumn(table.schemaName, table.tableName!, column.name, {
+      .updateColumn(table.schemaName, table.tableName ?? "", column.name, {
         samples: modelColumn?.samples ?? [],
         definition: modelColumn?.definition ?? "",
         hide: !enabled,
       })
       .then(() =>
-        toast.success(`${column.name} is turned ${!enabled ? "on" : "off"}`)
+        toast.success(`${column.name} is turned ${!enabled ? "on" : "off"}`),
       )
       .catch(() => toast.error("Failed to update column"));
     setEnabled((prev) => !prev);
-  }, [modelColumn, driver, enabled, table, column]);
+  }, [driver, enabled, table, column]);
+
+  if (!table.tableName) {
+    return null;
+  }
+
+  const modelColumn = driver.getColumn(
+    table.schemaName,
+    table.tableName,
+    column.name,
+  );
 
   if (hasDefinitionOnly) {
     return null;
@@ -66,7 +84,7 @@ export default function DataCatalogTableColumn({
       key={column.name}
       className={cn(
         "border-accent flex items-center border-t pt-2 pb-2 text-sm",
-        enabled ? "opacity-100" : "opacity-50"
+        enabled ? "opacity-100" : "opacity-50",
       )}
     >
       <Toggle size="sm" toggled={enabled} onChange={handleClickToggle} />
@@ -123,7 +141,7 @@ export default function DataCatalogTableColumn({
           {open && (
             <DataCatalogTableColumnModal
               schemaName={table.schemaName}
-              tableName={table.tableName!}
+              tableName={table.tableName}
               columnName={column.name}
               onClose={() => setOpen(false)}
             />

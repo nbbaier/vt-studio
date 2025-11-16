@@ -12,7 +12,7 @@ const AutoCompleteContext = createContext<{
   updateTableList: (tables: string[]) => void;
   updateTableSchema: (
     tableName: string,
-    columns: DatabaseTableColumn[]
+    columns: DatabaseTableColumn[],
   ) => void;
   schema: Record<string, string[]>;
 }>({
@@ -43,7 +43,7 @@ export function AutoCompleteProvider({ children }: PropsWithChildren) {
         };
       });
     },
-    []
+    [],
   );
 
   const updateTableList = useCallback((tableName: string[]) => {
@@ -51,7 +51,7 @@ export function AutoCompleteProvider({ children }: PropsWithChildren) {
       tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
         acc[name] = [];
         return acc;
-      }, {})
+      }, {}),
     );
   }, []);
 
@@ -61,7 +61,7 @@ export function AutoCompleteProvider({ children }: PropsWithChildren) {
         acc[key] = columns.map((col) => col.name);
         return acc;
       },
-      {}
+      {},
     );
   }, [internalSchema]);
 

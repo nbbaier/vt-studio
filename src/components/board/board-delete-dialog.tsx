@@ -92,5 +92,5 @@ export const deleteChartDialog = createDialog<
       </>
     );
   },
-  { defaultValue: undefined }
+  { defaultValue: undefined },
 );

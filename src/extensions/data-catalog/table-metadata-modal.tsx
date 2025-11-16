@@ -40,7 +40,7 @@ export default function TableMetadataModal({
         schemaName: schemaName,
         hide: false,
       };
-    }
+    },
   );
 
   const [loading, setLoading] = useState(false);
@@ -87,7 +87,7 @@ export default function TableMetadataModal({
               setMetadataInput((prev) =>
                 produce(prev, (draft) => {
                   draft.alias = value;
-                })
+                }),
               );
             }}
             placeholder="Add a Pseudonym"

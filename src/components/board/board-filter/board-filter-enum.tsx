@@ -39,15 +39,15 @@ export function BoardFilterEnum(props: Props) {
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-auto">
-          {props.enums.map((v, idx) => {
+          {props.enums.map((v, _idx) => {
             return (
               <div
-                key={v + idx}
+                key={v}
                 className="mt-2 flex items-center justify-start gap-2"
               >
                 <div className="w-4">
                   <Checkbox
-                    id={v + idx}
+                    id={`${props.name}-${v}`}
                     checked={internalValue.split(",").includes(v)}
                     onCheckedChange={(checked) => {
                       const valueString = internalValue.split(",");
@@ -65,7 +65,7 @@ export function BoardFilterEnum(props: Props) {
                     }}
                   />
                 </div>
-                <label htmlFor={v + idx} className="text-left">
+                <label htmlFor={`${props.name}-${v}`} className="text-left">
                   {v}
                 </label>
               </div>

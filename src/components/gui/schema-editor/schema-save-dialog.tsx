@@ -60,7 +60,7 @@ export default function SchemaSaveDialog({
         } else if (schema.name.old && schema.schemaName) {
           fetchTable(
             schema.schemaName,
-            schema.name?.new || schema.name?.old || ""
+            schema.name?.new || schema.name?.old || "",
           ).then(onClose);
         }
       })

@@ -1,6 +1,6 @@
-import { formatNumber } from "@/lib/convertNumber";
 import { LucideCheck, LucideChevronDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { formatNumber } from "@/lib/convertNumber";
 import { buttonVariants } from "../../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import ListButtonItem from "../list-button-item";
@@ -216,7 +216,7 @@ export default function AggregateResultButton({
     (functionName: AggregateFunction) => {
       setDefaultFunction(functionName);
     },
-    []
+    [],
   );
 
   if (result.count && Number(result.count) <= 1) return null;

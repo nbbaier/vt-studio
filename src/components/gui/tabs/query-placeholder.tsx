@@ -17,7 +17,7 @@ export function QueryPlaceholder({
 }: Props): JSX.Element {
   const placeholderCount = Object.keys(placeholders).length;
   const emptyPlaceholderCount = Object.values(placeholders).filter(
-    (v) => v === ""
+    (v) => v === "",
   ).length;
   const hasEmptyPlaceholder = emptyPlaceholderCount > 0;
 

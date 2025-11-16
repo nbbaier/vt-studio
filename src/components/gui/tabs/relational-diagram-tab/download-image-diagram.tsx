@@ -30,10 +30,12 @@ export function DownloadImageDiagram() {
       imageHeight,
       0.5,
       2,
-      0
+      0,
     );
 
-    const doc: any = document.querySelector(".react-flow__viewport");
+    const doc = document.querySelector(
+      ".react-flow__viewport",
+    ) as HTMLElement | null;
 
     if (doc) {
       toPng(doc, {

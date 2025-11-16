@@ -45,7 +45,7 @@ export default function ColumnDefaultValueInput({
         });
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const onDefaultValueChange = useCallback(
@@ -58,7 +58,7 @@ export default function ColumnDefaultValueInput({
         });
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const onCustomValueCheckedChange = useCallback(
@@ -71,7 +71,7 @@ export default function ColumnDefaultValueInput({
         });
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const onCustomValueChange = useCallback(
@@ -82,7 +82,7 @@ export default function ColumnDefaultValueInput({
         defaultValue: e.currentTarget.value,
       });
     },
-    [onChange]
+    [onChange],
   );
 
   const onExpressionCheckedChange = useCallback(
@@ -95,7 +95,7 @@ export default function ColumnDefaultValueInput({
         });
       }
     },
-    [onChange]
+    [onChange],
   );
 
   const onExpressionValueChange = useCallback(
@@ -106,7 +106,7 @@ export default function ColumnDefaultValueInput({
         defaultValue: undefined,
       });
     },
-    [onChange]
+    [onChange],
   );
 
   const noDefaultValue =

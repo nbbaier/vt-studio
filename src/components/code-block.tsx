@@ -60,10 +60,15 @@ async function CodeBlock(props: MDXCodeBlockProps) {
     return <CodeBlockInner {...(props as CodeBlockProps)} />;
   }
 
-  const codeElement = React.Children.toArray(props.children).find(
-    (child) =>
-      React.isValidElement(child) && (child as any).type().type === "code"
-  ) as React.ReactElement | undefined;
+  const codeElement = React.Children.toArray(props.children).find((child) => {
+    if (!React.isValidElement(child)) return false;
+    const childType = child.type;
+    return (
+      typeof childType === "function" &&
+      "type" in childType &&
+      (childType as { type?: string }).type === "code"
+    );
+  }) as React.ReactElement | undefined;
 
   if (codeElement && typeof codeElement.props.children === "string") {
     return <CodeBlockInner {...(codeElement.props as CodeBlockProps)} />;

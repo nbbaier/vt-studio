@@ -61,7 +61,7 @@ export default function SchemaView() {
             buttonVariants({
               size: "icon",
             }),
-            "h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200"
+            "h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200",
           )}
           onClick={contentMenu[0].onClick}
         >
@@ -79,7 +79,7 @@ export default function SchemaView() {
               buttonVariants({
                 size: "icon",
               }),
-              "h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200"
+              "h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200",
             )}
           >
             <Plus size={16} weight="bold" />

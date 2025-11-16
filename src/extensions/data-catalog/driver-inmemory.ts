@@ -23,7 +23,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
   constructor(
     schemas: DataCatalogSchemas,
     dataCatalog: DataCatalogTermDefinition[],
-    options: DataCatalogInmemoryDriverOptions
+    options: DataCatalogInmemoryDriverOptions,
   ) {
     this.schemas = schemas;
     this.options = options;
@@ -50,7 +50,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
     schemaName: string,
     tableName: string,
     columnName: string,
-    data: DataCatalogColumnInput
+    data: DataCatalogColumnInput,
   ): Promise<DataCatalogColumn> {
     await this.delay();
 
@@ -79,7 +79,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
       (col) =>
         col.columnName?.toLowerCase() === normalizedColumnName &&
         col.schemaName?.toLowerCase() === normalizedSchemaName &&
-        col.tableName?.toLowerCase() === normalizedTableName
+        col.tableName?.toLowerCase() === normalizedTableName,
     );
     if (index > -1) {
       table.columns[index] = {
@@ -103,7 +103,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
   async updateTable(
     schemaName: string,
     tableName: string,
-    data: DataCatalogColumn
+    data: DataCatalogColumn,
   ): Promise<DataCatalogTable> {
     await this.delay();
 
@@ -135,19 +135,19 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
   getColumn(
     schemaName: string,
     tableName: string,
-    columnName: string
+    columnName: string,
   ): DataCatalogColumn | undefined {
     const normalizedColumnName = columnName.toLowerCase();
     const table = this.getTable(schemaName, tableName);
     const column = table?.columns.find(
-      (col) => col.columnName.toLowerCase() === normalizedColumnName
+      (col) => col.columnName.toLowerCase() === normalizedColumnName,
     );
     return column;
   }
 
   getTable(
     schemaName: string,
-    tableName: string
+    tableName: string,
   ): DataCatalogTable | undefined {
     const normalizedSchemaName = schemaName.toLowerCase();
     const normalizedTableName = tableName.toLowerCase();
@@ -175,7 +175,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
   }
 
   async addVirtualJoin(
-    data: Omit<DataCatalogTableRelationship, "id">
+    data: Omit<DataCatalogTableRelationship, "id">,
   ): Promise<DataCatalogTableRelationship> {
     await this.delay();
 
@@ -202,7 +202,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
     return this.definitions;
   }
   async addTermDefinition(
-    data: Omit<DataCatalogTermDefinition, "id">
+    data: Omit<DataCatalogTermDefinition, "id">,
   ): Promise<DataCatalogTermDefinition | undefined> {
     await this.delay();
 
@@ -218,7 +218,7 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
   }
 
   async updateTermDefinition(
-    data: DataCatalogTermDefinition
+    data: DataCatalogTermDefinition,
   ): Promise<DataCatalogTermDefinition | undefined> {
     await this.delay();
 
@@ -231,7 +231,10 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
     const existingIndex = definitions.findIndex((term) => term.id === data.id);
 
     if (existingIndex !== -1) {
-      definitions[existingIndex] = { ...definitions[existingIndex], ...data };
+      definitions[existingIndex] = {
+        ...definitions[existingIndex],
+        ...data,
+      };
     }
 
     this.notify();
@@ -261,6 +264,8 @@ export default class DataCatalogInmemoryDriver implements DataCatalogDriver {
 
   // Notify all subscribers
   private notify() {
-    this.subscribers.forEach((callback) => callback());
+    this.subscribers.forEach((callback) => {
+      callback();
+    });
   }
 }

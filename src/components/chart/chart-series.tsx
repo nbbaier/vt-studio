@@ -37,8 +37,8 @@ export default function ChartSeries({
                 if (!draft.params.options.yAxisKeys) return;
                 draft.params.options.yAxisKeys.push(
                   columns.filter(
-                    (key) => !draft.params.options.yAxisKeys?.includes(key)
-                  )[0]
+                    (key) => !draft.params.options.yAxisKeys?.includes(key),
+                  )[0],
                 );
               });
             });
@@ -56,7 +56,7 @@ export default function ChartSeries({
           return (
             <ChartSeriesCombobox
               color={color}
-              key={index}
+              key={key}
               values={
                 columns.map((s) => {
                   return {
@@ -83,7 +83,7 @@ export default function ChartSeries({
                     } else {
                       draft.params.options.yAxisKeys =
                         draft.params.options.yAxisKeys?.filter(
-                          (k) => k !== series
+                          (k) => k !== series,
                         );
                     }
                   });
@@ -109,14 +109,14 @@ export default function ChartSeries({
                   const colors = generateGradientColors(
                     themeColor[0],
                     themeColor[1],
-                    columns.length
+                    columns.length,
                   );
                   const newColors = columns?.reduce(
                     (acc, col, i) => {
                       acc[col] = colors[i];
                       return acc;
                     },
-                    {} as Record<string, string>
+                    {} as Record<string, string>,
                   );
                   return produce(prev, (draft) => {
                     draft.params.options.theme = theme;

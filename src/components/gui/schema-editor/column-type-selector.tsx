@@ -50,7 +50,7 @@ function ColumnTypeList({
               onClick={() => {
                 if (parameters.length > 0) {
                   onChange(
-                    `${type.name.toUpperCase()}(${parameters.map((p) => p.default).join(",")})`
+                    `${type.name.toUpperCase()}(${parameters.map((p) => p.default).join(",")})`,
                   );
                 } else {
                   onChange(`${type.name.toUpperCase()}`);
@@ -155,6 +155,7 @@ export default function ColumnTypeSelector({
         {typeof typeSuggestion.description === "function" && (
           <div
             className="my-1 font-sans text-sm"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: we are using a trusted source
             dangerouslySetInnerHTML={{
               __html: typeSuggestion.description(parsedType, parsedParameters),
             }}

@@ -52,7 +52,7 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
     protected options?: {
       supportPragmaList?: boolean;
       supportBigInt?: boolean;
-    }
+    },
   ) {
     super();
     this.supportPragmaList = options?.supportPragmaList ?? false;
@@ -115,7 +115,7 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 
   protected getSchemaList(
     result: DatabaseResultSet,
-    schemaName: string
+    schemaName: string,
   ): DatabaseSchemaItem[] {
     const tmp: DatabaseSchemaItem[] = [];
     const rows = result.rows as Array<{
@@ -154,7 +154,7 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 
   protected async legacyTableSchema(
     schemaName: string,
-    tableName: string
+    tableName: string,
   ): Promise<DatabaseTableSchema> {
     const sql = `SELECT * FROM ${this.escapeId(schemaName)}.pragma_table_info(${this.escapeValue(tableName)});`;
     const result = await this.query(sql);
@@ -177,8 +177,8 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
     try {
       const seqCount = await this.query(
         `SELECT COUNT(*) AS total FROM ${this.escapeId(schemaName)}.sqlite_sequence WHERE name=${escapeSqlValue(
-          tableName
-        )};`
+          tableName,
+        )};`,
       );
 
       const seqRow = seqCount.rows[0];
@@ -212,8 +212,8 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 
     const tableListPerDatabase = await this.transaction(
       databaseList.map(
-        (d) => `SELECT * FROM ${this.escapeId(d.name)}.sqlite_schema;`
-      )
+        (d) => `SELECT * FROM ${this.escapeId(d.name)}.sqlite_schema;`,
+      ),
     );
 
     return tableListPerDatabase.reduce((a, b, idx) => {
@@ -225,12 +225,12 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 
   async trigger(
     schemaName: string,
-    name: string
+    name: string,
   ): Promise<DatabaseTriggerSchema> {
     const result = await this.query(
       `SELECT * FROM ${this.escapeId(schemaName)}.sqlite_schema WHERE "type"='trigger' AND name=${escapeSqlValue(
-        name
-      )};`
+        name,
+      )};`,
     );
 
     const triggerRow = result.rows[0] as { sql: string } | undefined;
@@ -250,10 +250,10 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 
   async tableSchema(
     schemaName: string,
-    tableName: string
+    tableName: string,
   ): Promise<DatabaseTableSchema> {
     const sql = `SELECT * FROM ${this.escapeId(schemaName)}.sqlite_schema WHERE tbl_name = ${escapeSqlValue(
-      tableName
+      tableName,
     )};`;
     const result = await this.query(sql);
 
@@ -319,7 +319,7 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
   override async findFirst(
     schemaName: string,
     tableName: string,
-    key: Record<string, DatabaseValue>
+    key: Record<string, DatabaseValue>,
   ): Promise<DatabaseResultSet> {
     const wherePart = Object.entries(key)
       .map(([colName, colValue]) => {
@@ -337,7 +337,7 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
   async selectTable(
     schemaName: string,
     tableName: string,
-    options: SelectFromTableOptions
+    options: SelectFromTableOptions,
   ): Promise<{ data: DatabaseResultSet; schema: DatabaseTableSchema }> {
     const schema = await this.tableSchema(schemaName, tableName);
     let injectRowIdColumn = false;

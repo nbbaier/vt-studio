@@ -65,7 +65,7 @@ interface SqlEditorProps {
   onCursorChange?: (
     pos: number,
     lineNumber: number,
-    columnNumber: number
+    columnNumber: number,
   ) => void;
 }
 
@@ -86,7 +86,7 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
       highlightVariable,
       onPrompt,
     }: SqlEditorProps,
-    ref
+    ref,
   ) {
     const theme = useCodeEditorTheme({ fontSize });
 
@@ -143,7 +143,7 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
               onFontSizeChanged(newFontSize);
               toast.info(
                 `Change code editor font size to ${Math.floor(newFontSize * 100)}%`,
-                { duration: 1000, id: "font-size" }
+                { duration: 1000, id: "font-size" },
               );
             }
             return true;
@@ -159,7 +159,7 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
               onFontSizeChanged(newFontSize);
               toast.info(
                 `Change code editor font size to ${Math.floor(newFontSize * 100)}%`,
-                { duration: 1000, id: "font-size" }
+                { duration: 1000, id: "font-size" },
               );
             }
             return true;
@@ -255,7 +255,7 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
         extensions={extensions}
       />
     );
-  }
+  },
 );
 
 export default SqlEditor;

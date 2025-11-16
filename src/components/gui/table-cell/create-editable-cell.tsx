@@ -1,6 +1,6 @@
-import type { DatabaseValue } from "@/drivers/base-driver";
 import type { ColumnType } from "@outerbase/sdk-transform";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { DatabaseValue } from "@/drivers/base-driver";
 import { useFullEditor } from "../providers/full-editor-provider";
 import type { OptimizeTableHeaderWithIndexProps } from "../table-optimized";
 import type OptimizeTableState from "../table-optimized/optimize-table-state";
@@ -115,7 +115,7 @@ export default function createEditableCell<T = unknown>({
     header,
   }: TableEditableCell<T>) {
     const [editValue, setEditValue] = useState<DatabaseValue<string>>(
-      valueToString(value)
+      valueToString(value),
     );
     const { openEditor } = useFullEditor();
 
@@ -132,7 +132,7 @@ export default function createEditableCell<T = unknown>({
           state.exitEditMode();
         }
       },
-      [onChange, state]
+      [onChange, state],
     );
 
     // biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function

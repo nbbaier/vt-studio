@@ -8,7 +8,7 @@ export default function HighlightText({ text, highlight }: Props) {
 
   const regex = new RegExp(
     `(${(highlight ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-    "i"
+    "i",
   );
 
   const splitedText = text.split(regex);
@@ -16,12 +16,13 @@ export default function HighlightText({ text, highlight }: Props) {
   return (
     <span>
       {splitedText.map((text, idx) => {
+        const textKey = `${idx}-${text}`;
         return text.toLowerCase() === (highlight ?? "").toLowerCase() ? (
-          <span key={idx} className="bg-yellow-300 text-black">
+          <span key={textKey} className="bg-yellow-300 text-black">
             {text}
           </span>
         ) : (
-          <span key={idx}>{text}</span>
+          <span key={textKey}>{text}</span>
         );
       })}
     </span>

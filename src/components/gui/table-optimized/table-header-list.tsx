@@ -13,13 +13,13 @@ export default function TableHeaderList<HeaderMetadata = unknown>({
 }: {
   headers: OptimizeTableHeaderWithIndexProps<HeaderMetadata>[];
   renderHeader: (
-    props: OptimizeTableHeaderWithIndexProps<HeaderMetadata>
+    props: OptimizeTableHeaderWithIndexProps<HeaderMetadata>,
   ) => ReactElement;
   onHeaderResize: (idx: number, newWidth: number) => void;
   sticky: boolean;
   onHeaderContextMenu?: (
     e: React.MouseEvent,
-    header: OptimizeTableHeaderWithIndexProps<HeaderMetadata>
+    header: OptimizeTableHeaderWithIndexProps<HeaderMetadata>,
   ) => void;
   state: OptimizeTableState<HeaderMetadata>;
 }) {

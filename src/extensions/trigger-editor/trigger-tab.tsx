@@ -42,7 +42,7 @@ export default function TriggerTab({
         draft.tableName = tableName ?? "";
         draft.schemaName = schemaName ?? "";
       });
-    }
+    },
   );
   const [value, setValue] = useState<DatabaseTriggerSchema>(initialValue);
 

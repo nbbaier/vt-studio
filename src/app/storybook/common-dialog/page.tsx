@@ -47,7 +47,7 @@ function StorybookBody() {
                 onClick: async () => {
                   await new Promise((resolve) => setTimeout(resolve, 3000));
                   throw new Error(
-                    "Failed to delete. You do not have permission"
+                    "Failed to delete. You do not have permission",
                   );
                 },
               },

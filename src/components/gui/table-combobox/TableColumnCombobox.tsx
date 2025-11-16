@@ -63,7 +63,7 @@ export default function TableColumnCombobox({
           <div
             className={cn(
               buttonVariants({ variant: "outline" }),
-              "flex w-full justify-between"
+              "flex w-full justify-between",
             )}
           >
             {value || "No table selected"}
@@ -89,7 +89,7 @@ export default function TableColumnCombobox({
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === column.name ? "opacity-100" : "opacity-0"
+                    value === column.name ? "opacity-100" : "opacity-0",
                   )}
                 />
                 {column.name}

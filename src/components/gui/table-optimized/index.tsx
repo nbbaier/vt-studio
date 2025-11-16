@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import type { Icon } from "@phosphor-icons/react";
 import type React from "react";
 import {
@@ -11,6 +10,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { cn } from "@/lib/utils";
 import type OptimizeTableState from "./optimize-table-state";
 import OptimizeTableCell from "./table-cell";
 import TableFakeBodyPadding from "./table-fake-body-padding";
@@ -60,15 +60,15 @@ export interface OptimizeTableCellRenderProps<MetadataType = unknown> {
 interface TableCellListCommonProps<MetadataType = unknown> {
   internalState: OptimizeTableState<MetadataType>;
   renderHeader: (
-    props: OptimizeTableHeaderWithIndexProps<MetadataType>
+    props: OptimizeTableHeaderWithIndexProps<MetadataType>,
   ) => ReactElement;
   renderCell: (
-    props: OptimizeTableCellRenderProps<MetadataType>
+    props: OptimizeTableCellRenderProps<MetadataType>,
   ) => ReactElement;
   rowHeight: number;
   onHeaderContextMenu?: (
     e: React.MouseEvent,
-    header: OptimizeTableHeaderWithIndexProps<MetadataType>
+    header: OptimizeTableHeaderWithIndexProps<MetadataType>,
   ) => void;
   onContextMenu?: (props: {
     state: OptimizeTableState<MetadataType>;
@@ -137,7 +137,7 @@ function renderCellList<HeaderMetadata = unknown>({
       if (internalState.isFullSelectionRow(absoluteRowIndex)) {
         textClass = cn(
           "flex items-center justify-end h-full pr-2 font-mono",
-          "bg-neutral-100 dark:bg-neutral-900 border-red-900 text-black dark:text-white font-bold"
+          "bg-neutral-100 dark:bg-neutral-900 border-red-900 text-black dark:text-white font-bold",
         );
         tdClass =
           "sticky left-0 bg-neutral-100 dark:bg-blue-800 border-r border-b";

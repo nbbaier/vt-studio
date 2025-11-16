@@ -32,7 +32,7 @@ export function ButtonGroupItem({
         `flex h-7 cursor-pointer items-center rounded-sm px-2 text-sm text-neutral-600 transition-all hover:bg-neutral-200 dark:text-neutral-400 hover:dark:bg-neutral-800`,
         {
           "bg-neutral-200 dark:bg-neutral-800": selected,
-        }
+        },
       )}
     >
       {children}

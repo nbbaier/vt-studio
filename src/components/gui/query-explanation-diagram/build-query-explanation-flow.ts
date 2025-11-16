@@ -113,7 +113,7 @@ function parseDetailLiteToMysql(detail: string) {
 }
 
 export function convertSQLiteRowToMySQL(
-  rows: ExplanationRow[]
+  rows: ExplanationRow[],
 ): ExplanationMysql {
   const haveUnion = rows.some((row) => row.detail.includes("UNION"));
   const tables: { table: ExplanationMysqlTable }[] = [];
@@ -201,7 +201,7 @@ export function convertSQLiteRowToMySQL(
 function getLayoutedExplanationElements(
   nodes: Node[],
   edges: Edge[],
-  direction = "TB"
+  direction = "TB",
 ) {
   const isHorizontal = direction === "LR";
 
@@ -222,10 +222,10 @@ function getLayoutedExplanationElements(
 
   const newNodes = nodes.map((node) => {
     const nodeWithPosition = dagreGraph.node(node.id);
-    const newNode = {
+    const newNode: Node = {
       ...node,
-      targetPosition: isHorizontal ? "left" : "top",
-      sourcePosition: isHorizontal ? "right" : "bottom",
+      targetPosition: (isHorizontal ? "left" : "top") as Position,
+      sourcePosition: (isHorizontal ? "right" : "bottom") as Position,
       // We are shifting the dagre node position (anchor=center center) to the top left
       // so it matches the React Flow node anchor point (top left).
       position: {
@@ -240,12 +240,15 @@ function getLayoutedExplanationElements(
   return { nodes: newNodes, edges };
 }
 
-export function buildQueryExplanationFlow(item: ExplanationMysql, id?: number) {
+export function buildQueryExplanationFlow(
+  item: ExplanationMysql,
+  id?: number,
+): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
   // Keep all tables
-  const nodesTables = new Set();
-  const edgesTable = new Set();
+  const nodesTables = new Set<Node>();
+  const edgesTable = new Set<Edge>();
   let keyNestedloopAndTableShouldConnected = `query_block${id ? `-${id}` : ""}`;
 
   let table = item.query_block.table || null;
@@ -411,7 +414,7 @@ export function buildQueryExplanationFlow(item: ExplanationMysql, id?: number) {
   }
 
   if (union_result) {
-    const union_flow: any[] = [];
+    const union_flow: Array<{ nodes: Node[]; edges: Edge[] }> = [];
     nodes.push({
       id: "query_block",
       data: {
@@ -453,12 +456,9 @@ export function buildQueryExplanationFlow(item: ExplanationMysql, id?: number) {
       animated: true,
     });
     for (const union of union_result.query_specifications) {
-      const unionNodeEdge: {
-        nodes: Node[] | unknown[];
-        edges: Edge[] | unknown[];
-      } = buildQueryExplanationFlow(
+      const unionNodeEdge = buildQueryExplanationFlow(
         union as unknown as ExplanationMysql,
-        (union as unknown as ExplanationMysql).query_block.select_id || 0
+        (union as unknown as ExplanationMysql).query_block.select_id || 0,
       );
       union_flow.push(unionNodeEdge);
     }
@@ -466,7 +466,7 @@ export function buildQueryExplanationFlow(item: ExplanationMysql, id?: number) {
     const layout = getLayoutedExplanationElements(
       [...nodes, ...union_flow.flatMap((x) => x.nodes)],
       [...edges, ...union_flow.flatMap((x) => x.edges)],
-      "LR"
+      "LR",
     );
 
     return {
@@ -616,9 +616,9 @@ export function buildQueryExplanationFlow(item: ExplanationMysql, id?: number) {
     return {
       nodes: [
         ...layout.nodes.filter((_, i) => i < layout.nodes.length - 1),
-        ...nodesTables,
+        ...Array.from(nodesTables),
       ],
-      edges: [...layout.edges, ...edgesTable],
+      edges: [...layout.edges, ...Array.from(edgesTable)],
     };
   }
 

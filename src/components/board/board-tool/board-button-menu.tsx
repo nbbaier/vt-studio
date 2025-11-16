@@ -78,7 +78,7 @@ export function BoardButtonMenu(props: Props) {
   }
 
   const autoIntervalSelected = setting?.autoRefresh.find(
-    (f) => convertTimeToMilliseconds(f) === props.interval
+    (f) => convertTimeToMilliseconds(f) === props.interval,
   );
 
   const progress = (timeleft * 100000) / props.interval;
@@ -105,7 +105,7 @@ export function BoardButtonMenu(props: Props) {
             type="button"
             className={cn(
               buttonVariants({ size: "sm", variant: "ghost" }),
-              "gap-2"
+              "gap-2",
             )}
           >
             {props.interval > 0 && (

@@ -11,7 +11,7 @@ import { generateId } from "@/lib/generate-id";
 import { KEY_BINDING } from "@/lib/key-matcher";
 import { useFullEditor } from "../providers/full-editor-provider";
 import type OptimizeTableState from "../table-optimized/optimize-table-state";
-import TableStateActions from "./table-state-actions";
+import { duplicateRow, duplicateRowWithoutKey } from "./table-state-actions";
 import type { TableHeaderMetadata } from "./type";
 
 export default function useTableResultContextMenu({
@@ -163,7 +163,7 @@ export default function useTableResultContextMenu({
               onClick: () => {
                 if (state.getSelectedRowCount() > 0) {
                   window.navigator.clipboard.writeText(
-                    exportRowsToExcel(state.getSelectedRowsArray())
+                    exportRowsToExcel(state.getSelectedRowsArray()),
                   );
                 }
               },
@@ -177,7 +177,7 @@ export default function useTableResultContextMenu({
 
                 if (state.getSelectedRowCount() > 0) {
                   window.navigator.clipboard.writeText(
-                    exportRowsToJson(headers, state.getSelectedRowsArray())
+                    exportRowsToJson(headers, state.getSelectedRowsArray()),
                   );
                 }
               },
@@ -194,8 +194,8 @@ export default function useTableResultContextMenu({
                     exportRowsToSqlInsert(
                       tableName ?? "UnknownTable",
                       headers,
-                      state.getSelectedRowsArray()
-                    )
+                      state.getSelectedRowsArray(),
+                    ),
                   );
                 }
               },
@@ -216,13 +216,13 @@ export default function useTableResultContextMenu({
               {
                 title: "Duplicate row without keys",
                 onClick: () => {
-                  TableStateActions.duplicateRowWithoutKey(state);
+                  duplicateRowWithoutKey(state);
                 },
               },
               {
                 title: "Duplicate row with keys",
                 onClick: () => {
-                  TableStateActions.duplicateRow(state);
+                  duplicateRow(state);
                 },
               },
               { separator: true },
@@ -238,6 +238,6 @@ export default function useTableResultContextMenu({
             ]),
       ])(event);
     },
-    [data, tableName, copyCallback, pasteCallback, openEditor, extensions]
+    [data, tableName, copyCallback, pasteCallback, openEditor, extensions],
   );
 }

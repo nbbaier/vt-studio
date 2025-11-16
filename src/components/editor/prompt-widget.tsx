@@ -43,7 +43,7 @@ export function CodeMirrorPromptWidget({
     return agentDriver.list();
   }, [agentDriver]);
   const [selectedAgent, setSelectedAgent] = useState(() =>
-    agentDriver?.getDefaultModelName()
+    agentDriver?.getDefaultModelName(),
   );
 
   const [previousPrompt, setPreviousPrompt] = useState("");
@@ -60,7 +60,7 @@ export function CodeMirrorPromptWidget({
       fakeTextareaRef.current.value = e.currentTarget.value;
       const newHeight = Math.max(
         minHeight,
-        fakeTextareaRef.current.scrollHeight
+        fakeTextareaRef.current.scrollHeight,
       );
 
       setHeight(Math.max(minHeight, fakeTextareaRef.current.scrollHeight));
@@ -155,7 +155,7 @@ export function CodeMirrorPromptWidget({
             placeholder="Editing instruction"
             className={cn(
               textareaClassName,
-              "text-foreground top-0 bottom-0 overflow-hidden"
+              "text-foreground top-0 bottom-0 overflow-hidden",
             )}
             onPaste={(e) => {
               e.stopPropagation();

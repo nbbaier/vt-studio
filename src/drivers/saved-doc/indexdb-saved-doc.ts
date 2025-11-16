@@ -90,7 +90,7 @@ export default class IndexdbSavedDoc implements SavedDocDriver {
   async createDoc(
     type: SavedDocType,
     namespace: string,
-    data: SavedDocInput
+    data: SavedDocInput,
   ): Promise<SavedDocData> {
     const now = Math.floor(Date.now() / 1000);
     const id = generateId();
@@ -200,6 +200,8 @@ export default class IndexdbSavedDoc implements SavedDocDriver {
   }
 
   protected triggerChange() {
-    this.cb.forEach((c) => c());
+    this.cb.forEach((c) => {
+      c();
+    });
   }
 }

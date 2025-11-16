@@ -68,11 +68,17 @@ export default function ScreenDropZone({ onFileDrop }: Props) {
       if (fileList.length === 0) return;
 
       try {
-        (fileList[0] as any)
-          .getAsFileSystemHandle()
-          .then((handler: FileSystemFileHandle) => {
+        const item = fileList[0];
+        if (
+          item &&
+          typeof item === "object" &&
+          "getAsFileSystemHandle" in item &&
+          typeof item.getAsFileSystemHandle === "function"
+        ) {
+          item.getAsFileSystemHandle().then((handler: FileSystemFileHandle) => {
             onFileDrop(undefined, handler);
           });
+        }
       } catch (_error) {
         const file = e.dataTransfer.files[0];
         if (!file) return;

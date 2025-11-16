@@ -71,7 +71,7 @@ export interface ChartValue {
 }
 
 export interface ChartData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export type ChartType =

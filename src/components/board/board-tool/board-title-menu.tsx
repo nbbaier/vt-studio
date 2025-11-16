@@ -17,7 +17,7 @@ export function BoardTitleMenu(props: Props) {
           props.onChange(
             produce(props.value, (draft) => {
               draft.name = e.target.value;
-            })
+            }),
           )
         }
         onBlur={props.onSave}

@@ -1,5 +1,6 @@
 // import { Button, buttonVariants } from "../../ui/button";
 
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/orbit/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getFormatHandlers } from "@/lib/export-helper";
-import { useCallback, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import type OptimizeTableState from "../table-optimized/optimize-table-state";
 import type { TableSelectionRange } from "../table-optimized/optimize-table-state";
@@ -108,7 +108,7 @@ export default function ExportResultButton({
   }, [getDefaultOption]);
 
   const [exportSetting, setExportSetting] = useState<ExportSettings>(
-    getSettingFromStorage()
+    getSettingFromStorage(),
   );
 
   const [selectionCount, setSelectionCount] = useState<selectionCount>({
@@ -120,11 +120,11 @@ export default function ExportResultButton({
     () => {
       const savedSelection = exportSetting.selection;
       return validateExportSelection(savedSelection, selectionCount);
-    }
+    },
   );
 
   const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
-    selectionCount.ranges.length > 0 ? 0 : -1
+    selectionCount.ranges.length > 0 ? 0 : -1,
   );
   const [open, setOpen] = useState(false);
 
@@ -138,7 +138,7 @@ export default function ExportResultButton({
       exportSetting.target,
       exportSelection,
       exportSetting.options ?? getDefaultOption(exportSetting.format) ?? null,
-      selectedRangeIndex
+      selectedRangeIndex,
     );
 
     const handler = formatHandlers[exportSetting.format];
@@ -183,7 +183,7 @@ export default function ExportResultButton({
 
   useEffect(() => {
     setExportSelection(
-      validateExportSelection(exportSetting.selection, selectionCount)
+      validateExportSelection(exportSetting.selection, selectionCount),
     );
   }, [exportSetting, selectionCount]);
 
@@ -208,8 +208,9 @@ export default function ExportResultButton({
         <SelectContent>
           {ranges.map((range, index) => {
             const value = buildSelectionRangeLabel(range);
+            const rangeKey = `${range.x1}-${range.x2}-${range.y1}-${range.y2}`;
             return (
-              <SelectItem key={index} value={index.toString()}>
+              <SelectItem key={rangeKey} value={index.toString()}>
                 <small>{value}</small>
               </SelectItem>
             );
@@ -406,7 +407,7 @@ export default function ExportResultButton({
                 <div className="mt-2 flex flex-col space-y-2">
                   <div className="flex items-center space-x-4">
                     <span className="w-[120px] text-sm">Field separator:</span>
-                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
+                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
                       <input
                         disabled={exportSetting.format !== "delimited"}
                         type="text"
@@ -467,7 +468,7 @@ export default function ExportResultButton({
                   </div>
                   <div className="flex items-center space-x-4">
                     <span className="w-[120px] text-sm">NULL Value:</span>
-                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
+                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900  outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
                       <input
                         type="text"
                         className="flex-1 bg-transparent text-sm font-light outline-hidden"
@@ -506,7 +507,7 @@ function buildSelectionRangeLabel(range: TableSelectionRange): string {
 
 function validateExportSelection(
   savedSelection: string | null,
-  selectionCount: selectionCount
+  selectionCount: selectionCount,
 ): ExportSelection {
   if (!savedSelection) {
     return "complete";

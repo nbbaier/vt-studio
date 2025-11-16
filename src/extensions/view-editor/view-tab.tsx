@@ -68,12 +68,12 @@ export default function ViewTab(props: ViewTabProps) {
     ) {
       const oldSchemaName = currentSchemaName;
       await databaseDriver.query(
-        `USE ${databaseDriver.escapeId(value.schemaName)}`
+        `USE ${databaseDriver.escapeId(value.schemaName)}`,
       );
       await databaseDriver.transaction(previewScript);
       if (oldSchemaName !== "") {
         await databaseDriver.query(
-          `USE ${databaseDriver.escapeId(oldSchemaName)}`
+          `USE ${databaseDriver.escapeId(oldSchemaName)}`,
         );
       }
     } else {

@@ -27,7 +27,7 @@ export function DataCatalogEntryModal({ onClose, driver, definition }: Props) {
   const [deleting, setDeleting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<TermDefinitionInut>(
-    () => definition
+    () => definition,
   );
 
   const saveTermDefinition = useCallback(() => {
@@ -51,12 +51,12 @@ export function DataCatalogEntryModal({ onClose, driver, definition }: Props) {
   }, [formData, driver, onClose]);
 
   function onDelete() {
-    if (!definition) return;
+    if (!definition || !definition.id) return;
 
     setDeleting(true);
 
     driver
-      ?.deleteTermDefinition(definition.id!)
+      ?.deleteTermDefinition(definition.id)
       .then()
       .finally(() => onClose());
   }
@@ -68,7 +68,7 @@ export function DataCatalogEntryModal({ onClose, driver, definition }: Props) {
         [key]: value,
       }));
     },
-    []
+    [],
   );
 
   return (

@@ -4,7 +4,7 @@ import { CursorV2 } from "./sql-parse-table";
 
 export function parseCreateViewScript(
   schemaName: string,
-  sql: string
+  sql: string,
 ): DatabaseViewSchema {
   const cursor = new CursorV2(tokenizeSql(sql, "sqlite"));
 
@@ -20,7 +20,7 @@ export function parseCreateViewScript(
 
   let statement = "";
   const fromStatement = cursor.getPointer();
-  let toStatement;
+  let toStatement: number | undefined;
 
   while (!cursor.end()) {
     toStatement = cursor.getPointer();

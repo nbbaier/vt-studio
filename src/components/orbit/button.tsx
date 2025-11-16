@@ -54,7 +54,7 @@ export const Button = ({
 
           toggle: toggled,
         },
-        className
+        className,
       )}
       disabled={disabled || loading}
       href={href}

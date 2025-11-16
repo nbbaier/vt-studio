@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function SchemaCreateDialog(
-  props: React.PropsWithChildren<Props>
+  props: React.PropsWithChildren<Props>,
 ) {
   return (
     <Dialog defaultOpen onOpenChange={props.onClose}>

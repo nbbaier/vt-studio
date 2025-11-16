@@ -36,7 +36,7 @@ export function Studio({
   agentDriver,
 }: Readonly<StudioProps>) {
   const extensionRef = useRef<StudioExtensionManager | undefined | null>(
-    extensions
+    extensions,
   );
 
   useEffect(() => {

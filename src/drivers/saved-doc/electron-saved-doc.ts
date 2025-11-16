@@ -28,7 +28,12 @@ export default class ElectronSavedDocs implements SavedDocDriver {
 
     if (!result || result.namespace.length === 0) {
       this.cacheNamespaceList = [
-        { id: "workspace", name: "Workspace", createdAt: now, updatedAt: now },
+        {
+          id: "workspace",
+          name: "Workspace",
+          createdAt: now,
+          updatedAt: now,
+        },
       ];
 
       this.cacheDocs = {
@@ -97,7 +102,7 @@ export default class ElectronSavedDocs implements SavedDocDriver {
     await this.getNamespaces();
 
     this.cacheNamespaceList = (this.cacheNamespaceList ?? []).filter(
-      (n) => n.id !== id
+      (n) => n.id !== id,
     );
 
     this.save();
@@ -106,9 +111,16 @@ export default class ElectronSavedDocs implements SavedDocDriver {
   async createDoc(
     type: SavedDocType,
     namespace: string,
-    data: SavedDocInput
+    data: SavedDocInput,
   ): Promise<SavedDocData> {
     await this.getNamespaces();
+
+    const foundNamespace = (this.cacheNamespaceList ?? []).find(
+      (n) => n.id === namespace,
+    );
+    if (!foundNamespace) {
+      throw new Error(`Namespace ${namespace} not found`);
+    }
 
     const now = Math.floor(Date.now() / 1000);
     const r: SavedDocData = {
@@ -116,9 +128,7 @@ export default class ElectronSavedDocs implements SavedDocDriver {
       name: data.name,
       createdAt: now,
       updatedAt: now,
-      namespace: (this.cacheNamespaceList ?? []).find(
-        (n) => n.id === namespace
-      )!,
+      namespace: foundNamespace,
       type,
       id: generateId(),
     };
@@ -170,7 +180,7 @@ export default class ElectronSavedDocs implements SavedDocDriver {
 
     for (const namespaceId of Object.keys(this.cacheDocs)) {
       this.cacheDocs[namespaceId] = this.cacheDocs[namespaceId].filter(
-        (d) => d.id !== id
+        (d) => d.id !== id,
       );
     }
 
@@ -187,6 +197,8 @@ export default class ElectronSavedDocs implements SavedDocDriver {
   }
 
   protected triggerChange() {
-    this.cb.forEach((c) => c());
+    this.cb.forEach((c) => {
+      c();
+    });
   }
 }

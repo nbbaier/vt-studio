@@ -96,7 +96,7 @@ const JsonEditor = forwardRef<ReactCodeMirrorRef, JsonEditorProps>(
         extensions={[json(), indentationMarkers()]}
       />
     );
-  }
+  },
 );
 
 export default JsonEditor;

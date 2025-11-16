@@ -81,7 +81,7 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
         }
       }
     },
-    [boardValue, onBoardChange, storage, value.charts]
+    [boardValue, onBoardChange, storage, value.charts],
   );
 
   const menus = [
@@ -126,86 +126,91 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
       dummy[index].h = h;
       onChange(dummy);
     },
-    [onChange, value.layout]
+    [onChange, value.layout],
   );
 
-  const mapItem: JSX.Element[] = value.layout.map((_, i) => {
-    return (
-      <div
-        key={_.i}
-        className="group relative flex items-center justify-center overflow-hidden rounded-xl bg-white shadow hover:bg-gray-50 dark:bg-neutral-900 dark:text-white"
-        data-grid={_}
-      >
-        <BoardChart
-          value={value.charts.find((chart) => chart.id === _.i) as any}
-        />
-        {boardMode?.mode === "REARRANGING_CHART" ? (
-          <>
-            <div className="absolute top-2 right-2 z-40 hidden gap-2 group-hover:flex">
-              {sizes.map((x, index) => {
-                return (
-                  <button
-                    type="button"
-                    className={cn(
-                      buttonVariants({ variant: "secondary", size: "icon" }),
-                      "cancelSelectorName h-6 w-6 p-0"
-                    )}
-                    onClick={() =>
-                      handleClickResize(x.w as number, x.h as number, i)
-                    }
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchStart={(e) => e.stopPropagation()}
-                    key={index}
-                  >
-                    {x.icon}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="absolute top-2 left-2 z-40 hidden group-hover:block">
-              <button
-                type="button"
-                className={cn(
-                  buttonVariants({ variant: "default", size: "icon" }),
-                  "cancelSelectorName h-6 w-6 cursor-pointer rounded-full"
-                )}
-                onClick={() => onRemove(_.i)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="absolute top-4 right-4">
-            <DropdownMenu key={_.i}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={buttonVariants({ size: "icon", variant: "ghost" })}
-                >
-                  <EllipsisVertical className="h-4 w-4" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                {menus.map((menu) => {
+  const mapItem: JSX.Element[] = value.layout
+    .map((_, i) => {
+      const chart = value.charts.find((chart) => chart.id === _.i);
+      if (!chart) return null;
+      return (
+        <div
+          key={_.i}
+          className="group relative flex items-center justify-center overflow-hidden rounded-xl bg-white shadow hover:bg-gray-50 dark:bg-neutral-900 dark:text-white"
+          data-grid={_}
+        >
+          <BoardChart value={chart} />
+          {boardMode?.mode === "REARRANGING_CHART" ? (
+            <>
+              <div className="absolute top-2 right-2 z-40 hidden gap-2 group-hover:flex">
+                {sizes.map((x, _index) => {
                   return (
-                    <DropdownMenuItem
-                      key={menu.name}
-                      className="flex gap-2"
-                      onClick={() => menu.onclick(_.i)}
+                    <button
+                      type="button"
+                      className={cn(
+                        buttonVariants({ variant: "secondary", size: "icon" }),
+                        "cancelSelectorName h-6 w-6 p-0",
+                      )}
+                      onClick={() =>
+                        handleClickResize(x.w as number, x.h as number, i)
+                      }
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onTouchStart={(e) => e.stopPropagation()}
+                      key={x.name}
                     >
-                      {menu.icon}
-                      {menu.name}
-                    </DropdownMenuItem>
+                      {x.icon}
+                    </button>
                   );
                 })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-      </div>
-    );
-  });
+              </div>
+              <div className="absolute top-2 left-2 z-40 hidden group-hover:block">
+                <button
+                  type="button"
+                  className={cn(
+                    buttonVariants({ variant: "default", size: "icon" }),
+                    "cancelSelectorName h-6 w-6 cursor-pointer rounded-full",
+                  )}
+                  onClick={() => onRemove(_.i)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="absolute top-4 right-4">
+              <DropdownMenu key={_.i}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className={buttonVariants({
+                      size: "icon",
+                      variant: "ghost",
+                    })}
+                  >
+                    <EllipsisVertical className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {menus.map((menu) => {
+                    return (
+                      <DropdownMenuItem
+                        key={menu.name}
+                        className="flex gap-2"
+                        onClick={() => menu.onclick(_.i)}
+                      >
+                        {menu.icon}
+                        {menu.name}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+        </div>
+      );
+    })
+    .filter((item): item is JSX.Element => item !== null);
 
   return (
     <div className="bg-neutral-100 dark:bg-neutral-950">

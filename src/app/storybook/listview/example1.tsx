@@ -14,7 +14,7 @@ export function StorybookListviewExample() {
       if (filter === "") return true;
       return item.name.toLowerCase().indexOf(filter.toLowerCase()) >= 0;
     },
-    [filter]
+    [filter],
   );
 
   const items = useMemo(() => {

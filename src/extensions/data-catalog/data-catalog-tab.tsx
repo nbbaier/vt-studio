@@ -15,7 +15,7 @@ export default function DataCatalogTab() {
     extensions.getExtension<DataCatalogExtension>("data-catalog");
   const driver = dataCatalogExtension?.driver;
   const [definitions, setDefinitions] = useState<DataCatalogTermDefinition[]>(
-    []
+    [],
   );
   const [open, setOpen] = useState(false);
 

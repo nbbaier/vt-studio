@@ -142,7 +142,7 @@ export default function WindowTabs({
         }
       }
     },
-    [tabs, selected, onTabsChange]
+    [tabs, selected, onTabsChange],
   );
 
   const changeCurrentTab = useCallback(
@@ -156,12 +156,12 @@ export default function WindowTabs({
         }
       }
     },
-    [tabs, selected, onTabsChange]
+    [tabs, selected, onTabsChange],
   );
 
   const contextValue = useMemo(
     () => ({ replaceCurrentTab, changeCurrentTab }),
-    [changeCurrentTab, replaceCurrentTab]
+    [changeCurrentTab, replaceCurrentTab],
   );
 
   const handleDragEnd = useCallback(
@@ -178,12 +178,12 @@ export default function WindowTabs({
         }
 
         const selectedIndex = newTabs.findIndex(
-          (tab) => tab.key === selectedTab?.key
+          (tab) => tab.key === selectedTab?.key,
         );
         onSelectChange(selectedIndex);
       }
     },
-    [onTabsChange, tabs, onSelectChange, selected]
+    [onTabsChange, tabs, onSelectChange, selected],
   );
 
   return (
@@ -221,7 +221,7 @@ export default function WindowTabs({
                         ? undefined
                         : () => {
                             const newTabs = tabs.filter(
-                              (t) => t.key !== tab.key
+                              (t) => t.key !== tab.key,
                             );
 
                             if (selected >= idx) {
@@ -252,7 +252,7 @@ export default function WindowTabs({
                       {menu.map((menuItem, menuIdx) => {
                         return (
                           <DropdownMenuItem
-                            key={menuIdx}
+                            key={menuItem.text || `menu-item-${menuIdx}`}
                             onClick={menuItem.onClick}
                           >
                             {menuItem.text}

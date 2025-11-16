@@ -51,7 +51,7 @@ export default function ChartYAxisSection({
             });
           }}
           value={capitalizeFirstChar(
-            value.params.options?.yAxisLabelDisplay ?? "left"
+            value.params.options?.yAxisLabelDisplay ?? "left",
           )}
         />
       </div>

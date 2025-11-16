@@ -20,14 +20,18 @@ import { cn } from "@/lib/utils";
 
 export function ContextMenuList({ menu }: { menu: OpenContextMenuList }) {
   return menu.map((item, menuIndex) => {
+    const itemKey = item.separator
+      ? `separator-${menuIndex}`
+      : `${item.title || "item"}-${menuIndex}`;
+
     if (item.separator) {
-      return <ContextMenuSeparator key={menuIndex} />;
+      return <ContextMenuSeparator key={itemKey} />;
     }
 
     if (item.type === "check") {
       return (
         <ContextMenuCheckboxItem
-          key={menuIndex}
+          key={itemKey}
           checked={item.checked}
           onClick={item.onClick}
           disabled={item.disabled}
@@ -39,7 +43,7 @@ export function ContextMenuList({ menu }: { menu: OpenContextMenuList }) {
 
     if (item.sub) {
       return (
-        <ContextMenuSub key={menuIndex}>
+        <ContextMenuSub key={itemKey}>
           <ContextMenuSubTrigger inset>{item.title}</ContextMenuSubTrigger>
           <ContextMenuSubContent
             className={!item.subWidth ? "w-48" : ""}
@@ -53,7 +57,7 @@ export function ContextMenuList({ menu }: { menu: OpenContextMenuList }) {
 
     return (
       <ContextMenuItem
-        key={menuIndex}
+        key={itemKey}
         onClick={item.onClick}
         disabled={item.disabled}
         inset={!item.icon}
@@ -62,7 +66,7 @@ export function ContextMenuList({ menu }: { menu: OpenContextMenuList }) {
           <item.icon
             className={cn(
               "mr-2 h-4 w-4",
-              item.destructive ? "text-red-500" : undefined
+              item.destructive ? "text-red-500" : undefined,
             )}
           />
         )}

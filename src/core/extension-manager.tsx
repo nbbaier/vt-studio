@@ -29,12 +29,12 @@ export interface StudioExtensionMenuItem {
 }
 
 type CreateResourceMenuHandler = (
-  resource: DatabaseSchemaItem
+  resource: DatabaseSchemaItem,
 ) => StudioExtensionMenuItem | undefined;
 
 type QueryHeaderResultMenuHandler = (
   header: OptimizeTableHeaderProps<TableHeaderMetadata>,
-  state: OptimizeTableState<TableHeaderMetadata>
+  state: OptimizeTableState<TableHeaderMetadata>,
 ) => StudioExtensionMenuItem | undefined;
 
 type AfterFetchSchemaHandler = (schema: DatabaseSchemas) => void;
@@ -83,7 +83,7 @@ export class StudioExtensionContext {
 
   registerResourceContextMenu(
     handler: CreateResourceMenuHandler,
-    group: "other" | "modification" = "other"
+    group: "other" | "modification" = "other",
   ) {
     if (!this.resourceContextMenu[group]) {
       this.resourceContextMenu[group] = [handler];
@@ -123,7 +123,7 @@ export class StudioExtensionManager extends StudioExtensionContext {
 
   getResourceContextMenu(
     resource: DatabaseSchemaItem,
-    group: "other" | "modification"
+    group: "other" | "modification",
   ) {
     return (this.resourceContextMenu[group] ?? [])
       .map((handler) => handler(resource))
@@ -132,7 +132,7 @@ export class StudioExtensionManager extends StudioExtensionContext {
 
   getQueryHeaderContextMenu(
     header: OptimizeTableHeaderProps<TableHeaderMetadata>,
-    state: OptimizeTableState<TableHeaderMetadata>
+    state: OptimizeTableState<TableHeaderMetadata>,
   ) {
     return this.queryResultHeaderContextMenu
       .map((handler) => handler(header, state))

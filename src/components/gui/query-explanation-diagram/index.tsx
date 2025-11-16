@@ -38,20 +38,20 @@ function QueryExplanationFlow(props: LayoutFlowProps) {
       GROUP_OPERATION: OperationBlock,
       UNION_RESULT: UnionBlock,
     }),
-    []
+    [],
   );
 
   useEffect(() => {
     if (loading) {
       const build = buildQueryExplanationFlow(
-        props.items as unknown as ExplanationMysql
+        props.items as unknown as ExplanationMysql,
       );
       setNodes(
-        build.nodes.map((node: any) => ({
+        build.nodes.map((node: Node) => ({
           ...node,
           sourcePosition: node.sourcePosition as Position,
           targetPosition: node.targetPosition as Position,
-        }))
+        })),
       );
       setEdges(build.edges as Edge[]);
       setLoading(false);

@@ -2,7 +2,7 @@ import { Input, type InputProps } from "./orbit/input";
 import { Label } from "./orbit/label";
 
 export default function LabelInput(
-  props: InputProps & { label: string; requiredDescription?: string }
+  props: InputProps & { label: string; requiredDescription?: string },
 ) {
   return (
     <div className="flex flex-col gap-2">

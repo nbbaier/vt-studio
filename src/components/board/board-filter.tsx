@@ -80,7 +80,7 @@ export function BoardFilter(props: Props) {
             onFilterValueChange(
               produce(filterValue, (draft) => {
                 draft[x.name] = v;
-              })
+              }),
             );
           }}
         />
@@ -94,7 +94,7 @@ export function BoardFilter(props: Props) {
             onFilterValueChange(
               produce(filterValue, (draft) => {
                 draft[x.name] = v;
-              })
+              }),
             );
           }}
         />
@@ -107,17 +107,17 @@ export function BoardFilter(props: Props) {
             onFilterValueChange(
               produce(filterValue, (draft) => {
                 draft[x.name] = v;
-              })
+              }),
             );
           }}
         />
       );
     return (
       <div
-        key={i}
+        key={x.name}
         className="bg-secondary flex items-center rounded-md text-sm"
       >
-        <div className="border-background flex items-center gap-1 border-r-[1px] border-solid px-2 py-1">
+        <div className="border-background flex items-center gap-1 border-r border-solid px-2 py-1">
           {icon}
           {x.name}
         </div>
@@ -149,7 +149,7 @@ export function BoardFilter(props: Props) {
               onClick={() => {
                 const value = produce(props.value, (draft) => {
                   draft.data.filters = props.value.data.filters.filter(
-                    (_, idx) => idx !== i
+                    (_, idx) => idx !== i,
                   );
                 });
                 storage
@@ -189,7 +189,7 @@ export function BoardFilter(props: Props) {
               if (props.value.data.filters[selectIndex].new === true) {
                 const value = produce(props.value, (draft) => {
                   draft.data.filters = props.value.data.filters.filter(
-                    (_, i) => i !== selectIndex
+                    (_, i) => i !== selectIndex,
                   );
                 });
                 props.onChange(value);

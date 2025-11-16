@@ -46,7 +46,7 @@ export function ToolbarButton({
       className={cn(
         "flex gap-2",
         buttonVariants({ variant: "ghost", size: "sm" }),
-        destructive ? "text-red-500 hover:text-red-500" : ""
+        destructive ? "text-red-500 hover:text-red-500" : "",
       )}
       disabled={disabled}
       onClick={onClick}

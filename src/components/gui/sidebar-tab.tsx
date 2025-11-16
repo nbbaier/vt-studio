@@ -138,7 +138,7 @@ export default function SidebarTab({ tabs }: Readonly<SidebarTabProps>) {
                       "cursor flex h-10 w-10 cursor-pointer flex-col items-center justify-center gap-0.5 text-neutral-400 hover:text-neutral-900 dark:text-neutral-600 dark:hover:text-neutral-100",
                       selectedIndex === idx
                         ? "rounded-xl bg-neutral-200 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100"
-                        : undefined
+                        : undefined,
                     )}
                   >
                     {icon}
@@ -165,7 +165,7 @@ export default function SidebarTab({ tabs }: Readonly<SidebarTabProps>) {
                 }}
                 className={cn(
                   "absolute inset-0 flex",
-                  selected ? "z-0" : "-z-10"
+                  selected ? "z-0" : "-z-10",
                 )}
               >
                 {loadedIndex[tabIndex] && tab.content}

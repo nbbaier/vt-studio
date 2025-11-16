@@ -1,4 +1,5 @@
-import { Button } from "../../ui/button";
+import Image from "next/image";
+import { Button } from "@/components/orbit/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -24,10 +25,12 @@ export default function DisplayLinkCell({ link }: { link: string }) {
           <div className="flex flex-col gap-2">
             {isImage && (
               <div className="flex items-center justify-center rounded bg-gray-600 p-2 dark:bg-gray-800">
-                <img
+                <Image
                   src={link}
                   alt=""
                   className="h-[200px] w-[200px] object-contain"
+                  width={100}
+                  height={100}
                 />
               </div>
             )}

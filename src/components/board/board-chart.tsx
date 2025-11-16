@@ -20,7 +20,7 @@ export default function BoardChart({ value }: { value: ChartValue }) {
       sql,
       resolvedFilterValue,
       (sources?.sourceList().find((s) => s.id === sourceId)?.type ??
-        "sqlite") as unknown as SupportedDialect
+        "sqlite") as unknown as SupportedDialect,
     );
   }, [sql, sources, sourceId, resolvedFilterValue]);
 
@@ -51,7 +51,7 @@ export default function BoardChart({ value }: { value: ChartValue }) {
         if (loaderRef.current) {
           const progress = Math.min(
             ((Date.now() - lastRunTimestamp) / 3000) * 100,
-            80
+            80,
           );
 
           loaderRef.current.style.width = `${progress}%`;

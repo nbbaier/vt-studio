@@ -26,10 +26,10 @@ export default function ColumnListEditor({
 
   return (
     <div className="flex gap-2">
-      {value.map((columnName, idx) => {
+      {value.map((columnName) => {
         return (
           <div
-            key={idx}
+            key={columnName}
             className="bg-secondary flex items-center rounded px-2"
           >
             <span className="p-1">{columnName}</span>

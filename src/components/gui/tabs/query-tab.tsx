@@ -89,7 +89,7 @@ export default function QueryWindow({
   const { changeCurrentTab } = useTabsContext();
 
   const [namespaceName, setNamespaceName] = useState(
-    initialNamespace ?? "Unsaved Query"
+    initialNamespace ?? "Unsaved Query",
   );
   const [savedKey, setSavedKey] = useState<string | undefined>(initialSavedKey);
   const [placeholders, setPlaceholders] = useState<Record<string, string>>({});
@@ -122,7 +122,7 @@ export default function QueryWindow({
         format(code, {
           language: "sqlite",
           tabWidth: 2,
-        })
+        }),
       );
     } catch (e) {
       toast.error((e as Error).message);
@@ -166,7 +166,7 @@ export default function QueryWindow({
       for (let i = 0; i < finalStatements.length; i++) {
         const token = tokenizeSql(
           finalStatements[i],
-          databaseDriver.getFlags().dialect
+          databaseDriver.getFlags().dialect,
         );
 
         // Defensive measurement
@@ -196,7 +196,7 @@ export default function QueryWindow({
           .map((t) => {
             if (t.type === "PLACEHOLDER") {
               return escapeSqlValue(
-                extractInputValue(placeholders[t.value.slice(1)])
+                extractInputValue(placeholders[t.value.slice(1)]),
               );
             }
             return t.value;
@@ -249,7 +249,7 @@ export default function QueryWindow({
       setSavedKey(doc.id);
       changeCurrentTab({ identifier: TAB_PREFIX_SAVED_QUERY + doc.id });
     },
-    [changeCurrentTab]
+    [changeCurrentTab],
   );
 
   const onPrepareSaveContent = useCallback((): SavedDocInput => {
@@ -314,7 +314,7 @@ export default function QueryWindow({
       setLineNumber(line);
       setColumnNumber(col);
     },
-    []
+    [],
   );
 
   const onPrompt = useCallback(
@@ -328,12 +328,12 @@ export default function QueryWindow({
         {
           selected: option?.text ?? "",
           schema: schema,
-        }
+        },
       );
 
       return agentResponse;
     },
-    [agentDriver, schema]
+    [agentDriver, schema],
   );
 
   return (
@@ -391,7 +391,7 @@ export default function QueryWindow({
                             onClick={() => onRunClicked()}
                             className={cn(
                               buttonVariants({ size: "sm" }),
-                              "rounded-r-none"
+                              "rounded-r-none",
                             )}
                             aria-label={`Run query (${modifierKey}+Enter)`}
                           >
@@ -414,7 +414,7 @@ export default function QueryWindow({
                       type="button"
                       className={cn(
                         buttonVariants({ size: "sm" }),
-                        "rounded-l-none border-l"
+                        "rounded-l-none border-l",
                       )}
                     >
                       <CaretDown size={12} />
@@ -514,7 +514,7 @@ export function getSingleTableName(query: string): string | null {
 
     // Match the table names after "from" keyword
     const fromMatch = normalizedQuery.match(
-      /from\s+([^\s,;]+(?:\s*,\s*[^\s,;]+)*)/i
+      /from\s+([^\s,;]+(?:\s*,\s*[^\s,;]+)*)/i,
     );
     const joinMatches = normalizedQuery.match(/join\s+([^\s,;]+)/gi);
 

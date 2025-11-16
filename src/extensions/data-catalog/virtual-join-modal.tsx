@@ -24,7 +24,7 @@ export const virtualJoinDialog = createDialog<{
 }>(({ driver, relation, close }) => {
   const [loading, setLoading] = useState(false);
   const [value, setValue] = useState<IRelationship>(() =>
-    structuredClone(relation)
+    structuredClone(relation),
   );
 
   const createUpdateVirtualJoin = useCallback(() => {
@@ -58,7 +58,7 @@ export const virtualJoinDialog = createDialog<{
       !value.referenceTableName ||
       !value.referenceColumnName ||
       !value.columnName,
-    [value]
+    [value],
   );
 
   return (
@@ -86,7 +86,7 @@ export const virtualJoinDialog = createDialog<{
             setValue((prev) =>
               produce(prev, (draft) => {
                 draft.columnName = value;
-              })
+              }),
             );
           }}
         />
@@ -103,7 +103,7 @@ export const virtualJoinDialog = createDialog<{
                 produce(prev, (draft) => {
                   draft.referenceTableName = value;
                   draft.referenceColumnName = "";
-                })
+                }),
               );
             }}
           />
@@ -121,7 +121,7 @@ export const virtualJoinDialog = createDialog<{
               setValue((prev) =>
                 produce(prev, (draft) => {
                   draft.referenceColumnName = value;
-                })
+                }),
               );
             }}
           />

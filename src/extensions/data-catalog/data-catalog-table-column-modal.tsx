@@ -44,14 +44,14 @@ export default function DataCatalogTableColumnModal({
     setSampleLoading(true);
     databaseDriver
       .query(
-        `SELECT DISTINCT ${databaseDriver.escapeId(columnName)} FROM ${databaseDriver.escapeId(schemaName)}.${databaseDriver.escapeId(tableName)} LIMIT 10`
+        `SELECT DISTINCT ${databaseDriver.escapeId(columnName)} FROM ${databaseDriver.escapeId(schemaName)}.${databaseDriver.escapeId(tableName)} LIMIT 10`,
       )
       .then((r) => {
         setColumn((prev) =>
           produce(prev, (draft) => {
             const row = r.rows.map((row) => row[columnName]);
             draft.samples = row as string[];
-          })
+          }),
         );
       })
       .finally(() => setSampleLoading(false));
@@ -95,7 +95,7 @@ export default function DataCatalogTableColumnModal({
               setColumn((prev) =>
                 produce(prev, (draft) => {
                   draft.definition = e.target.value;
-                })
+                }),
               );
             }}
             placeholder="Please provide the definition of a column. This is intended to enhance AI functionality."

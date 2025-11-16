@@ -34,7 +34,7 @@ export default function ViewEditor(props: Props) {
             onChange(
               produce(value, (draft) => {
                 draft.name = e.currentTarget.value;
-              })
+              }),
             )
           }
         />
@@ -45,7 +45,7 @@ export default function ViewEditor(props: Props) {
               onChange(
                 produce(value, (draft) => {
                   draft.schemaName = schemaName;
-                })
+                }),
               );
             }}
           />
@@ -61,7 +61,7 @@ export default function ViewEditor(props: Props) {
               onChange(
                 produce(value, (draft) => {
                   draft.statement = newStatement;
-                })
+                }),
               )
             }
           />

@@ -1,3 +1,10 @@
+import { AlertDialogTitle } from "@radix-ui/react-alert-dialog";
+import {
+  LucideArrowLeft,
+  LucideArrowRight,
+  LucideRefreshCcw,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import ResultTable from "@/components/gui/query-result-table";
 import { Button } from "@/components/orbit/button";
 import {
@@ -22,13 +29,6 @@ import type {
 } from "@/drivers/base-driver";
 import { KEY_BINDING } from "@/lib/key-matcher";
 import { commitChange } from "@/lib/sql/sql-execute-helper";
-import { AlertDialogTitle } from "@radix-ui/react-alert-dialog";
-import {
-  LucideArrowLeft,
-  LucideArrowRight,
-  LucideRefreshCcw,
-} from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 import AggregateResultButton from "../aggregate-result/aggregate-result-button";
 import ExportResultButton from "../export/export-result-button";
 import OpacityLoading from "../loading-opacity";
@@ -353,7 +353,7 @@ export default function TableDataWindow({
                       try {
                         const finalValue = Math.max(
                           0,
-                          parseInt(e.currentTarget.value, 10)
+                          parseInt(e.currentTarget.value, 10),
                         );
                         if (finalValue !== finalLimit) {
                           setFinalLimit(finalValue);
@@ -379,7 +379,7 @@ export default function TableDataWindow({
                       try {
                         const finalValue = Math.max(
                           0,
-                          parseInt(e.currentTarget.value, 10)
+                          parseInt(e.currentTarget.value, 10),
                         );
                         if (finalValue !== finalOffset) {
                           setFinalOffset(finalValue);

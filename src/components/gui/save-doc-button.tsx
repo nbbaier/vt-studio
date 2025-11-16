@@ -68,7 +68,7 @@ export default function SaveDocButton({
         }
       }
     },
-    [docDriver, onPrepareContent, docId, onComplete]
+    [docDriver, onPrepareContent, docId, onComplete],
   );
 
   return (

@@ -1,6 +1,6 @@
 import { produce } from "immer";
 import { isDate } from "lodash";
-import type { DatabaseResultSet } from "@/drivers/base-driver";
+import type { DatabaseResultSet, DatabaseRow } from "@/drivers/base-driver";
 import {
   type ChartType,
   type ChartValue,
@@ -13,7 +13,7 @@ export function createAutoBoardChartValue(
   prev: ChartValue,
   newResult: DatabaseResultSet,
   sql: string,
-  theme: string
+  theme: string,
 ): ChartValue {
   return produce(prev, (draft) => {
     draft.params.layers[0].sql = sql;
@@ -63,7 +63,7 @@ export function createAutoBoardChartValue(
         const suggestedChartTypes = suggestChartType(
           xAxisKeys,
           yAxisKeys,
-          newResult.rows
+          newResult.rows,
         );
 
         draft.suggestedChartType = suggestedChartTypes;
@@ -82,14 +82,14 @@ export function createAutoBoardChartValue(
         const colors = generateGradientColors(
           themeColor[0],
           themeColor[1],
-          columns.length
+          columns.length,
         );
         const newColors = columns.reduce(
           (acc, col, i) => {
             acc[col] = colors[i];
             return acc;
           },
-          {} as Record<string, string>
+          {} as Record<string, string>,
         );
 
         draft.params.options.theme = DEFAULT_THEME;
@@ -99,7 +99,7 @@ export function createAutoBoardChartValue(
         const colors = generateGradientColors(
           themeColor[0],
           themeColor[1],
-          columns.length + 5
+          columns.length + 5,
         );
 
         for (let i = 0; i < columns.length; i++) {
@@ -117,7 +117,7 @@ export function createAutoBoardChartValue(
   });
 }
 
-function getColumnType(firstRecord: any): Record<string, string> {
+function getColumnType(firstRecord: DatabaseRow): Record<string, string> {
   const columnTypes: Record<string, string> = {};
   const keys = Object.keys(firstRecord);
   for (const key of keys) {
@@ -129,7 +129,7 @@ function getColumnType(firstRecord: any): Record<string, string> {
 function suggestChartType(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): ChartType[] {
   const suggestedChartTypes: ChartType[] = [];
 
@@ -169,7 +169,7 @@ function suggestChartType(
 function isSuitableForLineChart(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   if (rows.length < 20) return false;
   const hasTimeSeries = xAxisKeys.some((key) => isDate(rows[0][key]));
@@ -179,7 +179,7 @@ function isSuitableForLineChart(
 function isSuitableForColumnChart(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   if (rows.length >= 20) return false;
   return xAxisKeys.length > 0 && yAxisKeys.length > 0 && rows.length > 1;
@@ -188,7 +188,7 @@ function isSuitableForColumnChart(
 function isSuitableForBarChart(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   if (rows.length >= 20) return false;
   return xAxisKeys.length === 1 && yAxisKeys.length === 1 && rows.length > 1;
@@ -197,7 +197,7 @@ function isSuitableForBarChart(
 function isSuitableForPieChart(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   return xAxisKeys.length === 1 && yAxisKeys.length === 1 && rows.length > 1;
 }
@@ -205,7 +205,7 @@ function isSuitableForPieChart(
 function isSuitableForFunnelChart(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   return isSuitableForPieChart(xAxisKeys, yAxisKeys, rows);
 }
@@ -213,7 +213,7 @@ function isSuitableForFunnelChart(
 function isSuitableForScatterChart(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   if (xAxisKeys.length === 1 && yAxisKeys.length === 1 && rows.length > 1) {
     if (
@@ -229,20 +229,20 @@ function isSuitableForScatterChart(
 function isSuitableForTable(
   xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   if (rows.length >= 20 || xAxisKeys.length + yAxisKeys.length > 2) return true;
   return false;
 }
 
-function isSuitableForSingleValue(rows: any[]): boolean {
+function isSuitableForSingleValue(rows: DatabaseRow[]): boolean {
   return rows.length === 1;
 }
 
 function isSuitTableForRadarChart(
   _xAxisKeys: string[],
   yAxisKeys: string[],
-  rows: any[]
+  rows: DatabaseRow[],
 ): boolean {
   if (yAxisKeys.length > 2 && rows.length > 1) {
     return true;

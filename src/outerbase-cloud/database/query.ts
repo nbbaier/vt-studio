@@ -19,7 +19,7 @@ export class OuterbaseQueryable implements QueryableBaseDriver {
     const jsonResponse = await runOuterbaseQueryRaw(
       this.workspaceId,
       this.sourceId,
-      stmt
+      stmt,
     );
 
     return transformOuterbaseResult(jsonResponse);

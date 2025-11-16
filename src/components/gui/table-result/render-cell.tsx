@@ -12,7 +12,7 @@ import type { OptimizeTableCellRenderProps } from "../table-optimized";
 import type { TableHeaderMetadata } from "./type";
 
 function detectTextEditorType(
-  value: DatabaseValue<string>
+  value: DatabaseValue<string>,
 ): "input" | "json" | "text" {
   if (typeof value !== "string") return "input";
 
@@ -114,7 +114,7 @@ function CloudflareKvValue({
 }
 
 export default function tableResultCellRenderer(
-  props: OptimizeTableCellRenderProps<TableHeaderMetadata>
+  props: OptimizeTableCellRenderProps<TableHeaderMetadata>,
 ) {
   const { y, x, state, header, isFocus } = props;
 

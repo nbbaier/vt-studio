@@ -152,7 +152,7 @@ export default function SchemaEditor({
                   onClick={() => {
                     toast.success("Copied create script successfully");
                     window.navigator.clipboard.writeText(
-                      value.createScript ?? ""
+                      value.createScript ?? "",
                     );
                   }}
                 >

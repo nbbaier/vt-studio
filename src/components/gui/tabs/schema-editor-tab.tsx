@@ -42,7 +42,7 @@ export default function SchemaEditorTab({
         .catch(console.error)
         .finally(() => setLoading(false));
     },
-    [databaseDriver]
+    [databaseDriver],
   );
 
   useEffect(() => {

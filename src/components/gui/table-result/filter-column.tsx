@@ -81,7 +81,7 @@ export default function useTableResultColumnFilter({
                   onSelect={() => {
                     if (isChecked) {
                       setColumnIndexList(
-                        columnIndexList.filter((cidx) => cidx !== idx)
+                        columnIndexList.filter((cidx) => cidx !== idx),
                       );
                     } else {
                       const tmpSet = new Set(columnIndexList);
@@ -95,7 +95,7 @@ export default function useTableResultColumnFilter({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      isChecked ? "opacity-100" : "opacity-0"
+                      isChecked ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {header.display.text}

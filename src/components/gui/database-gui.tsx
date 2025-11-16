@@ -51,7 +51,7 @@ export default function DatabaseGui() {
   const openTabInternal = useCallback((tabOption: WindowTabItemProps) => {
     setTabs((prev) => {
       const foundIndex = prev.findIndex(
-        (tab) => tab.identifier === tabOption.key
+        (tab) => tab.identifier === tabOption.key,
       );
 
       if (foundIndex >= 0) {
@@ -68,7 +68,7 @@ export default function DatabaseGui() {
     (tabOption: WindowTabItemProps) => {
       setTabs((prev) => {
         const foundIndex = prev.findIndex(
-          (tab) => tab.identifier === tabOption.key
+          (tab) => tab.identifier === tabOption.key,
         );
 
         if (foundIndex >= 0) {
@@ -84,7 +84,7 @@ export default function DatabaseGui() {
         });
       });
     },
-    [selectedTabIndex]
+    [selectedTabIndex],
   );
 
   const closeStudioTab = useCallback(
@@ -93,16 +93,16 @@ export default function DatabaseGui() {
         setTabs((currentTabs) => {
           const selectedTab = currentTabs[selectedTabIndex];
           const newTabs = currentTabs.filter(
-            (t) => !keys?.includes(t.identifier)
+            (t) => !keys?.includes(t.identifier),
           );
 
           if (selectedTab) {
             const selectedTabNewIndex = newTabs.findIndex(
-              (t) => t.identifier === selectedTab.identifier
+              (t) => t.identifier === selectedTab.identifier,
             );
             if (selectedTabNewIndex < 0) {
               setSelectedTabIndex(
-                Math.min(selectedTabIndex, newTabs.length - 1)
+                Math.min(selectedTabIndex, newTabs.length - 1),
               );
             } else {
               setSelectedTabIndex(selectedTabNewIndex);
@@ -113,7 +113,7 @@ export default function DatabaseGui() {
         });
       }
     },
-    [selectedTabIndex]
+    [selectedTabIndex],
   );
 
   useEffect(() => {

@@ -23,7 +23,7 @@ const MenuItem = ({
       {
         "bg-ob-base-100 border-ob-border text-ob-base-300 dark:bg-ob-base-500 dark:border-neutral-700":
           selected,
-      }
+      },
     )}
     onClick={onClick}
   >
@@ -55,7 +55,7 @@ export function MenuBar({
           "ob-size-base": size === "base",
           "ob-size-lg": size === "lg",
         },
-        className
+        className,
       )}
     >
       {items.map((item) => (

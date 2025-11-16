@@ -20,7 +20,7 @@ export const tabReplaceChannel = new CommunicationChannel<WindowTabItemProps>();
 export const tabCloseChannel = new CommunicationChannel<string[]>();
 
 export function createTabExtension<T>(
-  config: TabExtensionConfig<T>
+  config: TabExtensionConfig<T>,
 ): TabExtensionCommand<T> {
   return Object.freeze({
     generate: (options: T) => {

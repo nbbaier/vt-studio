@@ -44,7 +44,7 @@ const CommonDialogContext = createContext<CommonDialogContextProps>({
 
 export function CommonDialogProvider({ children }: PropsWithChildren) {
   const [dialogOption, setDialogOption] = useState<ShowDialogProps | null>(
-    null
+    null,
   );
 
   const [errorMessage, setErrorMessage] = useState("");

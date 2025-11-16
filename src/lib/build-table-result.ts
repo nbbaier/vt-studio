@@ -18,7 +18,7 @@ export interface BuildTableResultProps {
 
 function pipeAttachColumnViaSchemas(
   headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
-  { tableSchema, schemas, driver }: BuildTableResultProps
+  { tableSchema, schemas, driver }: BuildTableResultProps,
 ) {
   // If there is already table schema, we use it instead because it is more accurate.
   if (tableSchema) return;
@@ -42,7 +42,7 @@ function pipeAttachColumnViaSchemas(
     }
 
     const columnSchema = currentTableSchema.columns.find(
-      (c) => c.name.toLowerCase() === from.column.toLowerCase()
+      (c) => c.name.toLowerCase() === from.column.toLowerCase(),
     );
 
     if (!columnSchema) continue;
@@ -56,13 +56,13 @@ function pipeAttachColumnViaSchemas(
 
 function pipeWithTableSchema(
   headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
-  { tableSchema, driver }: BuildTableResultProps
+  { tableSchema, driver }: BuildTableResultProps,
 ) {
   if (!tableSchema) return;
 
   for (const header of headers) {
     const columnSchema = tableSchema.columns.find(
-      (c) => c.name.toLowerCase() === header.name.toLowerCase()
+      (c) => c.name.toLowerCase() === header.name.toLowerCase(),
     );
 
     header.metadata.columnSchema = columnSchema;
@@ -70,11 +70,13 @@ function pipeWithTableSchema(
     header.metadata.type =
       header.metadata.type ?? driver.inferTypeFromHeader(columnSchema);
 
-    header.metadata.from = {
-      schema: tableSchema.schemaName,
-      table: tableSchema.tableName!,
-      column: header.name,
-    };
+    if (tableSchema.tableName) {
+      header.metadata.from = {
+        schema: tableSchema.schemaName,
+        table: tableSchema.tableName,
+        column: header.name,
+      };
+    }
 
     // Attaching the primary key
     if (
@@ -87,11 +89,18 @@ function pipeWithTableSchema(
 
     // Attaching the foreign key from column constraint
     if (columnSchema?.constraint?.foreignKey?.foreignColumns) {
-      header.metadata.referenceTo = {
-        schema: columnSchema.constraint.foreignKey.foreignSchemaName!,
-        table: columnSchema.constraint.foreignKey.foreignTableName!,
-        column: columnSchema.constraint.foreignKey.foreignColumns[0]!,
-      };
+      const fk = columnSchema.constraint.foreignKey;
+      if (
+        fk.foreignSchemaName &&
+        fk.foreignTableName &&
+        fk.foreignColumns?.[0]
+      ) {
+        header.metadata.referenceTo = {
+          schema: fk.foreignSchemaName,
+          table: fk.foreignTableName,
+          column: fk.foreignColumns?.[0] ?? "",
+        };
+      }
     }
 
     // Attaching the foreign key from table constraint
@@ -100,11 +109,18 @@ function pipeWithTableSchema(
         if (constraint.foreignKey?.columns) {
           const foundIndex = constraint.foreignKey.columns.indexOf(header.name);
           if (foundIndex !== -1) {
-            header.metadata.referenceTo = {
-              schema: constraint.foreignKey.foreignSchemaName!,
-              table: constraint.foreignKey.foreignTableName!,
-              column: constraint.foreignKey.columns[foundIndex]!,
-            };
+            const fk = constraint.foreignKey;
+            if (
+              fk.foreignSchemaName &&
+              fk.foreignTableName &&
+              fk.columns?.[foundIndex]
+            ) {
+              header.metadata.referenceTo = {
+                schema: fk.foreignSchemaName,
+                table: fk.foreignTableName,
+                column: fk.columns?.[foundIndex] ?? "",
+              };
+            }
           }
         }
       }
@@ -120,7 +136,7 @@ function pipeWithTableSchema(
  */
 function pipeEditableTable(
   headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
-  { schemas }: BuildTableResultProps
+  { schemas }: BuildTableResultProps,
 ) {
   const tables: {
     schema: string;
@@ -134,7 +150,7 @@ function pipeEditableTable(
 
     if (from && header.metadata.isPrimaryKey) {
       const table = tables.find(
-        (t) => t.schema === from.schema && t.table === from.table
+        (t) => t.schema === from.schema && t.table === from.table,
       );
 
       if (table) {
@@ -157,7 +173,7 @@ function pipeEditableTable(
   for (const table of tables) {
     let editable = false;
     const matchedColumns = table.columns.filter((c) =>
-      table.pkColumns.includes(c)
+      table.pkColumns.includes(c),
     );
 
     // Mark table as editable if all primary key columns are matched
@@ -194,7 +210,7 @@ function pipeEditableTable(
 }
 
 export function pipeVirtualColumnAsReadOnly(
-  headers: OptimizeTableHeaderProps<TableHeaderMetadata>[]
+  headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
 ) {
   for (const header of headers) {
     if (header.metadata.columnSchema?.constraint?.generatedExpression) {
@@ -204,7 +220,7 @@ export function pipeVirtualColumnAsReadOnly(
 }
 
 export function pipeCloudflareSpecialTable(
-  headers: OptimizeTableHeaderProps<TableHeaderMetadata>[]
+  headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
 ) {
   for (const header of headers) {
     if (header.metadata.from?.table === "_cf_KV") {
@@ -215,7 +231,7 @@ export function pipeCloudflareSpecialTable(
 
 export function pipeCalculateInitialSize(
   headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
-  { result }: BuildTableResultProps
+  { result }: BuildTableResultProps,
 ) {
   for (const header of headers) {
     const dataType = header.metadata.type;
@@ -232,7 +248,7 @@ export function pipeCalculateInitialSize(
         if (currentCell) {
           maxSize = Math.max(
             (currentCell[header.name ?? ""]?.toString() ?? "").length,
-            maxSize
+            maxSize,
           );
         }
       }
@@ -245,7 +261,7 @@ export function pipeCalculateInitialSize(
 }
 
 export function pipeColumnIcon(
-  headers: OptimizeTableHeaderProps<TableHeaderMetadata>[]
+  headers: OptimizeTableHeaderProps<TableHeaderMetadata>[],
 ) {
   for (const header of headers) {
     if (header.metadata.isPrimaryKey) {
@@ -262,7 +278,7 @@ export function pipeColumnIcon(
 }
 
 export function buildTableResultHeader(
-  props: BuildTableResultProps
+  props: BuildTableResultProps,
 ): OptimizeTableHeaderProps<TableHeaderMetadata>[] {
   const { result } = props;
 

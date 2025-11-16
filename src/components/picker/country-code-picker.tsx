@@ -223,7 +223,7 @@ export function CountryCodePicker({
           type="button"
           className={cn(
             "border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-            !value && "text-muted-foreground"
+            !value && "text-muted-foreground",
           )}
         >
           {value ? (
@@ -257,7 +257,7 @@ export function CountryCodePicker({
                 <Check
                   className={cn(
                     "mr-2 h-4 w-4",
-                    value === country.name ? "opacity-100" : "opacity-0"
+                    value === country.name ? "opacity-100" : "opacity-0",
                   )}
                 />
                 {country.flag} {country.name} ({country.code})

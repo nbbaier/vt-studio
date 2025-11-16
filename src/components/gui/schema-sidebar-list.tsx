@@ -1,3 +1,6 @@
+import { type Icon, Table } from "@phosphor-icons/react";
+import { LucideCog, LucideDatabase, LucideView } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
 import type { OpenContextMenuList } from "@/core/channel-builtin";
@@ -5,9 +8,6 @@ import { scc } from "@/core/command";
 import type { DatabaseSchemaItem } from "@/drivers/base-driver";
 import { triggerEditorExtensionTab } from "@/extensions/trigger-editor";
 import { type ExportFormat, exportTableData } from "@/lib/export-helper";
-import { type Icon, Table } from "@phosphor-icons/react";
-import { LucideCog, LucideDatabase, LucideView } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { ListView, type ListViewItem } from "../listview";
 import { CloudflareIcon } from "../resource-card/icon";
 import SchemaCreateDialog from "./schema-editor/schema-create";
@@ -34,7 +34,7 @@ function formatTableSize(byteCount?: number) {
 
 function prepareListViewItem(
   schema: DatabaseSchemaItem[],
-  maxTableSize: number
+  maxTableSize: number,
 ): ListViewItem<DatabaseSchemaItem>[] {
   return schema.map((s) => {
     let icon = Table;
@@ -67,7 +67,7 @@ function prepareListViewItem(
 }
 
 function groupTriggerByTable(
-  items: ListViewItem<DatabaseSchemaItem>[]
+  items: ListViewItem<DatabaseSchemaItem>[],
 ): ListViewItem<DatabaseSchemaItem>[] {
   // Find all triggers
   const triggers = items.filter((item) => item.data.type === "trigger");
@@ -76,7 +76,7 @@ function groupTriggerByTable(
       a[b.data.tableName ?? ""] = [...(a[b.data.tableName ?? ""] ?? []), b];
       return a;
     },
-    {} as Record<string, ListViewItem<DatabaseSchemaItem>[]>
+    {} as Record<string, ListViewItem<DatabaseSchemaItem>[]>,
   );
 
   const list = items.filter((item) => item.data.type !== "trigger");
@@ -98,7 +98,7 @@ function groupByFtsTable(items: ListViewItem<DatabaseSchemaItem>[]) {
       a[b.name] = b;
       return a;
     },
-    {} as Record<string, ListViewItem<DatabaseSchemaItem>>
+    {} as Record<string, ListViewItem<DatabaseSchemaItem>>,
   );
   const ftsSuffix = ["_config", "_content", "_data", "_docsize", "_idx"];
   const excludes = new Set();
@@ -121,7 +121,7 @@ function groupByFtsTable(items: ListViewItem<DatabaseSchemaItem>[]) {
 }
 
 function flattenSchemaGroup(
-  schemaGroup: ListViewItem<DatabaseSchemaItem>[]
+  schemaGroup: ListViewItem<DatabaseSchemaItem>[],
 ): ListViewItem<DatabaseSchemaItem>[] {
   if (schemaGroup.length === 1) return schemaGroup[0].children ?? [];
   return schemaGroup;
@@ -130,7 +130,7 @@ function flattenSchemaGroup(
 // Copy of export-result-button.tsx
 async function downloadExportTable(
   format: string,
-  handler: Promise<string | Blob>
+  handler: Promise<string | Blob>,
 ) {
   try {
     if (!format) return;
@@ -225,7 +225,7 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
                     schemaName,
                     selectedName,
                     format as ExportFormat,
-                    "file"
+                    "file",
                   );
                   downloadExportTable(format, handler);
                 },
@@ -253,14 +253,14 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
         { title: "Refresh", onClick: () => refresh() },
       ].filter(Boolean) as OpenContextMenuList;
     },
-    [refresh, databaseDriver, currentSchemaName, extensions, exportFormats]
+    [refresh, databaseDriver, currentSchemaName, extensions, exportFormats],
   );
 
   const listViewItems = useMemo(() => {
     const r = sortTable(
       Object.entries(schema).map(([s, tables]) => {
         const maxTableSize = Math.max(
-          ...tables.map((t) => t.tableSchema?.stats?.sizeInByte ?? 0)
+          ...tables.map((t) => t.tableSchema?.stats?.sizeInByte ?? 0),
         );
 
         return {
@@ -271,11 +271,11 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
           key: s.toString(),
           children: sortTable(
             groupByFtsTable(
-              groupTriggerByTable(prepareListViewItem(tables, maxTableSize))
-            )
+              groupTriggerByTable(prepareListViewItem(tables, maxTableSize)),
+            ),
           ),
         } as ListViewItem<DatabaseSchemaItem>;
-      })
+      }),
     );
 
     if (databaseDriver.getFlags().optionalSchema) {
@@ -291,7 +291,7 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
       if (!search) return true;
       return item.name.toLowerCase().indexOf(search.toLowerCase()) >= 0;
     },
-    [search]
+    [search],
   );
 
   return (

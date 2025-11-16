@@ -1,4 +1,4 @@
-import type { Page, Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 /**
  * Page Object Model for the Studio interface
@@ -94,7 +94,7 @@ export class StudioPage {
 
   async getResultCellValue(row: number, column: number): Promise<string> {
     const cell = this.page.locator(
-      `[data-testid="result-row"]:nth-child(${row + 1}) [data-testid="result-cell"]:nth-child(${column + 1})`
+      `[data-testid="result-row"]:nth-child(${row + 1}) [data-testid="result-cell"]:nth-child(${column + 1})`,
     );
     return (await cell.textContent()) || "";
   }
@@ -114,7 +114,7 @@ export class StudioPage {
 
   async openTable(tableName: string) {
     const tableItem = this.page.locator(
-      `[data-testid="table-item"]:has-text("${tableName}")`
+      `[data-testid="table-item"]:has-text("${tableName}")`,
     );
     await tableItem.click();
   }

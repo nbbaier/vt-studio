@@ -24,14 +24,14 @@ export class TokenConfigPage {
     this.container = page.locator('[data-testid="token-config"]');
     this.heading = page.getByRole("heading", { name: "Connect to Val Town" });
     this.nameInput = page.locator(
-      'input[name="name"], input[placeholder*="name" i]'
+      'input[name="name"], input[placeholder*="name" i]',
     );
     this.tokenInput = page.locator(
-      'textarea[name="token"], textarea[placeholder*="token" i]'
+      'textarea[name="token"], textarea[placeholder*="token" i]',
     );
     this.connectButton = page.locator('button:has-text("Connect")');
     this.errorMessage = page.locator(
-      '[data-testid="error-message"], [role="alert"]'
+      '[data-testid="error-message"], [role="alert"]',
     );
 
     this.instructions = page.locator("text=/API token/i");

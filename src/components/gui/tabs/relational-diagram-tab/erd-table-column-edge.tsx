@@ -14,7 +14,7 @@ import {
 function getParams(
   nodeA: InternalNode<Node>,
   nodeB: InternalNode<Node>,
-  columnId: string | undefined | null
+  columnId: string | undefined | null,
 ): {
   x: number;
   y: number;
@@ -32,7 +32,7 @@ function getParams(
 function getHandleCoordsByPosition(
   node: InternalNode<Node>,
   handlePosition: Position,
-  columnId: string | undefined | null
+  columnId: string | undefined | null,
 ): {
   x: number;
   y: number;
@@ -54,12 +54,12 @@ function getHandleCoordsByPosition(
   switch (handlePosition) {
     case Position.Left:
       handle = node.internals.handleBounds.target.find(
-        (h) => h.id === columnId
+        (h) => h.id === columnId,
       );
       break;
     case Position.Right:
       handle = node.internals.handleBounds.source.find(
-        (h) => h.id === columnId
+        (h) => h.id === columnId,
       );
       break;
   }
@@ -115,7 +115,7 @@ export function getEdgeParams(
   source: InternalNode<Node>,
   target: InternalNode<Node>,
   sourceColumnId: string | undefined | null,
-  targetColumnId: string | undefined | null
+  targetColumnId: string | undefined | null,
 ): {
   sx: number;
   sy: number;
@@ -168,7 +168,7 @@ export default function ERDTableColumnEdge({
     sourceNode,
     targetNode,
     sourceHandleId,
-    targetHandleId
+    targetHandleId,
   );
 
   const [edgePath] = getSmoothStepPath({

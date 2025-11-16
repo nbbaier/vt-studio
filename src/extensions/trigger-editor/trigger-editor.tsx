@@ -33,7 +33,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
     if (!currentSchema) return autoCompleteSchema;
 
     const currentTable = currentSchema.find(
-      (t) => t.name.toLowerCase() === value.tableName.toLowerCase()
+      (t) => t.name.toLowerCase() === value.tableName.toLowerCase(),
     )?.tableSchema;
     if (!currentTable) return autoCompleteSchema;
 
@@ -57,7 +57,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
             onChange(
               produce(value, (draft) => {
                 draft.name = e.currentTarget.value;
-              })
+              }),
             )
           }
         />
@@ -71,7 +71,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
                 onChange(
                   produce(value, (draft) => {
                     draft.when = e as TriggerWhen;
-                  })
+                  }),
                 )
               }
             >
@@ -93,7 +93,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
                 onChange(
                   produce(value, (draft) => {
                     draft.operation = newOperation;
-                  })
+                  }),
                 );
               }}
             >
@@ -115,7 +115,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
                 onChange(
                   produce(value, (draft) => {
                     draft.schemaName = schemaName;
-                  })
+                  }),
                 );
               }}
             />
@@ -128,7 +128,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
                 onChange(
                   produce(value, (draft) => {
                     draft.tableName = newTableName;
-                  })
+                  }),
                 );
               }}
             />
@@ -151,7 +151,7 @@ export default function TriggerEditor({ value, onChange }: TriggerEditorProps) {
               onChange(
                 produce(value, (draft) => {
                   draft.statement = newStatement;
-                })
+                }),
               )
             }
           />

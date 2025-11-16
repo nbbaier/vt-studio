@@ -46,7 +46,7 @@ function transformRawResult(raw: ResultSet): DatabaseResultSet {
         originalType: colType,
         type: convertSqliteType(colType),
       };
-    }
+    },
   );
 
   const rows = raw.rows.map((r: unknown[]) =>
@@ -58,7 +58,7 @@ function transformRawResult(raw: ResultSet): DatabaseResultSet {
         a[b.name] = r[idx];
       }
       return a;
-    }, {} as DatabaseRow)
+    }, {} as DatabaseRow),
   );
 
   return {
@@ -67,9 +67,9 @@ function transformRawResult(raw: ResultSet): DatabaseResultSet {
       rowsAffected: raw.rowsAffected,
 
       // This is unique for stateless driver
-      rowsRead: (raw as any).rowsRead ?? null,
-      rowsWritten: (raw as any).rowsWritten ?? null,
-      queryDurationMs: (raw as any).queryDurationMS ?? null,
+      rowsRead: raw.rowsRead ?? null,
+      rowsWritten: raw.rowsWritten ?? null,
+      queryDurationMs: raw.queryDurationMS ?? null,
     },
 
     headers,
@@ -99,7 +99,7 @@ export class ValtownQueryable implements QueryableBaseDriver {
     if (!r.ok) {
       const errorText = await r.text();
       throw new Error(
-        `Val Town API error (${r.status}): ${errorText || r.statusText}`
+        `Val Town API error (${r.status}): ${errorText || r.statusText}`,
       );
     }
 
@@ -112,7 +112,7 @@ export class ValtownQueryable implements QueryableBaseDriver {
 
     if (!Array.isArray(json)) {
       throw new Error(
-        `Unexpected response format from Val Town API: ${JSON.stringify(json)}`
+        `Unexpected response format from Val Town API: ${JSON.stringify(json)}`,
       );
     }
 
@@ -132,7 +132,7 @@ export class ValtownQueryable implements QueryableBaseDriver {
     if (!r.ok) {
       const errorText = await r.text();
       throw new Error(
-        `Val Town API error (${r.status}): ${errorText || r.statusText}`
+        `Val Town API error (${r.status}): ${errorText || r.statusText}`,
       );
     }
 

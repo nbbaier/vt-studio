@@ -46,7 +46,7 @@ export default function VirtualJoinColumn({ data }: Props) {
         .updateVirtualJoin({ ...column, id: data.id })
         .then(() => {
           toast.success(
-            `${data.columnName} is turned ${isActive ? "off" : "on"}`
+            `${data.columnName} is turned ${isActive ? "off" : "on"}`,
           );
         })
         .catch((error) => {
@@ -63,7 +63,7 @@ export default function VirtualJoinColumn({ data }: Props) {
     <div
       className={cn(
         "border-accent flex items-center border-t pt-2 pb-2",
-        isActive ? "opacity-100" : "opacity-50"
+        isActive ? "opacity-100" : "opacity-50",
       )}
     >
       <Toggle size="sm" toggled={isActive} onChange={handleClickToggle} />

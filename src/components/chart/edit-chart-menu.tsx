@@ -27,7 +27,7 @@ export default function EditChartMenu({
 }: EditChartMenuProps) {
   const { forcedTheme, resolvedTheme } = useTheme();
   const isNotChartComponent = ["text", "single_value", "table"].includes(
-    value.type ?? "line"
+    value.type ?? "line",
   );
 
   // Add default yAxisKeyColors
@@ -40,7 +40,7 @@ export default function EditChartMenu({
       const colors = generateGradientColors(
         themeColor[0],
         themeColor[1],
-        columns.length
+        columns.length,
       );
 
       onChange((prev) => {
@@ -49,7 +49,7 @@ export default function EditChartMenu({
             acc[col] = colors[i];
             return acc;
           },
-          {} as Record<string, string>
+          {} as Record<string, string>,
         );
         return produce(prev, (draft) => {
           draft.params.options.yAxisKeyColors = newColors;

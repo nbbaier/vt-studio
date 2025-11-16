@@ -52,7 +52,7 @@ export default function BoardSourcePicker({
       }
       setOpen(false);
     },
-    [onChange, sourceDriver]
+    [onChange, sourceDriver],
   );
 
   const previousValue = useRef<string>("");

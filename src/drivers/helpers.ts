@@ -11,7 +11,11 @@ export function createLocalDriver(conn: SavedConnectionRawLocalStorage) {
     throw new Error("Only Val Town connections are supported");
   }
 
-  return new SqliteLikeBaseDriver(new ValtownQueryable(conn.token!));
+  if (!conn.token) {
+    throw new Error("Token is required for Val Town connections");
+  }
+
+  return new SqliteLikeBaseDriver(new ValtownQueryable(conn.token));
 }
 
 /**

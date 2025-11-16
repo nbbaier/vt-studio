@@ -63,7 +63,7 @@ export default function SchemaNameSelect({
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === s ? "opacity-100" : "opacity-0"
+                      value === s ? "opacity-100" : "opacity-0",
                     )}
                   />
                   {s}

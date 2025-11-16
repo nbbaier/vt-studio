@@ -39,7 +39,7 @@ export default function RemoveNamespaceDialog({
             .then(() => {
               onClose();
               onComplete(
-                docs.find((n) => n.namespace.id === value.id)?.docs ?? []
+                docs.find((n) => n.namespace.id === value.id)?.docs ?? [],
               );
             })
             .finally(() => {

@@ -28,7 +28,7 @@ export default function SimpleColorPicker({
   onThemeChange,
 }: SimpleColorPickerProps) {
   const [selectedColor, setSelectedColor] = useState<string | "">(
-    selected || ""
+    selected || "",
   );
   useEffect(() => {
     if (selected) {

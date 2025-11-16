@@ -58,9 +58,13 @@ interface ListViewRendererProps<T> extends ListViewProps<T> {
 function Indentation({ depth }: { depth: number }) {
   if (depth <= 0) return null;
 
-  return new Array(depth).fill(false).map((_, idx: number) => {
-    return <div key={idx} className={cn("w-4 shrink-0")}></div>;
-  });
+  const indentElements: JSX.Element[] = [];
+  for (let i = 0; i < depth; i++) {
+    indentElements.push(
+      <div key={`indent-${depth}-${i}`} className={cn("w-4 shrink-0")}></div>,
+    );
+  }
+  return <>{indentElements}</>;
 }
 
 function CollapsedButton({
@@ -91,7 +95,7 @@ function CollapsedButton({
 
 function matchFilter<T = unknown>(
   item: ListViewItem<T>,
-  filter?: (item: ListViewItem<T>) => boolean
+  filter?: (item: ListViewItem<T>) => boolean,
 ): boolean {
   if (!filter) return true;
 
@@ -121,7 +125,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
 
   if (items.length === 0) return <Fragment></Fragment>;
   const listCollapsed = items.some(
-    (item) => item.children && item.children.length > 0
+    (item) => item.children && item.children.length > 0,
   );
 
   return (
@@ -157,18 +161,28 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                   setContextMenuKey(item.key);
                   if (onContextMenu) setContextMenu(onContextMenu(item));
                 }}
-                onDoubleClick={() => {
-                  if (onDoubleClick) {
-                    onDoubleClick(item);
-                  }
-                }}
-                onClick={() => {
-                  if (onSelectChange) {
-                    onSelectChange(item.key);
-                  }
-                }}
               >
-                <div
+                <button
+                  type="button"
+                  tabIndex={0}
+                  onDoubleClick={() => {
+                    if (onDoubleClick) {
+                      onDoubleClick(item);
+                    }
+                  }}
+                  onClick={() => {
+                    if (onSelectChange) {
+                      onSelectChange(item.key);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      if (onSelectChange) {
+                        onSelectChange(item.key);
+                      }
+                    }
+                  }}
                   className={cn(
                     "flex h-8 items-center gap-0.5 px-4 text-sm text-neutral-500",
                     selectedKey === item.key
@@ -179,7 +193,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                       : "border border-transparent",
                     "w-full",
                     "justify-start",
-                    "cursor-pointer"
+                    "cursor-pointer",
                   )}
                 >
                   <Indentation depth={depth} />
@@ -197,7 +211,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                         <div
                           className={cn(
                             "absolute -right-0.5 -bottom-0.5 h-2 w-2 rounded-full",
-                            item.iconBadgeColor
+                            item.iconBadgeColor,
                           )}
                         ></div>
                       )}
@@ -210,7 +224,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                       <span
                         className={cn(
                           "ml-1 rounded p-0.5 px-1 font-mono text-sm font-normal",
-                          item.badgeClassName ?? "bg-red-500 text-white"
+                          item.badgeClassName ?? "bg-red-500 text-white",
                         )}
                       >
                         {item.badgeContent}
@@ -226,9 +240,9 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                           width: `${Math.max(
                             Math.ceil(
                               (item.progressBarValue / item.progressBarMax) *
-                                100
+                                100,
                             ),
-                            5
+                            5,
                           )}%`,
                         }}
                       ></div>
@@ -237,7 +251,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                       </span>
                     </div>
                   )}
-                </div>
+                </button>
               </li>
               {isCollapsed &&
                 renderList({
@@ -270,7 +284,7 @@ export function ListView<T = unknown>(props: ListViewProps<T>) {
         <ul
           className={cn(
             full ? "grow overflow-auto" : "",
-            "m-0 list-none p-0 select-none"
+            "m-0 list-none p-0 select-none",
           )}
           onContextMenu={(e) => {
             if (stopParentPropagation.current) {

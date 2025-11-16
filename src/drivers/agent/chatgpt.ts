@@ -10,7 +10,7 @@ interface ChatGPTResponse {
 export class ChatGPTDriver extends CommonAgentDriverImplementation {
   constructor(
     protected driver: BaseDriver,
-    protected token: string
+    protected token: string,
   ) {
     super(driver);
   }

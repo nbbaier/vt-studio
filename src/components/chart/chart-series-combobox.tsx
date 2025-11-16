@@ -50,7 +50,7 @@ export function ChartSeriesCombobox({
   const [openMore, setOpenMore] = React.useState(false);
   const [openColorPicker, setOpenColorPicker] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState<string | null>(
-    selected || null
+    selected || null,
   );
 
   React.useEffect(() => {
@@ -145,9 +145,9 @@ export function ChartSeriesCombobox({
             <CommandList>
               <CommandEmpty>No framework found.</CommandEmpty>
               <CommandGroup>
-                {values.map((value, idx) => (
+                {values.map((value, _idx) => (
                   <CommandItem
-                    key={idx}
+                    key={value.value}
                     value={value.value}
                     onSelect={(currentValue) => {
                       setSelectedValue(currentValue);
@@ -161,7 +161,7 @@ export function ChartSeriesCombobox({
                         "ml-auto",
                         selectedValue === value.value
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                   </CommandItem>

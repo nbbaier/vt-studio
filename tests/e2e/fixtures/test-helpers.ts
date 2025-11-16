@@ -13,7 +13,7 @@ export async function ensureCryptoGetRandomValues(page: Page) {
         // Polyfill for environments where getRandomValues is not available
         // This shouldn't happen in real browsers, but ensures compatibility
         window.crypto.getRandomValues = <T extends ArrayBufferView | null>(
-          array: T
+          array: T,
         ): T => {
           if (!array) {
             throw new TypeError("getRandomValues() requires an array argument");
@@ -22,7 +22,7 @@ export async function ensureCryptoGetRandomValues(page: Page) {
           const view = new Uint8Array(
             buffer,
             array.byteOffset,
-            array.byteLength
+            array.byteLength,
           );
           for (let i = 0; i < view.length; i++) {
             view[i] = Math.floor(Math.random() * 256);
@@ -52,7 +52,7 @@ export class TestHelpers {
           localStorage.setItem("valtown_connection_name", name);
         }
       },
-      { token, name }
+      { token, name },
     );
   }
 
@@ -143,7 +143,7 @@ export class TestHelpers {
    */
   async hasError(): Promise<boolean> {
     const errorElement = await this.page.locator(
-      '[data-testid="error-message"]'
+      '[data-testid="error-message"]',
     );
     return await errorElement.isVisible().catch(() => false);
   }
@@ -153,7 +153,7 @@ export class TestHelpers {
    */
   async getErrorMessage(): Promise<string> {
     const errorElement = await this.page.locator(
-      '[data-testid="error-message"]'
+      '[data-testid="error-message"]',
     );
     return (await errorElement.textContent()) || "";
   }
@@ -175,7 +175,7 @@ export class ValtownAPIMock {
   /**
    * Mock successful query execution
    */
-  async mockSuccessfulQuery(result: { columns: string[]; rows: any[][] }) {
+  async mockSuccessfulQuery(result: { columns: string[]; rows: unknown[][] }) {
     await this.page.route(
       "https://api.val.town/v1/sqlite/execute",
       async (route) => {
@@ -187,7 +187,7 @@ export class ValtownAPIMock {
             rows: result.rows,
           }),
         });
-      }
+      },
     );
   }
 
@@ -205,14 +205,16 @@ export class ValtownAPIMock {
             error: errorMessage,
           }),
         });
-      }
+      },
     );
   }
 
   /**
    * Mock batch query execution
    */
-  async mockBatchQuery(results: Array<{ columns: string[]; rows: any[][] }>) {
+  async mockBatchQuery(
+    results: Array<{ columns: string[]; rows: unknown[][] }>,
+  ) {
     await this.page.route(
       "https://api.val.town/v1/sqlite/batch",
       async (route) => {
@@ -221,7 +223,7 @@ export class ValtownAPIMock {
           contentType: "application/json",
           body: JSON.stringify(results),
         });
-      }
+      },
     );
   }
 
@@ -239,7 +241,7 @@ export class ValtownAPIMock {
             error: "Unauthorized",
           }),
         });
-      }
+      },
     );
   }
 }

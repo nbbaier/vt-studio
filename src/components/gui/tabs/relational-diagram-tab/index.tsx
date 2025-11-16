@@ -36,7 +36,7 @@ const MAX_NODE_WIDTH = 300;
 function getLayoutElements(
   nodes: Node[],
   edges: Edge[],
-  options: Dagre.GraphLabel
+  options: Dagre.GraphLabel,
 ) {
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   g.setGraph(options);
@@ -70,7 +70,7 @@ function getLayoutElements(
 function mapSchema(
   schema: DatabaseSchemas,
   selectedSchema: string,
-  rankdir?: string
+  rankdir?: string,
 ): { initialNodes: Node[]; initialEdges: Edge[] } {
   const initialEdges: Edge[] = [];
 
@@ -86,7 +86,7 @@ function mapSchema(
       if (column.constraint?.foreignKey) {
         tableNameWithRelationship.add(item.name);
         tableNameWithRelationship.add(
-          column.constraint.foreignKey.foreignTableName || ""
+          column.constraint.foreignKey.foreignTableName || "",
         );
 
         foreignKeyList.add(`${item.name}.${column.name}`);
@@ -122,7 +122,7 @@ function mapSchema(
       ) {
         tableNameWithRelationship.add(item.name);
         tableNameWithRelationship.add(
-          constraint.foreignKey.foreignTableName || ""
+          constraint.foreignKey.foreignTableName || "",
         );
 
         const columnName = constraint.foreignKey.columns
@@ -201,7 +201,7 @@ function mapSchema(
       rankdir: rankdir ? rankdir : "LR",
       marginx: NODE_MARGIN,
       marginy: NODE_MARGIN,
-    }
+    },
   );
 
   // Rearrange the nodes with relationship
@@ -220,17 +220,16 @@ function mapSchema(
 
   // Calculate estimate area of the nodes without relationship
   const area =
-    schemaWithoutRelationship.reduce(
-      (a, b) =>
-        (a = a + (b.tableSchema?.columns.length || 0) * 32 + 32 + NODE_MARGIN),
-      0
-    ) * MAX_NODE_WIDTH;
+    schemaWithoutRelationship.reduce((a, b) => {
+      a = a + (b.tableSchema?.columns.length || 0) * 32 + 32 + NODE_MARGIN;
+      return a;
+    }, 0) * MAX_NODE_WIDTH;
 
   // Calculate the number column to fit all the none relationship nodes
   const columnCount = Math.ceil(Math.sqrt(area) / MAX_NODE_WIDTH);
   const columnHeight = Array.from({ length: columnCount }).map(() => 0);
   const columnNodes: Node[][] = Array.from({ length: columnCount }).map(
-    () => []
+    () => [],
   );
 
   for (const node of schemaWithoutRelationship) {
@@ -327,7 +326,7 @@ function LayoutFlow() {
               if (selectedSchema) {
                 const { initialEdges, initialNodes } = mapSchema(
                   schema,
-                  selectedSchema
+                  selectedSchema,
                 );
                 setNodes(initialNodes);
                 setEdges(initialEdges);
@@ -344,7 +343,7 @@ function LayoutFlow() {
                 const { initialEdges, initialNodes } = mapSchema(
                   schema,
                   selectedSchema,
-                  "TB"
+                  "TB",
                 );
                 setNodes(initialNodes);
                 setEdges(initialEdges);

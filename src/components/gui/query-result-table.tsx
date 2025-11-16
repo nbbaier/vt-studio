@@ -102,7 +102,7 @@ function Header({
             <LucideChevronDown
               className={cn(
                 "text-mute h-4 w-4 shrink-0 cursor-pointer",
-                textClass
+                textClass,
               )}
             />
           </DropdownMenuTrigger>
@@ -163,7 +163,7 @@ export default function ResultTable({
 
       const handleOnPinColumnClick = () => {
         setStickHeaderIndex(
-          header.index === stickyHeaderIndex ? undefined : header.index
+          header.index === stickyHeaderIndex ? undefined : header.index,
         );
       };
 
@@ -204,7 +204,7 @@ export default function ResultTable({
         </Header>
       );
     },
-    [data, tableName, stickyHeaderIndex, onSortColumnChange, extensions]
+    [data, tableName, stickyHeaderIndex, onSortColumnChange, extensions],
   );
 
   const onHeaderContextMenu = useCallback((e: React.MouseEvent) => {
@@ -228,14 +228,14 @@ export default function ResultTable({
             .getHeaders()
             .filter(
               (_, index) =>
-                index >= selectedRange.x1 && index <= selectedRange.x2
+                index >= selectedRange.x1 && index <= selectedRange.x2,
             )
             .map((header) => header.name);
           const records = data
             .getAllRows()
             .filter(
               (_, index) =>
-                index >= selectedRange.y1 && index <= selectedRange.y2
+                index >= selectedRange.y1 && index <= selectedRange.y2,
             )
             .map((row) => headers.map((header) => row.raw[header]));
           exportDataAsDelimitedText(
@@ -244,14 +244,14 @@ export default function ResultTable({
             "\t",
             "\r\n",
             '"',
-            "clipboard"
+            "clipboard",
           );
         } else {
           window.navigator.clipboard.writeText(state.getValue(y, x) as string);
         }
       }
     },
-    [data]
+    [data],
   );
 
   const pasteCallback = useCallback((state: OptimizeTableState) => {
@@ -273,7 +273,7 @@ export default function ResultTable({
             state.changeValue(
               y + row,
               x + col,
-              data[row][col].toLowerCase() === "null" ? null : data[row][col]
+              data[row][col].toLowerCase() === "null" ? null : data[row][col],
             );
           }
         }
@@ -335,7 +335,7 @@ export default function ResultTable({
         }
       }
     },
-    []
+    [],
   );
 
   const onKeyDown = useCallback(
@@ -411,7 +411,7 @@ export default function ResultTable({
 
       e.preventDefault();
     },
-    [copyCallback, onShiftKeyDownCallBack, pasteCallback]
+    [copyCallback, onShiftKeyDownCallBack, pasteCallback],
   );
 
   return (

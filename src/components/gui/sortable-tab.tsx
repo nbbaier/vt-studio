@@ -49,7 +49,7 @@ export const WindowTabItemButton = forwardRef<
         selected
           ? "text-primary bg-neutral-50 dark:bg-neutral-950"
           : "border-b border-x-transparent",
-        index === 0 ? "border-l-0" : ""
+        index === 0 ? "border-l-0" : "",
       )}
       onAuxClick={({ button }) => button === 1 && onClose && onClose()}
       ref={ref}
@@ -61,7 +61,7 @@ export const WindowTabItemButton = forwardRef<
         <button
           type="button"
           className={cn(
-            "ml-2 flex h-5 w-5 items-center justify-center rounded border-0 bg-transparent p-0 hover:bg-neutral-800 hover:text-white"
+            "ml-2 flex h-5 w-5 items-center justify-center rounded border-0 bg-transparent p-0 hover:bg-neutral-800 hover:text-white",
           )}
           onClick={(e) => {
             e.stopPropagation();

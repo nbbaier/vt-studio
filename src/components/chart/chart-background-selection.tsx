@@ -67,9 +67,9 @@ export default function ChartBackgroundSelection({
           </div>
         </div>
         <div className="grid grid-cols-6 gap-2 pt-2">
-          {PRESET_GRADIENTS.map(({ start, stop }, index) => (
+          {PRESET_GRADIENTS.map(({ start, stop }, _index) => (
             <button
-              key={index}
+              key={`${start}-${stop}`}
               type="button"
               className="aspect-square cursor-pointer rounded-lg border-0 p-0"
               style={{

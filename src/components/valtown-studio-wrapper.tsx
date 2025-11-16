@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { Studio } from "@/components/gui/studio";
 import { StudioExtensionManager } from "@/core/extension-manager";
 import { createSQLiteExtensions } from "@/core/standard-extension";
@@ -12,8 +14,6 @@ import {
   setValtownToken,
   type ValtownTokenData,
 } from "@/lib/valtown-token-storage";
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 
 const STUDIO_DOC_ID = "valtown-studio-docs";
 

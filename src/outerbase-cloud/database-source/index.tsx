@@ -27,12 +27,19 @@ export default class OuterbaseBoardSourceDriver implements BoardSourceDriver {
 
   sourceList(): BoardSource[] {
     return this.workspace.bases
-      .filter((base) => base.sources && base.sources.length > 0)
+      .filter((base) => {
+        const source = base.sources?.[0];
+        return source?.id && source?.type;
+      })
       .map((base) => {
+        const source = base.sources[0];
+        if (!source.id || !source.type) {
+          throw new Error("Source id and type are required");
+        }
         return {
-          id: base.sources[0].id!,
+          id: source.id,
           name: base.name,
-          type: base.sources[0].type!,
+          type: source.type,
         };
       });
   }
@@ -51,16 +58,23 @@ export default class OuterbaseBoardSourceDriver implements BoardSourceDriver {
     }
 
     if (!this.sourceDrivers[sourceId]) {
+      if (!this.workspace.id) {
+        throw new Error("Workspace ID is required");
+      }
       this.sourceDrivers[sourceId] = createOuterbaseDatabaseDriver(
         source.type,
         {
-          workspaceId: this.workspace.id!,
+          workspaceId: this.workspace.id,
           sourceId,
-        }
+        },
       );
     }
 
-    return this.sourceDrivers[sourceId]!;
+    const driver = this.sourceDrivers[sourceId];
+    if (!driver) {
+      throw new Error("Driver not found");
+    }
+    return driver;
   }
 
   async schemas(sourceId: string) {

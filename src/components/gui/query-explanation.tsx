@@ -75,7 +75,7 @@ function mapExplanationRows(props: QueryExplanationProps) {
       id: Number(r.id),
       parent: Number(r.parent),
       notused: Number(r.notused),
-    }))
+    })),
   );
 
   if (isExplanationRows?.error) {
@@ -104,7 +104,7 @@ export function QueryExplanation(props: QueryExplanationProps) {
 
   // Transform SQLite EXPLAIN QUERY PLAN output into flow diagram format
   const value = convertSQLiteRowToMySQL(
-    props.data.rows as unknown as ExplanationRow[]
+    props.data.rows as unknown as ExplanationRow[],
   );
 
   return (

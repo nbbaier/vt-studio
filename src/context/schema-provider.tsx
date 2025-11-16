@@ -34,7 +34,7 @@ const SchemaContext = createContext<{
 });
 
 function generateAutoCompleteFromSchemaItems(
-  items?: DatabaseSchemaItem[]
+  items?: DatabaseSchemaItem[],
 ): Record<string, string[]> {
   if (!items) return {};
 
@@ -45,13 +45,13 @@ function generateAutoCompleteFromSchemaItems(
         a[b.name] = (b.tableSchema?.columns ?? []).map((c) => c.name);
         return a;
       },
-      {} as Record<string, string[]>
+      {} as Record<string, string[]>,
     );
 }
 
 export function generateAutoComplete(
   currentSchemaName: string,
-  schema: DatabaseSchemas
+  schema: DatabaseSchemas,
 ) {
   return {
     ...generateAutoCompleteFromSchemaItems(schema[currentSchemaName]),
@@ -75,7 +75,7 @@ export function SchemaProvider({ children }: Readonly<PropsWithChildren>) {
   const [schema, setSchema] = useState<DatabaseSchemas>({});
   const [currentSchema, setCurrentSchema] = useState<DatabaseSchemaItem[]>([]);
   const [currentSchemaName, setCurrentSchemaName] = useState(
-    () => databaseDriver.getFlags().defaultSchema
+    () => databaseDriver.getFlags().defaultSchema,
   );
 
   const fetchSchema = useCallback(
@@ -113,7 +113,7 @@ export function SchemaProvider({ children }: Readonly<PropsWithChildren>) {
           setLoading(false);
         });
     },
-    [databaseDriver]
+    [databaseDriver],
   );
 
   useEffect(() => {

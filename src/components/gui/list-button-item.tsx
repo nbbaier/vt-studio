@@ -23,7 +23,7 @@ export default function ListButtonItem({
           size: "sm",
         }),
         "justify-start",
-        "cursor-pointer"
+        "cursor-pointer",
       )}
     >
       {Icon ? (

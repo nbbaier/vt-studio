@@ -80,14 +80,14 @@ export default function BoardChartEditor({
             prev,
             newResult,
             sql,
-            forcedTheme || resolvedTheme || ""
+            forcedTheme || resolvedTheme || "",
           );
         } catch {
           return prev;
         }
       });
     },
-    [forcedTheme, resolvedTheme]
+    [forcedTheme, resolvedTheme],
   );
 
   const onRunClicked = useCallback(() => {
@@ -108,7 +108,7 @@ export default function BoardChartEditor({
               result: newResult,
               driver: sourceDriver.getDriver(sourceId),
               schemas: schema,
-            })
+            }),
           );
           setErrorMessage(null);
           initialChartValue(newResult, sql);
@@ -142,12 +142,12 @@ export default function BoardChartEditor({
   }, [onRunClicked, initialValue]);
 
   const onAddChart = useCallback(async () => {
-    if (storage) {
+    if (storage && boardValue) {
       setSaveLoading(true);
 
       // Decide if we are updating or creating a new chart
       if (value.id) {
-        const newValue = produce(boardValue!, (draft) => {
+        const newValue = produce(boardValue, (draft) => {
           const index = draft?.charts.findIndex((c) => c.id === value.id);
           if (index === -1) return;
 
@@ -162,8 +162,9 @@ export default function BoardChartEditor({
         setSaveLoading(false);
       } else {
         const newChart = await storage.add(value);
-        if (newChart) {
-          const newValue = produce(boardValue!, (draft) => {
+        if (newChart?.id) {
+          const chartId = newChart.id;
+          const newValue = produce(boardValue, (draft) => {
             if (!draft?.charts) draft.charts = [];
             draft?.charts.push(newChart);
 
@@ -178,7 +179,7 @@ export default function BoardChartEditor({
               y,
               w: 2,
               h: 2,
-              i: newChart.id!,
+              i: chartId,
             });
           });
           await storage.save(newValue);
@@ -207,13 +208,13 @@ export default function BoardChartEditor({
             <BoardSourcePicker
               value={value?.source_id}
               usedSourceId={(boardValue?.charts ?? []).map(
-                (c) => c.source_id || ""
+                (c) => c.source_id || "",
               )}
               onChange={(newSourceId) => {
                 setValue((prev) =>
                   produce(prev, (draft) => {
                     draft.source_id = newSourceId;
-                  })
+                  }),
                 );
               }}
               onSchemaLoad={(loadedSchema) => {
@@ -270,7 +271,7 @@ export default function BoardChartEditor({
                 setValue(
                   produce(value, (draft) => {
                     draft.params.layers[0].sql = e;
-                  })
+                  }),
                 );
               }}
             />

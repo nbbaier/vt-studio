@@ -1,5 +1,5 @@
-import { DatabaseResultSet } from "./drivers/base-driver";
-import { SavedDocNamespace } from "./drivers/saved-doc/saved-doc-driver";
+import type { DatabaseResultSet } from "./drivers/base-driver";
+import type { SavedDocNamespace } from "./drivers/saved-doc/saved-doc-driver";
 
 interface OuterbaseIPC {
   docs?: {
@@ -30,5 +30,32 @@ declare global {
         defaultCloseValue: unknown;
       }) => void
     >;
+    showOpenFilePicker?: (options?: {
+      types?: Array<{
+        description?: string;
+        accept: Record<string, string[]>;
+      }>;
+      excludeAcceptAllOption?: boolean;
+      multiple?: boolean;
+    }) => Promise<FileSystemFileHandle[]>;
+    showSaveFilePicker?: (options?: {
+      types?: Array<{
+        description?: string;
+        accept: Record<string, string[]>;
+      }>;
+      excludeAcceptAllOption?: boolean;
+      suggestedName?: string;
+    }) => Promise<FileSystemFileHandle>;
+    showDirectoryPicker?: (options?: {
+      mode?: "read" | "readwrite";
+      startIn?:
+        | FileSystemHandle
+        | "desktop"
+        | "documents"
+        | "downloads"
+        | "music"
+        | "pictures"
+        | "videos";
+    }) => Promise<FileSystemDirectoryHandle>;
   }
 }

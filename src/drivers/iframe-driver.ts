@@ -15,27 +15,48 @@ type ParentResponseData =
       error?: string;
     };
 
-type PromiseResolveReject = {
-  resolve: (value: any) => void;
+type PromiseResolveReject<T> = {
+  resolve: (value: T) => void;
   reject: (value: string) => void;
 };
 
 class IframeConnection {
   protected counter = 0;
-  protected queryPromise: Record<number, PromiseResolveReject> = {};
+  protected queryPromise: Record<
+    number,
+    PromiseResolveReject<DatabaseResultSet>
+  > = {};
+  protected transactionPromise: Record<
+    number,
+    PromiseResolveReject<DatabaseResultSet[]>
+  > = {};
 
   listen() {
     const handler = (e: MessageEvent<ParentResponseData>) => {
       // Make no sense to handle message with no matching id
       // This throw a lot of error in console for some reason
-      if (!this.queryPromise[e.data.id]) return;
+      if (e.data.type === "query") {
+        const promise = this.queryPromise[e.data.id];
+        if (!promise) return;
 
-      if (e.data.error) {
-        this.queryPromise[e.data.id].reject(e.data.error);
-        delete this.queryPromise[e.data.id];
+        if (e.data.error) {
+          promise.reject(e.data.error);
+          delete this.queryPromise[e.data.id];
+        } else {
+          promise.resolve(e.data.data);
+          delete this.queryPromise[e.data.id];
+        }
       } else {
-        this.queryPromise[e.data.id].resolve(e.data.data);
-        delete this.queryPromise[e.data.id];
+        const promise = this.transactionPromise[e.data.id];
+        if (!promise) return;
+
+        if (e.data.error) {
+          promise.reject(e.data.error);
+          delete this.transactionPromise[e.data.id];
+        } else {
+          promise.resolve(e.data.data);
+          delete this.transactionPromise[e.data.id];
+        }
       }
     };
 
@@ -54,7 +75,7 @@ class IframeConnection {
           id,
           statement: stmt,
         },
-        "*"
+        "*",
       );
     });
   }
@@ -62,7 +83,7 @@ class IframeConnection {
   transaction(stmts: string[]): Promise<DatabaseResultSet[]> {
     return new Promise((resolve, reject) => {
       const id = ++this.counter;
-      this.queryPromise[id] = { resolve, reject };
+      this.transactionPromise[id] = { resolve, reject };
 
       window.parent.postMessage(
         {
@@ -70,7 +91,7 @@ class IframeConnection {
           id,
           statements: stmts,
         },
-        "*"
+        "*",
       );
     });
   }

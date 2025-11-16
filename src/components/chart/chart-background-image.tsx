@@ -1,4 +1,5 @@
 import { produce } from "immer";
+import Image from "next/image";
 import type { Dispatch, SetStateAction } from "react";
 import { type ChartValue, outerBaseUrl } from "./chart-type";
 
@@ -20,10 +21,10 @@ export default function ChartBackGroundImage({
 }: ChartBackgroundImageProps) {
   return (
     <div className="grid grid-cols-3 gap-2 pt-2">
-      {PRESET_IMAGES.map((image, index) => {
+      {PRESET_IMAGES.map((image, _index) => {
         return (
           <button
-            key={index}
+            key={image}
             type="button"
             className="relative cursor-pointer border-0 bg-transparent p-0"
             onClick={() => {
@@ -35,10 +36,12 @@ export default function ChartBackGroundImage({
               });
             }}
           >
-            <img
+            <Image
               src={outerBaseUrl + image}
               alt=""
               className="h-24 w-full rounded-lg object-cover"
+              width={100}
+              height={100}
             />
           </button>
         );

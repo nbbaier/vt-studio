@@ -35,7 +35,7 @@ type SavedDocListData =
     };
 
 function mapDoc(
-  data: SavedDocGroupByNamespace[]
+  data: SavedDocGroupByNamespace[],
 ): ListViewItem<SavedDocListData>[] {
   return data.map((ns) => {
     return {
@@ -167,7 +167,7 @@ export default function SavedDocTab() {
                   buttonVariants({
                     size: "icon",
                   }),
-                  "h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200"
+                  "h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200",
                 )}
               >
                 <Plus size={16} weight="bold" />

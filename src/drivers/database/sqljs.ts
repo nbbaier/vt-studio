@@ -66,7 +66,7 @@ class SqljsQueryable implements QueryableBaseDriver {
         headers.reduce((a, b, idx) => {
           a[b.name] = r[idx];
           return a;
-        }, {} as DatabaseRow)
+        }, {} as DatabaseRow),
       );
     }
 

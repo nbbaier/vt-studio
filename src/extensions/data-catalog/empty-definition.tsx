@@ -31,7 +31,7 @@ export default function EmptyTermDefinition() {
     <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3">
       {EmptyTerm.map((item, index) => {
         return (
-          <div key={index}>
+          <div key={item.title}>
             <div className="bg-accent relative mt-10 mb-10 h-[280px] flex-1 items-center justify-center rounded-md border pb-0 dark:bg-neutral-900">
               <div className="relative h-full w-full overflow-hidden rounded-md">
                 <Image
