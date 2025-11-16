@@ -12,106 +12,106 @@ import { Button, buttonVariants } from "./ui/button";
  * it is no longer needed.
  */
 async function cleanupFileHandler() {
-	const validHandlerIds = new Set(
-		(await localDb.connection.toCollection().toArray())
-			.map((c) => c.content.file_handler)
-			.filter(Boolean) as string[],
-	);
+  const validHandlerIds = new Set(
+    (await localDb.connection.toCollection().toArray())
+      .map((c) => c.content.file_handler)
+      .filter(Boolean) as string[]
+  );
 
-	const fileHandlerList = (await localDb.file_handler.toArray()).map(
-		(r) => r.id,
-	);
+  const fileHandlerList = (await localDb.file_handler.toArray()).map(
+    (r) => r.id
+  );
 
-	for (const id of fileHandlerList) {
-		if (!validHandlerIds.has(id)) {
-			await localDb.file_handler.delete(id);
-		}
-	}
+  for (const id of fileHandlerList) {
+    if (!validHandlerIds.has(id)) {
+      await localDb.file_handler.delete(id);
+    }
+  }
 }
 
 async function openFileHandler() {
-	const [newFileHandler] = await window.showOpenFilePicker({
-		types: [
-			{
-				description: "SQLite Files",
-				accept: {
-					"application/x-sqlite3": [
-						".db",
-						".sdb",
-						".sqlite",
-						".db3",
-						".s3db",
-						".sqlite3",
-						".sl3",
-						".db2",
-						".s2db",
-						".sqlite2",
-						".sl2",
-					],
-				},
-			},
-		],
-	});
+  const [newFileHandler] = await window.showOpenFilePicker({
+    types: [
+      {
+        description: "SQLite Files",
+        accept: {
+          "application/x-sqlite3": [
+            ".db",
+            ".sdb",
+            ".sqlite",
+            ".db3",
+            ".s3db",
+            ".sqlite3",
+            ".sl3",
+            ".db2",
+            ".s2db",
+            ".sqlite2",
+            ".sl2",
+          ],
+        },
+      },
+    ],
+  });
 
-	const id = generateId();
-	localDb.file_handler.add({ id, handler: newFileHandler }).then();
+  const id = generateId();
+  localDb.file_handler.add({ id, handler: newFileHandler }).then();
 
-	return id;
+  return id;
 }
 
 export default function FileHandlerPicker({
-	value,
-	onChange,
+  value,
+  onChange,
 }: {
-	value?: string;
-	onChange: (file: string) => void;
+  value?: string;
+  onChange: (file: string) => void;
 }) {
-	const [handler, setHandler] = useState<FileSystemHandle>();
-	const { showDialog } = useCommonDialog();
+  const [handler, setHandler] = useState<FileSystemHandle>();
+  const { showDialog } = useCommonDialog();
 
-	useEffect(() => {
-		if (value) {
-			localDb.file_handler.get(value).then((data) => {
-				if (data?.handler) {
-					setHandler(data.handler);
-				}
-			});
-		}
-	}, [value]);
+  useEffect(() => {
+    if (value) {
+      localDb.file_handler.get(value).then((data) => {
+        if (data?.handler) {
+          setHandler(data.handler);
+        }
+      });
+    }
+  }, [value]);
 
-	const onChangeFile = useCallback(() => {
-		try {
-			cleanupFileHandler()
-				.then(openFileHandler)
-				.then(onChange)
-				.catch(() => {
-					showDialog(unsupportFileHandlerDialogContent);
-				});
-		} catch {
-			showDialog(unsupportFileHandlerDialogContent);
-		}
-	}, [onChange, showDialog]);
+  const onChangeFile = useCallback(() => {
+    try {
+      cleanupFileHandler()
+        .then(openFileHandler)
+        .then(onChange)
+        .catch(() => {
+          showDialog(unsupportFileHandlerDialogContent);
+        });
+    } catch {
+      showDialog(unsupportFileHandlerDialogContent);
+    }
+  }, [onChange, showDialog]);
 
-	if (handler) {
-		return (
-			<button
-				type="button"
-				onClick={onChangeFile}
-				className={cn(
-					buttonVariants({ variant: "outline" }),
-					"w-full cursor-pointer justify-start",
-				)}
-			>
-				<LucideFile className="mr-2 h-4 w-4" />
-				{handler.name}
-			</button>
-		);
-	}
+  if (handler) {
+    return (
+      <button
+        type="button"
+        onClick={onChangeFile}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "w-full cursor-pointer justify-start"
+        )}
+      >
+        <LucideFile className="mr-2 h-4 w-4" />
+        {handler.name}
+      </button>
+    );
+  }
 
-	return (
-		<Button onClick={onChangeFile} variant={"outline"}>
-			<LucideFolderClosed className="mr-2 h-4 w-4" />
-			Open File
-		</Button>
-	);
+  return (
+    <Button onClick={onChangeFile} variant={"outline"}>
+      <LucideFolderClosed className="mr-2 h-4 w-4" />
+      Open File
+    </Button>
+  );
 }
