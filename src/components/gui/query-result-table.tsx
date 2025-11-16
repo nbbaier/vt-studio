@@ -65,8 +65,10 @@ function Header({
 
   return (
     <div className={thClass}>
-      <div
+      <th
+        scope="col"
         className={thClass}
+        tabIndex={0}
         onMouseDown={(e) => {
           if (e.button === 2) {
             setOpen(true);
@@ -93,7 +95,7 @@ function Header({
           </div>
         ) : null}
         <div className={textClass}>{header.display.text}</div>
-      </div>
+      </th>
       <div>
         <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
           <DropdownMenuTrigger asChild>
@@ -141,6 +143,7 @@ export default function ResultTable({
           return (
             <div
               key={item.key}
+              role="none"
               onKeyDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}

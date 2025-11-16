@@ -45,7 +45,12 @@ export default function DataCatalogModelTab() {
       .map((table) => table.tableSchema)
       .filter(Boolean) as DatabaseTableSchema[];
 
-    result.sort((a, b) => a.tableName?.localeCompare(b.tableName!));
+    result.sort((a, b) => {
+      if (!a.tableName && !b.tableName) return 0;
+      if (!a.tableName) return 1;
+      if (!b.tableName) return -1;
+      return a.tableName.localeCompare(b.tableName);
+    });
 
     return result;
   }, [selectedSchema, schemaList]);
@@ -65,14 +70,17 @@ export default function DataCatalogModelTab() {
               value={selectedSchema}
               onChange={setSelectedSchema}
             />
-            <div className="ml-2 flex items-center gap-2">
+            <label
+              htmlFor="definition-only"
+              className="ml-2 flex cursor-pointer items-center gap-2"
+            >
               <Toggle
                 toggled={hasDefinitionOnly}
                 size="sm"
                 onChange={setHasDefinitionOnly}
               />
-              <label className="text-base">Definition only?</label>
-            </div>
+              <span className="text-base">Definition only?</span>
+            </label>
             <ToolbarFiller />
             <div>
               <Input
@@ -86,9 +94,9 @@ export default function DataCatalogModelTab() {
         </div>
 
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-          {schemas.map((table, index) => (
+          {schemas.map((table) => (
             <DataCatalogTableAccordion
-              key={index}
+              key={table.tableName}
               table={table}
               driver={driver}
               hasDefinitionOnly={hasDefinitionOnly}

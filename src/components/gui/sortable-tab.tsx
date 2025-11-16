@@ -58,9 +58,10 @@ export const WindowTabItemButton = forwardRef<
       <Icon className="ml-2 h-4 w-4 shrink-0 grow-0" />
       <div className="line-clamp-1 grow px-2">{title}</div>
       {onClose && (
-        <div
+        <button
+          type="button"
           className={cn(
-            "ml-2 flex h-5 w-5 items-center justify-center rounded hover:bg-neutral-800 hover:text-white"
+            "ml-2 flex h-5 w-5 items-center justify-center rounded border-0 bg-transparent p-0 hover:bg-neutral-800 hover:text-white"
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -68,7 +69,7 @@ export const WindowTabItemButton = forwardRef<
           }}
         >
           <LucideX className={cn("h-3 w-3 shrink-0 grow-0")} />
-        </div>
+        </button>
       )}
 
       {!selected && (

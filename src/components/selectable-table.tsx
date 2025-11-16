@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import {
   type PropsWithChildren,
   useCallback,
@@ -6,7 +7,6 @@ import {
   useState,
 } from "react";
 import { Checkbox } from "./ui/checkbox";
-import { cn } from "@/lib/utils";
 
 interface SelectableTableProps<T> {
   items: T[];
@@ -51,24 +51,26 @@ export function SelectableTable<T>({
 
     if (showOnlySelected) {
       return (
-        <span
-          className="cursor-pointer text-blue-600 underline"
+        <button
+          type="button"
+          className="cursor-pointer border-0 bg-transparent p-0 text-blue-600 underline"
           onClick={() => setShowOnlySelected(false)}
         >
           Show all items
-        </span>
+        </button>
       );
     }
 
     return (
-      <span
-        className="cursor-pointer text-blue-600 underline"
+      <button
+        type="button"
+        className="cursor-pointer border-0 bg-transparent p-0 text-blue-600 underline"
         onClick={() => {
           setShowOnlySelected(true);
         }}
       >
         Show only the selected items
-      </span>
+      </button>
     );
   }, [selectedItems, showOnlySelected]);
 

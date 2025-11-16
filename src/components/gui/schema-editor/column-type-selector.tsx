@@ -40,8 +40,9 @@ function ColumnTypeList({
           }
 
           return (
-            <div
+            <button
               key={type.name}
+              type="button"
               className={itemClassName}
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -57,7 +58,7 @@ function ColumnTypeList({
               }}
             >
               {content}
-            </div>
+            </button>
           );
         })}
       </div>

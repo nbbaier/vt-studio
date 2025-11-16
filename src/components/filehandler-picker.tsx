@@ -94,7 +94,8 @@ export default function FileHandlerPicker({
 
   if (handler) {
     return (
-      <div
+      <button
+        type="button"
         onClick={onChangeFile}
         className={cn(
           buttonVariants({ variant: "outline" }),
@@ -103,7 +104,7 @@ export default function FileHandlerPicker({
       >
         <LucideFile className="mr-2 h-4 w-4" />
         {handler.name}
-      </div>
+      </button>
     );
   }
 

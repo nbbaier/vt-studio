@@ -7,7 +7,7 @@ export default function TableHeaderResizeHandler({
   idx: number;
   onResize: (idx: number, newSize: number) => void;
 }) {
-  const handlerRef = useRef<HTMLDivElement>(null);
+  const handlerRef = useRef<HTMLHRElement>(null);
   const [resizing, setResizing] = useState(false);
 
   useEffect(() => {
@@ -87,12 +87,14 @@ export default function TableHeaderResizeHandler({
   }, [idx, resizing, onResize]);
 
   return (
-    <div
+    <hr
       className={
-        "absolute top-0 right-0 bottom-0 w-[10px] cursor-col-resize opacity-0 hover:opacity-50"
+        "absolute top-0 right-0 bottom-0 m-0 w-[10px] cursor-col-resize border-0 opacity-0 hover:opacity-50"
       }
       ref={handlerRef}
+      aria-orientation="vertical"
+      tabIndex={0}
       onMouseDown={() => setResizing(true)}
-    ></div>
+    />
   );
 }

@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { ThemeColors } from "./chart-type";
 import SimpleColorPicker from "./simple-color-picker";
+
 interface SimpleComboValue {
   value: string;
   label: string;
@@ -68,8 +69,9 @@ export function ChartSeriesCombobox({
             <div className="flex items-center">
               <Popover open={openColorPicker} onOpenChange={setOpenColorPicker}>
                 <PopoverTrigger asChild>
-                  <div
-                    className="mr-2 h-[16px] w-[16px] cursor-pointer rounded-full"
+                  <button
+                    type="button"
+                    className="mr-2 h-[16px] w-[16px] cursor-pointer rounded-full border-0 p-0"
                     style={{ backgroundColor: color || "gray" }}
                     onClick={(e) => {
                       e.stopPropagation();

@@ -1,6 +1,13 @@
 const RippleFilter = () => {
   return (
-    <svg width="0" height="0" className="absolute top-0 left-0">
+    <svg
+      width="0"
+      height="0"
+      className="absolute top-0 left-0"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <title>Ripple SVG filter definition</title>
       <filter id="ripple" x="0" y="0" width="100%" height="100%">
         <feTurbulence
           type="fractalNoise"

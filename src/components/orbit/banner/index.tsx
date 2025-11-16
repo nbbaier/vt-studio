@@ -17,7 +17,8 @@ const Banner = ({
   onClick,
 }: BannerProps) => {
   return (
-    <div
+    <button
+      type="button"
       onClick={onClick}
       className="group relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg bg-neutral-800 p-6 shadow-xl after:absolute after:top-0 after:left-0 after:size-full after:rounded-lg after:border-4 after:border-white/20"
     >
@@ -36,7 +37,7 @@ const Banner = ({
           alt="img"
         />
       </div>
-    </div>
+    </button>
   );
 };
 

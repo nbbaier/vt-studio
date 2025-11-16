@@ -25,6 +25,7 @@ export const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
   return (
     <div className="relative inline-flex items-center justify-center">
       <svg className="-rotate-90 transform" width={size} height={size}>
+        <title>{`Progress: ${value} of ${max}`}</title>
         <circle
           className="text-secondary"
           strokeWidth={strokeWidth}

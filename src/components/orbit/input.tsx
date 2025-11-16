@@ -57,7 +57,8 @@ export const Input = ({
   };
 
   return preText ? (
-    <div
+    <button
+      type="button"
       className={cn(
         "has-[:disabled]:ob-disable has-[:enabled]:active:border-ob-border-active has-[:focus]:border-ob-border-active flex cursor-text",
         inputClasses,
@@ -90,7 +91,7 @@ export const Input = ({
       <span className="text-ob-base-200 mr-0.5 flex items-center gap-2 transition-colors select-none">
         {postText}
       </span>
-    </div>
+    </button>
   ) : (
     <input
       className={cn(

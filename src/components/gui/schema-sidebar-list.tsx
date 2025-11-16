@@ -109,17 +109,15 @@ function groupByFtsTable(items: ListViewItem<DatabaseSchemaItem>[]) {
         .map((suffix) => hash[item.data.name + suffix])
         .filter(Boolean);
 
-      ftsSuffix.forEach((suffix) => excludes.add(item.data.name + suffix));
+      ftsSuffix.forEach((suffix) => {
+        excludes.add(item.data.name + suffix);
+      });
 
       item.badgeContent = "fts5";
     }
   }
 
   return items.filter((item) => !excludes.has(item.data.name));
-}
-
-function sortTable(items: ListViewItem<DatabaseSchemaItem>[]) {
-  return items.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function flattenSchemaGroup(

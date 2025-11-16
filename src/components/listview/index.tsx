@@ -73,13 +73,17 @@ function CollapsedButton({
   onClick: () => void;
 }) {
   return hasCollapsed ? (
-    <div onClick={onClick}>
+    <button
+      type="button"
+      onClick={onClick}
+      className="border-0 bg-transparent p-0"
+    >
       {collapsed ? (
         <LucideChevronDown className={cn("h-4 w-4")} />
       ) : (
         <LucideChevronRight className={cn("h-4 w-4")} />
       )}
-    </div>
+    </button>
   ) : (
     <div className="w-4 shrink-0"></div>
   );
@@ -146,8 +150,9 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
 
           return (
             <React.Fragment key={item.key}>
-              <div
+              <li
                 key={item.key}
+                tabIndex={0}
                 onContextMenu={() => {
                   stopParentPropagation.current = true;
                   setContextMenuKey(item.key);
@@ -234,7 +239,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                     </div>
                   )}
                 </div>
-              </div>
+              </li>
               {isCollapsed &&
                 renderList({
                   ...rest,
@@ -263,8 +268,11 @@ export function ListView<T = unknown>(props: ListViewProps<T>) {
   return (
     <ContextMenu modal={false} onOpenChange={setContextOpen}>
       <ContextMenuTrigger asChild>
-        <div
-          className={cn(full ? "grow overflow-auto" : "", "select-none")}
+        <ul
+          className={cn(
+            full ? "grow overflow-auto" : "",
+            "m-0 list-none p-0 select-none"
+          )}
           onContextMenu={(e) => {
             if (stopParentPropagation.current) {
               stopParentPropagation.current = false;
@@ -295,7 +303,7 @@ export function ListView<T = unknown>(props: ListViewProps<T>) {
               setContextMenuKey,
             })}
           </div>
-        </div>
+        </ul>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuList menu={contextMenu} />

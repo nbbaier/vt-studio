@@ -272,13 +272,14 @@ export default function GenericCell({
   }, [value, textBaseStyle, header]);
 
   return (
-    <div
+    <td
       className={className}
+      tabIndex={0}
       onMouseDown={onFocus}
       onDoubleClick={onDoubleClick}
     >
       <div className="flex grow overflow-hidden">{content}</div>
       {fkContent}
-    </div>
+    </td>
   );
 }

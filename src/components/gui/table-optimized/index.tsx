@@ -328,7 +328,8 @@ export default function OptimizeTable<HeaderMetadata = unknown>({
     };
 
     return (
-      <div
+      <button
+        type="button"
         tabIndex={-1}
         onKeyDown={(e) => {
           if (onKeyDown) onKeyDown(internalState, e);
@@ -352,7 +353,7 @@ export default function OptimizeTable<HeaderMetadata = unknown>({
         >
           {renderCellList(common)}
         </div>
-      </div>
+      </button>
     );
   }, [
     rowEnd,
