@@ -1,3 +1,5 @@
+import { MagnifyingGlass } from "@phosphor-icons/react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import SchemaNameSelect from "@/components/gui/schema-editor/schema-name-select";
 import { Toolbar, ToolbarFiller } from "@/components/gui/toolbar";
 import { Input } from "@/components/orbit/input";
@@ -5,105 +7,103 @@ import { Toggle } from "@/components/orbit/toggle";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
 import type { DatabaseTableSchema } from "@/drivers/base-driver";
-import { MagnifyingGlass } from "@phosphor-icons/react";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type DataCatalogExtension from ".";
 import DataCatalogTableAccordion from "./data-catalog-table-accordion";
 import type DataCatalogDriver from "./driver";
 
 const DataCatalogContext = createContext<{
-  driver: DataCatalogDriver;
-  search: string;
+	driver: DataCatalogDriver;
+	search: string;
 }>({
-  driver: new Proxy({}, {}) as DataCatalogDriver,
-  search: "",
+	driver: new Proxy({}, {}) as DataCatalogDriver,
+	search: "",
 });
 
 export function useDataCatalogContext() {
-  return useContext(DataCatalogContext);
+	return useContext(DataCatalogContext);
 }
 
 export default function DataCatalogModelTab() {
-  const { currentSchemaName, schema: schemaList } = useSchema();
-  const [search, setSearch] = useState("");
-  const [hasDefinitionOnly, setHasDefinitionOnly] = useState(false);
-  const [selectedSchema, setSelectedSchema] = useState(currentSchemaName);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setRevision] = useState(1);
+	const { currentSchemaName, schema: schemaList } = useSchema();
+	const [search, setSearch] = useState("");
+	const [hasDefinitionOnly, setHasDefinitionOnly] = useState(false);
+	const [selectedSchema, setSelectedSchema] = useState(currentSchemaName);
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [_, setRevision] = useState(1);
 
-  const { extensions } = useStudioContext();
+	const { extensions } = useStudioContext();
 
-  const driver = useMemo(() => {
-    const dataCatalogExtension =
-      extensions.getExtension<DataCatalogExtension>("data-catalog");
-    return dataCatalogExtension?.driver as DataCatalogDriver;
-  }, [extensions]);
+	const driver = useMemo(() => {
+		const dataCatalogExtension =
+			extensions.getExtension<DataCatalogExtension>("data-catalog");
+		return dataCatalogExtension?.driver as DataCatalogDriver;
+	}, [extensions]);
 
-  const schemas = useMemo(() => {
-    const result = (schemaList[selectedSchema] || [])
-      .filter((table) => table.type === "table")
-      .map((table) => table.tableSchema)
-      .filter(Boolean) as DatabaseTableSchema[];
+	const schemas = useMemo(() => {
+		const result = (schemaList[selectedSchema] || [])
+			.filter((table) => table.type === "table")
+			.map((table) => table.tableSchema)
+			.filter(Boolean) as DatabaseTableSchema[];
 
-    result.sort((a, b) => {
-      if (!a.tableName && !b.tableName) return 0;
-      if (!a.tableName) return 1;
-      if (!b.tableName) return -1;
-      return a.tableName.localeCompare(b.tableName);
-    });
+		result.sort((a, b) => {
+			if (!a.tableName && !b.tableName) return 0;
+			if (!a.tableName) return 1;
+			if (!b.tableName) return -1;
+			return a.tableName.localeCompare(b.tableName);
+		});
 
-    return result;
-  }, [selectedSchema, schemaList]);
+		return result;
+	}, [selectedSchema, schemaList]);
 
-  useEffect(() => {
-    return driver.listen(() => {
-      setRevision((prev) => prev + 1);
-    });
-  }, [driver]);
+	useEffect(() => {
+		return driver.listen(() => {
+			setRevision((prev) => prev + 1);
+		});
+	}, [driver]);
 
-  return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden">
-      <DataCatalogContext.Provider value={{ driver, search }}>
-        <div className="border-b p-1">
-          <Toolbar>
-            <SchemaNameSelect
-              value={selectedSchema}
-              onChange={setSelectedSchema}
-            />
-            <label
-              htmlFor="definition-only"
-              className="ml-2 flex cursor-pointer items-center gap-2"
-            >
-              <Toggle
-                toggled={hasDefinitionOnly}
-                size="sm"
-                onChange={setHasDefinitionOnly}
-              />
-              <span className="text-base">Definition only?</span>
-            </label>
-            <ToolbarFiller />
-            <div>
-              <Input
-                value={search}
-                onValueChange={setSearch}
-                preText={<MagnifyingGlass className="mr-2" />}
-                placeholder="Search tables, columns"
-              />
-            </div>
-          </Toolbar>
-        </div>
+	return (
+		<div className="flex h-full flex-1 flex-col overflow-hidden">
+			<DataCatalogContext.Provider value={{ driver, search }}>
+				<div className="border-b p-1">
+					<Toolbar>
+						<SchemaNameSelect
+							value={selectedSchema}
+							onChange={setSelectedSchema}
+						/>
+						<label
+							htmlFor="definition-only"
+							className="ml-2 flex cursor-pointer items-center gap-2"
+						>
+							<Toggle
+								toggled={hasDefinitionOnly}
+								size="sm"
+								onChange={setHasDefinitionOnly}
+							/>
+							<span className="text-base">Definition only?</span>
+						</label>
+						<ToolbarFiller />
+						<div>
+							<Input
+								value={search}
+								onValueChange={setSearch}
+								preText={<MagnifyingGlass className="mr-2" />}
+								placeholder="Search tables, columns"
+							/>
+						</div>
+					</Toolbar>
+				</div>
 
-        <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-          {schemas.map((table) => (
-            <DataCatalogTableAccordion
-              key={table.tableName}
-              table={table}
-              driver={driver}
-              hasDefinitionOnly={hasDefinitionOnly}
-            />
-          ))}
-        </div>
-      </DataCatalogContext.Provider>
-    </div>
-  );
+				<div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
+					{schemas.map((table) => (
+						<DataCatalogTableAccordion
+							key={table.tableName}
+							table={table}
+							driver={driver}
+							hasDefinitionOnly={hasDefinitionOnly}
+						/>
+					))}
+				</div>
+			</DataCatalogContext.Provider>
+		</div>
+	);
 }

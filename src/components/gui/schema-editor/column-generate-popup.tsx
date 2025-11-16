@@ -1,89 +1,89 @@
-import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { LucideSigma } from "lucide-react";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { Button } from "../../ui/button";
-import type { ColumnChangeEvent } from "./schema-editor-column-list";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
 } from "../../ui/select";
 import { Textarea } from "../../ui/textarea";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 
 export default function ColumnGeneratingPopup({
-  constraint,
-  disabled,
-  onChange,
+	constraint,
+	disabled,
+	onChange,
 }: Readonly<{
-  constraint: DatabaseTableColumnConstraint;
-  disabled: boolean;
-  onChange: ColumnChangeEvent;
+	constraint: DatabaseTableColumnConstraint;
+	disabled: boolean;
+	onChange: ColumnChangeEvent;
 }>) {
-  return (
-    <Popover>
-      <PopoverTrigger>
-        <span className="block rounded border p-1 shadow-sm">
-          <LucideSigma className="h-4 w-4" />
-        </span>
-      </PopoverTrigger>
-      <PopoverContent>
-        <div className="flex flex-col gap-2">
-          <div className="text-sm font-semibold">Generating Function</div>
+	return (
+		<Popover>
+			<PopoverTrigger>
+				<span className="block rounded border p-1 shadow-sm">
+					<LucideSigma className="h-4 w-4" />
+				</span>
+			</PopoverTrigger>
+			<PopoverContent>
+				<div className="flex flex-col gap-2">
+					<div className="text-sm font-semibold">Generating Function</div>
 
-          <Textarea
-            rows={4}
-            disabled={disabled}
-            placeholder="Generate Expression"
-            className="bg-background font-mono"
-            onChange={(e) => {
-              onChange({
-                constraint: {
-                  generatedExpression: e.currentTarget.value,
-                },
-              });
-            }}
-            value={constraint.generatedExpression ?? ""}
-          />
+					<Textarea
+						rows={4}
+						disabled={disabled}
+						placeholder="Generate Expression"
+						className="bg-background font-mono"
+						onChange={(e) => {
+							onChange({
+								constraint: {
+									generatedExpression: e.currentTarget.value,
+								},
+							});
+						}}
+						value={constraint.generatedExpression ?? ""}
+					/>
 
-          <Select
-            value={constraint?.generatedType}
-            onValueChange={(type) => {
-              onChange({
-                constraint: {
-                  generatedType: type as "STORED" | "VIRTUAL",
-                },
-              });
-            }}
-          >
-            <SelectTrigger className="bg-background">
-              <SelectValue placeholder="Select datatype" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="VIRTUAL">Virtual</SelectItem>
-              <SelectItem value="STORED">Stored</SelectItem>
-            </SelectContent>
-          </Select>
+					<Select
+						value={constraint?.generatedType}
+						onValueChange={(type) => {
+							onChange({
+								constraint: {
+									generatedType: type as "STORED" | "VIRTUAL",
+								},
+							});
+						}}
+					>
+						<SelectTrigger className="bg-background">
+							<SelectValue placeholder="Select datatype" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="VIRTUAL">Virtual</SelectItem>
+							<SelectItem value="STORED">Stored</SelectItem>
+						</SelectContent>
+					</Select>
 
-          <Button
-            size="sm"
-            className="mt-4"
-            variant={"destructive"}
-            disabled={disabled}
-            onClick={() => {
-              onChange({
-                constraint: {
-                  generatedExpression: undefined,
-                  generatedType: undefined,
-                },
-              });
-            }}
-          >
-            Remove Constraint
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
+					<Button
+						size="sm"
+						className="mt-4"
+						variant={"destructive"}
+						disabled={disabled}
+						onClick={() => {
+							onChange({
+								constraint: {
+									generatedExpression: undefined,
+									generatedType: undefined,
+								},
+							});
+						}}
+					>
+						Remove Constraint
+					</Button>
+				</div>
+			</PopoverContent>
+		</Popover>
+	);
 }

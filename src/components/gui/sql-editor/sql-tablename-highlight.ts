@@ -1,67 +1,67 @@
-import {
-  type EditorView,
-  ViewPlugin,
-  Decoration,
-  type DecorationSet,
-  type ViewUpdate,
-} from "@codemirror/view";
-import type { Range } from "@codemirror/state";
 import { syntaxTree } from "@codemirror/language";
+import type { Range } from "@codemirror/state";
+import {
+	Decoration,
+	type DecorationSet,
+	type EditorView,
+	ViewPlugin,
+	type ViewUpdate,
+} from "@codemirror/view";
 
 const underlineMark = Decoration.mark({ class: "cm-table-name" });
 
 export default function createSQLTableNameHighlightPlugin(
-  tableNameList: string[]
+	tableNameList: string[],
 ) {
-  const tableNameSet = new Set(
-    tableNameList.map((table) => table.toLowerCase())
-  );
+	const tableNameSet = new Set(
+		tableNameList.map((table) => table.toLowerCase()),
+	);
 
-  function highlightTableName(view: EditorView) {
-    const decorationList: Range<Decoration>[] = [];
+	function highlightTableName(view: EditorView) {
+		const decorationList: Range<Decoration>[] = [];
 
-    for (const { from, to } of view.visibleRanges) {
-      syntaxTree(view.state).iterate({
-        from,
-        to,
-        enter: (node) => {
-          if (node.name === "Identifier") {
-            const word = view.state.doc
-              .sliceString(node.from, node.to)
-              .toLowerCase();
+		for (const { from, to } of view.visibleRanges) {
+			syntaxTree(view.state).iterate({
+				from,
+				to,
+				enter: (node) => {
+					if (node.name === "Identifier") {
+						const word = view.state.doc
+							.sliceString(node.from, node.to)
+							.toLowerCase();
 
-            const lastChar = node.node.prevSibling
-              ? view.state.doc
-                  .sliceString(
-                    node.node.prevSibling.from,
-                    node.node.prevSibling.to
-                  )
-                  .toLowerCase()
-              : "";
+						const lastChar = node.node.prevSibling
+							? view.state.doc
+									.sliceString(
+										node.node.prevSibling.from,
+										node.node.prevSibling.to,
+									)
+									.toLowerCase()
+							: "";
 
-            if (tableNameSet.has(word) && lastChar !== ".") {
-              decorationList.push(underlineMark.range(node.from, node.to));
-            }
-          }
-        },
-      });
-    }
+						if (tableNameSet.has(word) && lastChar !== ".") {
+							decorationList.push(underlineMark.range(node.from, node.to));
+						}
+					}
+				},
+			});
+		}
 
-    return Decoration.set(decorationList);
-  }
+		return Decoration.set(decorationList);
+	}
 
-  return ViewPlugin.fromClass(
-    class {
-      decorations: DecorationSet;
+	return ViewPlugin.fromClass(
+		class {
+			decorations: DecorationSet;
 
-      constructor(view: EditorView) {
-        this.decorations = highlightTableName(view);
-      }
+			constructor(view: EditorView) {
+				this.decorations = highlightTableName(view);
+			}
 
-      update(update: ViewUpdate) {
-        this.decorations = highlightTableName(update.view);
-      }
-    },
-    { decorations: (v) => v.decorations }
-  );
+			update(update: ViewUpdate) {
+				this.decorations = highlightTableName(update.view);
+			}
+		},
+		{ decorations: (v) => v.decorations },
+	);
 }

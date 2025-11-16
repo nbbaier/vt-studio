@@ -1,32 +1,32 @@
 export class BeforeQueryPipeline {
-  metadata: Record<string, string> = {};
+	metadata: Record<string, string> = {};
 
-  constructor(
-    protected type: "query" | "transaction" | "batch",
-    protected statements: string[]
-  ) {}
+	constructor(
+		protected type: "query" | "transaction" | "batch",
+		protected statements: string[],
+	) {}
 
-  getMetadata(name: string) {
-    return this.metadata[name];
-  }
+	getMetadata(name: string) {
+		return this.metadata[name];
+	}
 
-  getMetadataList() {
-    return structuredClone(this.metadata);
-  }
+	getMetadataList() {
+		return structuredClone(this.metadata);
+	}
 
-  setMetadata(name: string, value: string) {
-    this.metadata[name] = value;
-  }
+	setMetadata(name: string, value: string) {
+		this.metadata[name] = value;
+	}
 
-  getStatments() {
-    return this.statements;
-  }
+	getStatments() {
+		return this.statements;
+	}
 
-  updateStatements(statements: string[]) {
-    this.statements = statements;
-  }
+	updateStatements(statements: string[]) {
+		this.statements = statements;
+	}
 
-  getType() {
-    return this.type;
-  }
+	getType() {
+		return this.type;
+	}
 }

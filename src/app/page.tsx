@@ -4,9 +4,9 @@ import ValtownStudioWrapper from "@/components/valtown-studio-wrapper";
 export const runtime = "edge";
 
 export default function HomePage() {
-  return (
-    <ClientOnly>
-      <ValtownStudioWrapper />
-    </ClientOnly>
-  );
+	return (
+		<ClientOnly>
+			<ValtownStudioWrapper />
+		</ClientOnly>
+	);
 }

@@ -1,75 +1,75 @@
-import type { DatabaseTableColumn } from "@/drivers/base-driver";
 import {
-  type PropsWithChildren,
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
+	createContext,
+	type PropsWithChildren,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
 } from "react";
+import type { DatabaseTableColumn } from "@/drivers/base-driver";
 
 const AutoCompleteContext = createContext<{
-  updateTableList: (tables: string[]) => void;
-  updateTableSchema: (
-    tableName: string,
-    columns: DatabaseTableColumn[]
-  ) => void;
-  schema: Record<string, string[]>;
+	updateTableList: (tables: string[]) => void;
+	updateTableSchema: (
+		tableName: string,
+		columns: DatabaseTableColumn[],
+	) => void;
+	schema: Record<string, string[]>;
 }>({
-  schema: {},
-  updateTableList: () => {
-    throw new Error("Not implemented");
-  },
-  updateTableSchema: () => {
-    throw new Error("Not implemented");
-  },
+	schema: {},
+	updateTableList: () => {
+		throw new Error("Not implemented");
+	},
+	updateTableSchema: () => {
+		throw new Error("Not implemented");
+	},
 });
 
 export function useAutoComplete() {
-  return useContext(AutoCompleteContext);
+	return useContext(AutoCompleteContext);
 }
 
 export function AutoCompleteProvider({ children }: PropsWithChildren) {
-  const [internalSchema, setInternalSchema] = useState<
-    Record<string, DatabaseTableColumn[]>
-  >({});
+	const [internalSchema, setInternalSchema] = useState<
+		Record<string, DatabaseTableColumn[]>
+	>({});
 
-  const updateTableSchema = useCallback(
-    (tableName: string, columns: DatabaseTableColumn[]) => {
-      setInternalSchema((prev) => {
-        return {
-          ...prev,
-          [tableName]: columns,
-        };
-      });
-    },
-    []
-  );
+	const updateTableSchema = useCallback(
+		(tableName: string, columns: DatabaseTableColumn[]) => {
+			setInternalSchema((prev) => {
+				return {
+					...prev,
+					[tableName]: columns,
+				};
+			});
+		},
+		[],
+	);
 
-  const updateTableList = useCallback((tableName: string[]) => {
-    setInternalSchema(
-      tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
-        acc[name] = [];
-        return acc;
-      }, {})
-    );
-  }, []);
+	const updateTableList = useCallback((tableName: string[]) => {
+		setInternalSchema(
+			tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
+				acc[name] = [];
+				return acc;
+			}, {}),
+		);
+	}, []);
 
-  const schema = useMemo(() => {
-    return Object.entries(internalSchema).reduce<Record<string, string[]>>(
-      (acc, [key, columns]) => {
-        acc[key] = columns.map((col) => col.name);
-        return acc;
-      },
-      {}
-    );
-  }, [internalSchema]);
+	const schema = useMemo(() => {
+		return Object.entries(internalSchema).reduce<Record<string, string[]>>(
+			(acc, [key, columns]) => {
+				acc[key] = columns.map((col) => col.name);
+				return acc;
+			},
+			{},
+		);
+	}, [internalSchema]);
 
-  return (
-    <AutoCompleteContext.Provider
-      value={{ schema, updateTableList, updateTableSchema }}
-    >
-      {children}
-    </AutoCompleteContext.Provider>
-  );
+	return (
+		<AutoCompleteContext.Provider
+			value={{ schema, updateTableList, updateTableSchema }}
+		>
+			{children}
+		</AutoCompleteContext.Provider>
+	);
 }

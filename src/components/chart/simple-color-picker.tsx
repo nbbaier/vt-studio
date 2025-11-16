@@ -4,77 +4,77 @@ import { SketchPicker } from "react-color";
 import { THEMES, type ThemeColors } from "./chart-type";
 
 const presetColors = [
-  "#D0021B",
-  "#F5A623",
-  "#F8E71C",
-  "#8B572A",
-  "#7ED321",
-  "#417505",
-  "#BD10E0",
-  "#9013FE",
-  "#4A90E2",
-  "#50E3C2",
+	"#D0021B",
+	"#F5A623",
+	"#F8E71C",
+	"#8B572A",
+	"#7ED321",
+	"#417505",
+	"#BD10E0",
+	"#9013FE",
+	"#4A90E2",
+	"#50E3C2",
 ];
 
 interface SimpleColorPickerProps {
-  selected?: string;
-  onChange: (color: string) => void;
-  onThemeChange: (theme: ThemeColors) => void;
+	selected?: string;
+	onChange: (color: string) => void;
+	onThemeChange: (theme: ThemeColors) => void;
 }
 
 export default function SimpleColorPicker({
-  selected,
-  onChange,
-  onThemeChange,
+	selected,
+	onChange,
+	onThemeChange,
 }: SimpleColorPickerProps) {
-  const [selectedColor, setSelectedColor] = useState<string | "">(
-    selected || ""
-  );
-  useEffect(() => {
-    if (selected) {
-      setSelectedColor(selected);
-    }
-  }, [selected]);
-  return (
-    <div>
-      <div className="flex">
-        <SketchPicker
-          width="255px"
-          className="bg-background! shadow-none!"
-          disableAlpha
-          presetColors={presetColors}
-          color={selectedColor}
-          onChangeComplete={(color) => {
-            setSelectedColor(color.hex);
-            onChange(color.hex);
-          }}
-        />
+	const [selectedColor, setSelectedColor] = useState<string | "">(
+		selected || "",
+	);
+	useEffect(() => {
+		if (selected) {
+			setSelectedColor(selected);
+		}
+	}, [selected]);
+	return (
+		<div>
+			<div className="flex">
+				<SketchPicker
+					width="255px"
+					className="bg-background! shadow-none!"
+					disableAlpha
+					presetColors={presetColors}
+					color={selectedColor}
+					onChangeComplete={(color) => {
+						setSelectedColor(color.hex);
+						onChange(color.hex);
+					}}
+				/>
 
-        <div className="border-l-accent flex flex-col gap-1 border-l-2 p-3">
-          {Object.keys(THEMES).map((key) => {
-            return (
-              <button
-                key={key}
-                type="button"
-                className="flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-xs"
-                onClick={() => {
-                  if (key) {
-                    onThemeChange(key as ThemeColors);
-                  }
-                }}
-              >
-                <div
-                  className="mr-2 h-[14px] w-[14px] cursor-pointer rounded-full"
-                  style={{
-                    background: THEMES[key as ThemeColors].background,
-                  }}
-                />
-                <p>{key}</p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+				<div className="border-l-accent flex flex-col gap-1 border-l-2 p-3">
+					{Object.keys(THEMES).map((key) => {
+						return (
+							<button
+								key={key}
+								type="button"
+								className="flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-xs"
+								onClick={() => {
+									if (key) {
+										onThemeChange(key as ThemeColors);
+									}
+								}}
+							>
+								<div
+									className="mr-2 h-[14px] w-[14px] cursor-pointer rounded-full"
+									style={{
+										background: THEMES[key as ThemeColors].background,
+									}}
+								/>
+								<p>{key}</p>
+							</button>
+						);
+					})}
+				</div>
+			</div>
+		</div>
+	);
 }
