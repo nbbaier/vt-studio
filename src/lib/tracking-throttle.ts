@@ -10,21 +10,21 @@ const THROTTLE_TIMESTAMP: Record<string, number> = {};
  * @returns
  */
 export function throttleEvent(name: string, time: number, interval: number) {
-	console.log(
-		"throttleEvent",
-		THROTTLE_COUNT,
-		THROTTLE_TIMESTAMP,
-		name,
-		(THROTTLE_COUNT[name] ?? 0) > time,
-	);
+  console.log(
+    "throttleEvent",
+    THROTTLE_COUNT,
+    THROTTLE_TIMESTAMP,
+    name,
+    (THROTTLE_COUNT[name] ?? 0) > time
+  );
 
-	if (Date.now() - (THROTTLE_TIMESTAMP[name] ?? 0) < interval) {
-		THROTTLE_COUNT[name] = (THROTTLE_COUNT[name] ?? 0) + 1;
-		return (THROTTLE_COUNT[name] ?? 0) > time;
-	} else {
-		THROTTLE_COUNT[name] = 0;
-		THROTTLE_TIMESTAMP[name] = Date.now();
-	}
+  if (Date.now() - (THROTTLE_TIMESTAMP[name] ?? 0) < interval) {
+    THROTTLE_COUNT[name] = (THROTTLE_COUNT[name] ?? 0) + 1;
+    return (THROTTLE_COUNT[name] ?? 0) > time;
+  } else {
+    THROTTLE_COUNT[name] = 0;
+    THROTTLE_TIMESTAMP[name] = Date.now();
+  }
 
-	return false;
+  return false;
 }

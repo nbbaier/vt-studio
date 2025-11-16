@@ -226,6 +226,7 @@ Tests use the Page Object Model pattern for maintainability:
 ### StudioPage
 
 Encapsulates Studio interface interactions:
+
 - `typeSQL(sql)` - Type into SQL editor
 - `executeQuery()` - Click execute button
 - `getResultRowCount()` - Count result rows
@@ -234,6 +235,7 @@ Encapsulates Studio interface interactions:
 ### TokenConfigPage
 
 Encapsulates token configuration interactions:
+
 - `fillToken(token)` - Enter API token
 - `connectWithToken(token, name?)` - Fill and connect
 - `hasError()` - Check for error message
@@ -247,12 +249,15 @@ const apiMock = new ValtownAPIMock(page);
 
 // Mock successful query
 await apiMock.mockSuccessfulQuery({
-  columns: ['id', 'name'],
-  rows: [[1, 'John'], [2, 'Jane']],
+  columns: ["id", "name"],
+  rows: [
+    [1, "John"],
+    [2, "Jane"],
+  ],
 });
 
 // Mock error response
-await apiMock.mockFailedQuery('Syntax error');
+await apiMock.mockFailedQuery("Syntax error");
 
 // Mock unauthorized
 await apiMock.mockUnauthorized();
@@ -295,6 +300,7 @@ npx playwright show-report
 ```
 
 Reports include:
+
 - Test results and timing
 - Screenshots on failure
 - Video recordings on failure
@@ -305,11 +311,11 @@ Reports include:
 ### 1. Create New Spec File
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { StudioPage } from './page-objects/studio.page';
+import { test, expect } from "@playwright/test";
+import { StudioPage } from "./page-objects/studio.page";
 
-test.describe('My New Feature', () => {
-  test('should do something', async ({ page }) => {
+test.describe("My New Feature", () => {
+  test("should do something", async ({ page }) => {
     // Test implementation
   });
 });
@@ -349,6 +355,7 @@ Components should use `data-testid` attributes for reliable selectors:
 ### Flakiness
 
 If tests are flaky:
+
 1. Add explicit waits: `await page.waitForSelector()`
 2. Use `waitFor` with timeout
 3. Check for race conditions

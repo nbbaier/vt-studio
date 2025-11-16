@@ -29,6 +29,7 @@ Studio GUI
 ```
 
 **Issues:**
+
 - 4-5 clicks to get to actual work
 - "Local" vs "Cloud" distinction confusing for Val Town users
 - Connection management implies multi-database complexity
@@ -45,6 +46,7 @@ Studio GUI
 **Philosophy:** The Studio IS the app. Configuration happens in-context.
 
 **User Flow:**
+
 ```
 Landing → Studio GUI (immediately)
   ↑
@@ -52,6 +54,7 @@ Landing → Studio GUI (immediately)
 ```
 
 **Interface:**
+
 ```
 ┌────────────────────────────────────────────────┐
 │ [Val Town Studio Logo]          [@username ▾] │ ← Header
@@ -76,6 +79,7 @@ Landing → Studio GUI (immediately)
 ```
 
 **Once Connected:**
+
 ```
 ┌────────────────────────────────────────────────┐
 │ [VT Studio]   [@nbbaier ▾] [Token: •••123 ▾]  │ ← Persistent header
@@ -94,6 +98,7 @@ Landing → Studio GUI (immediately)
 ```
 
 **Removed:**
+
 - Connections page entirely
 - Workspace navigation
 - Connection cards/lists
@@ -102,12 +107,14 @@ Landing → Studio GUI (immediately)
 - Driver selection
 
 **Kept:**
+
 - Studio GUI (tables, queries, schema, ERD)
 - Saved queries (IndexedDB)
 - Dashboards/boards
 - Token management (settings dropdown)
 
 **Implementation:**
+
 1. `/` → Render Studio GUI immediately
 2. Check for token in localStorage on mount
 3. If no token → Show inline connection prompt (could be a modal or sidebar state)
@@ -116,12 +123,14 @@ Landing → Studio GUI (immediately)
 6. No separate routes for connection management
 
 **Pros:**
+
 - **Fastest path to value** - 0 clicks to see Studio, 1 field to connect
 - Eliminates all connection management complexity
 - Clear mental model: "This is the Val Town database tool"
 - Mobile-friendly (no multi-page flows)
 
 **Cons:**
+
 - Can only work with one token at a time (no multi-account support)
 - May need to handle token switching if users have multiple accounts
 - Less clear "state" if token is invalid
@@ -133,6 +142,7 @@ Landing → Studio GUI (immediately)
 **Philosophy:** Keep a landing page, but make it radically simple.
 
 **User Flow:**
+
 ```
 Landing (Connection Page)
   ↓
@@ -140,6 +150,7 @@ Enter token → Auto-connect → Studio
 ```
 
 **Interface:**
+
 ```
 ┌────────────────────────────────────────────────┐
 │                                                │
@@ -164,6 +175,7 @@ Enter token → Auto-connect → Studio
 ```
 
 **Removed:**
+
 - Workspace concept
 - "New Resource" dropdowns
 - Connection forms (separate pages)
@@ -171,11 +183,13 @@ Enter token → Auto-connect → Studio
 - Edit connection flows
 
 **Kept:**
+
 - Single landing page
 - Token history (for multi-account users)
 - Direct path to Studio
 
 **Implementation:**
+
 1. `/` → Connection landing page
 2. Token input with instant validation
 3. Store recent tokens in localStorage (encrypted)
@@ -183,11 +197,13 @@ Enter token → Auto-connect → Studio
 5. Studio operates same as Option 1
 
 **Pros:**
+
 - Supports multiple Val Town accounts
 - Clear "entry point" for users
 - Token history useful for agency/multi-account users
 
 **Cons:**
+
 - Still requires a "connections page"
 - Extra click to get to Studio
 - May encourage token hoarding (security concern)
@@ -199,6 +215,7 @@ Enter token → Auto-connect → Studio
 **Philosophy:** Studio-first for existing users, connection page for new users.
 
 **User Flow:**
+
 ```
 / → Check for saved token
   ├─ Has token → Studio (Option 1)
@@ -206,6 +223,7 @@ Enter token → Auto-connect → Studio
 ```
 
 **Implementation:**
+
 1. Root route (`/`) checks localStorage for token
 2. If found → Render Studio immediately
 3. If not found → Render minimal connection page
@@ -214,12 +232,14 @@ Enter token → Auto-connect → Studio
 6. Settings menu has "Manage Tokens" option
 
 **Pros:**
+
 - Best of both worlds
 - Fast for returning users
 - Clear onboarding for new users
 - Multi-account support
 
 **Cons:**
+
 - More complex routing logic
 - Need to handle token expiration/invalidation
 
@@ -227,35 +247,39 @@ Enter token → Auto-connect → Studio
 
 ## Comparison Matrix
 
-| Feature | Current | Option 1 | Option 2 | Option 3 |
-|---------|---------|----------|----------|----------|
-| Clicks to Studio | 5-6 | 0 (1 to connect) | 1-2 | 0 or 1 |
-| Multi-account support | Yes (complex) | No | Yes | Yes |
-| Workspace concept | Yes | No | No | No |
-| Connection management | Full CRUD | Inline only | Token list | Hybrid |
-| Cognitive load | High | Very Low | Low | Low |
-| Mobile-friendly | Poor | Excellent | Good | Excellent |
-| Onboarding clarity | Poor | Excellent | Good | Excellent |
+| Feature               | Current       | Option 1         | Option 2   | Option 3  |
+| --------------------- | ------------- | ---------------- | ---------- | --------- |
+| Clicks to Studio      | 5-6           | 0 (1 to connect) | 1-2        | 0 or 1    |
+| Multi-account support | Yes (complex) | No               | Yes        | Yes       |
+| Workspace concept     | Yes           | No               | No         | No        |
+| Connection management | Full CRUD     | Inline only      | Token list | Hybrid    |
+| Cognitive load        | High          | Very Low         | Low        | Low       |
+| Mobile-friendly       | Poor          | Excellent        | Good       | Excellent |
+| Onboarding clarity    | Poor          | Excellent        | Good       | Excellent |
 
 ---
 
 ## Additional Simplifications (Apply to All Options)
 
 ### 1. Remove Playgrounds
+
 **Current:** SQLite Playground (Northwind, Chinook), MySQL Playground
 
 **Recommendation:** **Remove entirely** or move to separate `/playground` route
 
 **Rationale:**
-- Val Town users come to work with *their* databases, not sample data
+
+- Val Town users come to work with _their_ databases, not sample data
 - Playgrounds add clutter to the main interface
 - If needed, provide sample queries/dashboards instead
 - Could be a hidden route for demos: `/playground/northwind`
 
 ### 2. Simplify Navigation Header
+
 **Current:** Workspace switcher, profile, new resource dropdown
 
 **Proposed:**
+
 ```
 [Val Town Studio] ...................... [@username ▾]
                                         ├─ Settings
@@ -265,26 +289,32 @@ Enter token → Auto-connect → Studio
 ```
 
 ### 3. Rename/Rebrand
+
 **Current:** "Outerbase Studio" with generic database terminology
 
 **Proposed:**
+
 - **App Name:** "Val Town Studio" or "VT Studio"
 - **Tagline:** "A modern SQLite GUI for Val Town"
 - **Connection terminology:** "Token" not "Connection"
 - **Resource terminology:** "Saved Queries" not "Bases"
 
 ### 4. Simplify Saved Resources
+
 **Current:** "Bases" (connections) + "Boards" (dashboards) in same list
 
 **Proposed:**
+
 - Only "Saved Queries" and "Dashboards" (actual work artifacts)
 - Remove connection management from resource list
 - Organize by project/tag instead of connection
 
 ### 5. Remove Local vs Cloud Distinction
+
 **Current:** `/local` vs `/w/{workspaceId}` routes
 
 **Proposed:**
+
 - Everything is "local" (browser storage)
 - OR everything is "cloud" (Outerbase API) - pick one
 - If keeping cloud: Make it transparent (auto-sync, no UI distinction)
@@ -294,6 +324,7 @@ Enter token → Auto-connect → Studio
 ## Recommended Implementation Plan
 
 ### Phase 1: Choose Option 1 (Studio-First)
+
 **Why:** Most radical simplification, fastest time-to-value
 
 1. Create new `/` route that renders Studio component directly
@@ -304,18 +335,21 @@ Enter token → Auto-connect → Studio
 6. Add "Change Token" option in settings dropdown
 
 ### Phase 2: Simplify Studio UI
+
 1. Remove playgrounds from main view
 2. Simplify header to single-line with user menu
 3. Rename "Bases" to "Saved Queries"
 4. Remove connection-related UI elements
 
 ### Phase 3: Rebrand
+
 1. Update app name to "Val Town Studio"
 2. Update tagline and help text
 3. Update connection terminology throughout
 4. Update documentation/README
 
 ### Phase 4: Future Enhancement (if needed)
+
 - Add multi-token support (stored list in settings)
 - Add "Switch Account" in settings menu
 - Keep Studio-first approach, just allow swapping tokens
@@ -325,6 +359,7 @@ Enter token → Auto-connect → Studio
 ## Files to Modify/Remove
 
 ### Remove Entirely:
+
 ```
 src/app/(outerbase)/local/
 src/app/(outerbase)/w/
@@ -334,6 +369,7 @@ src/components/connection-config-editor/ (entire directory)
 ```
 
 ### Modify:
+
 ```
 src/app/page.tsx → Render Studio directly
 src/components/gui/studio.tsx → Add inline token prompt
@@ -342,6 +378,7 @@ src/lib/saved-connection/ → Simplify to single-token storage
 ```
 
 ### Keep:
+
 ```
 src/components/gui/** (Studio GUI components)
 src/drivers/** (Driver layer)
@@ -362,8 +399,8 @@ function migrateToSimplifiedFlow() {
 
   if (connections.length > 0) {
     // Use the most recently used connection
-    const mostRecent = connections.sort((a, b) =>
-      b.updated_at - a.updated_at
+    const mostRecent = connections.sort(
+      (a, b) => b.updated_at - a.updated_at
     )[0];
 
     // Store as primary token
@@ -371,10 +408,12 @@ function migrateToSimplifiedFlow() {
 
     // Optionally: Store others as "alternative tokens"
     if (connections.length > 1) {
-      setAlternativeTokens(connections.slice(1).map(c => ({
-        token: c.token,
-        label: c.name,
-      })));
+      setAlternativeTokens(
+        connections.slice(1).map((c) => ({
+          token: c.token,
+          label: c.name,
+        }))
+      );
     }
   }
 
@@ -388,16 +427,19 @@ function migrateToSimplifiedFlow() {
 ## Success Metrics
 
 **Before:**
+
 - 5-6 clicks to execute first query
 - 4 different pages to understand
 - Workspace/connection/driver mental model
 
 **After (Option 1):**
+
 - 0 clicks if token saved, 1 field + 1 click if new
 - 1 page (Studio)
 - Simple mental model: "Paste token, query database"
 
 **User experience improvements:**
+
 - 90% reduction in UI complexity
 - 80% faster time-to-first-query
 - 100% of screen real estate for actual database work
@@ -442,6 +484,7 @@ function migrateToSimplifiedFlow() {
 8. ✅ Remove workspace concept
 
 **Why:**
+
 - Matches Val Town's developer-focused, minimal aesthetic
 - Fastest path to value (0 clicks if returning user)
 - Eliminates ~60% of current codebase

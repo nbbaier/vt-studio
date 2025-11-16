@@ -25,7 +25,9 @@ You can embed Outerbase Studio as follows:
 There are several parameters you can control. For example:
 
 ```html
-<iframe src="https://libsqlstudio.com/embed/sqlite?name=MyCoolDatabase"></iframe>
+<iframe
+  src="https://libsqlstudio.com/embed/sqlite?name=MyCoolDatabase"
+></iframe>
 ```
 
 ## Example
@@ -107,7 +109,7 @@ export default function ExamplePage() {
 
   return (
     <iframe
-      className="border-0 h-screen w-screen"
+      className="h-screen w-screen border-0"
       ref={iframeRef}
       src="https://libsqlstudio.com/embed/sqlite"
     />
@@ -195,10 +197,13 @@ function transformRawResult(raw: ResultSet): Result {
   });
 
   const rows = raw.rows.map((r) =>
-    headers.reduce((a, b, idx) => {
-      a[b.name] = r[idx];
-      return a;
-    }, {} as Record<string, unknown>)
+    headers.reduce(
+      (a, b, idx) => {
+        a[b.name] = r[idx];
+        return a;
+      },
+      {} as Record<string, unknown>
+    )
   );
 
   return {
@@ -216,7 +221,6 @@ function transformRawResult(raw: ResultSet): Result {
         : Number(raw.lastInsertRowid),
   };
 }
-
 ```
 
 </DocContent>

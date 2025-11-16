@@ -1,7 +1,7 @@
 export default function ErrorMessage({
-	message,
+  message,
 }: {
-	readonly message: string;
+  readonly message: string;
 }) {
-	return <div className="text-xs text-red-500">{message}</div>;
+  return <div className="text-xs text-red-500">{message}</div>;
 }

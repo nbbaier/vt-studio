@@ -11,11 +11,13 @@ This document covers all testing approaches for Val Town Studio.
 **Purpose:** Test individual functions and utilities
 
 **Run:**
+
 ```bash
 npm test
 ```
 
 **Coverage:**
+
 - SQL parsing logic (`src/drivers/sqlite/*.test.ts`)
 - Utility functions
 - Helper methods
@@ -27,11 +29,13 @@ npm test
 **Purpose:** Test component integration and interactions
 
 **Run:**
+
 ```bash
 npm test
 ```
 
 **Coverage:**
+
 - Component behavior
 - React hooks
 - Context providers
@@ -43,11 +47,13 @@ npm test
 **Purpose:** Test complete user journeys
 
 **Run:**
+
 ```bash
 npm run test:e2e
 ```
 
 **Coverage:**
+
 - Token configuration flow
 - Studio interface
 - Query execution
@@ -60,21 +66,25 @@ npm run test:e2e
 ### Quick Start
 
 1. **Install dependencies:**
+
 ```bash
 npm install
 ```
 
 2. **Install Playwright browsers:**
+
 ```bash
 npx playwright install
 ```
 
 3. **Start dev server** (in separate terminal):
+
 ```bash
 npm run dev
 ```
 
 4. **Run tests:**
+
 ```bash
 # Run all E2E tests
 npm run test:e2e
@@ -112,25 +122,27 @@ tests/e2e/
 
 ### Test Categories
 
-| Category | Tests | Priority |
-|----------|-------|----------|
-| Token Configuration | 8 | P0 |
-| Studio Interface | 10 | P0-P2 |
-| Query Execution | 13 | P0-P2 |
-| Token Persistence | 7 | P0-P1 |
-| Schema Browsing | 8 | P1-P2 |
-| Error Handling | 10 | P0-P2 |
-| Accessibility | 9 | P1-P2 |
-| **Total** | **65** | |
+| Category            | Tests  | Priority |
+| ------------------- | ------ | -------- |
+| Token Configuration | 8      | P0       |
+| Studio Interface    | 10     | P0-P2    |
+| Query Execution     | 13     | P0-P2    |
+| Token Persistence   | 7      | P0-P1    |
+| Schema Browsing     | 8      | P1-P2    |
+| Error Handling      | 10     | P0-P2    |
+| Accessibility       | 9      | P1-P2    |
+| **Total**           | **65** |          |
 
 ### Running Tests
 
 #### All Tests
+
 ```bash
 npm run test:e2e
 ```
 
 #### Specific Browser
+
 ```bash
 npx playwright test --project=chromium
 npx playwright test --project=firefox
@@ -138,17 +150,20 @@ npx playwright test --project=webkit
 ```
 
 #### Specific Test File
+
 ```bash
 npx playwright test 01-token-configuration
 npx playwright test 03-query-execution
 ```
 
 #### With UI Mode (Interactive)
+
 ```bash
 npm run test:e2e:ui
 ```
 
 This opens an interactive UI where you can:
+
 - See all tests
 - Run tests individually
 - Watch tests execute
@@ -156,6 +171,7 @@ This opens an interactive UI where you can:
 - View traces
 
 #### Debug Mode
+
 ```bash
 npm run test:e2e:debug
 ```
@@ -163,6 +179,7 @@ npm run test:e2e:debug
 This opens Playwright Inspector for step-by-step debugging.
 
 #### View Last Report
+
 ```bash
 npm run test:e2e:report
 ```
@@ -173,11 +190,15 @@ npm run test:e2e:report
 2. **Use page objects** for interactions:
 
 ```typescript
-import { test, expect } from '@playwright/test';
-import { StudioPage } from './page-objects/studio.page';
-import { TestHelpers, ValtownAPIMock, TEST_DATA } from './fixtures/test-helpers';
+import { test, expect } from "@playwright/test";
+import { StudioPage } from "./page-objects/studio.page";
+import {
+  TestHelpers,
+  ValtownAPIMock,
+  TEST_DATA,
+} from "./fixtures/test-helpers";
 
-test.describe('My Feature', () => {
+test.describe("My Feature", () => {
   let studioPage: StudioPage;
   let helpers: TestHelpers;
   let apiMock: ValtownAPIMock;
@@ -191,12 +212,12 @@ test.describe('My Feature', () => {
     await helpers.setValtownToken(TEST_DATA.validToken);
   });
 
-  test('should do something', async ({ page }) => {
+  test("should do something", async ({ page }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
     // Your test logic
-    await studioPage.typeSQL('SELECT 1');
+    await studioPage.typeSQL("SELECT 1");
     await studioPage.executeQuery();
 
     // Assertions
@@ -210,12 +231,15 @@ test.describe('My Feature', () => {
 ```typescript
 // Mock successful query
 await apiMock.mockSuccessfulQuery({
-  columns: ['id', 'name'],
-  rows: [[1, 'John'], [2, 'Jane']],
+  columns: ["id", "name"],
+  rows: [
+    [1, "John"],
+    [2, "Jane"],
+  ],
 });
 
 // Mock error
-await apiMock.mockFailedQuery('Syntax error');
+await apiMock.mockFailedQuery("Syntax error");
 
 // Mock unauthorized
 await apiMock.mockUnauthorized();
@@ -236,6 +260,7 @@ For reliable test selectors, add `data-testid` to components:
 ### Best Practices
 
 #### 1. Test Independence
+
 Each test should be completely independent:
 
 ```typescript
@@ -246,6 +271,7 @@ test.beforeEach(async ({ page }) => {
 ```
 
 #### 2. Explicit Waits
+
 Use explicit waits instead of arbitrary timeouts:
 
 ```typescript
@@ -257,6 +283,7 @@ await page.waitForTimeout(2000);
 ```
 
 #### 3. Page Object Model
+
 Encapsulate page interactions in page objects:
 
 ```typescript
@@ -268,6 +295,7 @@ await page.click('[data-testid="execute-query-btn"]');
 ```
 
 #### 4. Descriptive Test Names
+
 ```typescript
 // Good
 test('should display error message when executing invalid SQL', async ({ page }) => {
@@ -277,6 +305,7 @@ test('error test', async ({ page }) => {
 ```
 
 #### 5. Mock External Dependencies
+
 Always mock Val Town API to avoid flaky tests:
 
 ```typescript
@@ -286,23 +315,28 @@ await apiMock.mockSuccessfulQuery(TEST_DATA.sampleResults.users);
 ### Debugging Failed Tests
 
 #### 1. View Trace
+
 ```bash
 npx playwright show-trace test-results/path-to-trace.zip
 ```
 
 #### 2. Screenshots
+
 Failed tests automatically capture screenshots in `test-results/`
 
 #### 3. Videos
+
 Failed tests record video (if configured) in `test-results/`
 
 #### 4. Console Logs
+
 ```typescript
-page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-page.on('pageerror', err => console.log('PAGE ERROR:', err));
+page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
+page.on("pageerror", (err) => console.log("PAGE ERROR:", err));
 ```
 
 #### 5. Pause Execution
+
 ```typescript
 await page.pause(); // Opens Playwright Inspector
 ```
@@ -374,11 +408,11 @@ Included in E2E tests (`07-accessibility.spec.ts`):
 
 ## Coverage Goals
 
-| Test Type | Target Coverage |
-|-----------|----------------|
-| Unit Tests | 80% of utilities |
-| Integration Tests | 70% of components |
-| E2E Tests | 100% of critical paths |
+| Test Type         | Target Coverage        |
+| ----------------- | ---------------------- |
+| Unit Tests        | 80% of utilities       |
+| Integration Tests | 70% of components      |
+| E2E Tests         | 100% of critical paths |
 
 ## Resources
 
@@ -391,28 +425,34 @@ Included in E2E tests (`07-accessibility.spec.ts`):
 ## Troubleshooting
 
 ### Tests fail locally but pass in CI
+
 - CI is slower, may need increased timeouts
 - Check for timing issues
 - Review CI artifacts (screenshots/videos)
 
 ### Flaky tests
+
 - Add explicit waits
 - Check for race conditions
 - Ensure test independence
 - Review API mock timing
 
 ### Browser not found
+
 ```bash
 npx playwright install
 ```
 
 ### Port already in use
+
 Change port in `playwright.config.ts`:
+
 ```typescript
 baseURL: 'http://localhost:3009',
 ```
 
 Then start dev server on that port:
+
 ```bash
 PORT=3009 npm run dev
 ```

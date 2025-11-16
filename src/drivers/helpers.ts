@@ -7,16 +7,16 @@ import { SqliteLikeBaseDriver } from "./sqlite-base-driver";
  * Currently supports only Val Town SQLite connections.
  */
 export function createLocalDriver(conn: SavedConnectionRawLocalStorage) {
-	if (conn.driver !== "valtown") {
-		throw new Error("Only Val Town connections are supported");
-	}
+  if (conn.driver !== "valtown") {
+    throw new Error("Only Val Town connections are supported");
+  }
 
-	return new SqliteLikeBaseDriver(new ValtownQueryable(conn.token!));
+  return new SqliteLikeBaseDriver(new ValtownQueryable(conn.token!));
 }
 
 /**
  * Convenience function for creating Val Town driver
  */
 export function createValtownDriver(token: string) {
-	return new SqliteLikeBaseDriver(new ValtownQueryable(token));
+  return new SqliteLikeBaseDriver(new ValtownQueryable(token));
 }
