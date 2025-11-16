@@ -1,5 +1,5 @@
 "use client";
-import {
+import React, {
   type FunctionComponent,
   useCallback,
   useEffect,
@@ -40,7 +40,7 @@ export function DialogProvider({
       setDefaultCloseValue(defaultCloseValue);
       setOpen(true);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -68,13 +68,14 @@ export function DialogProvider({
           }}
         >
           <DialogContent>
-            <DialogComponent
-              {...(options as any)}
-              close={(value: unknown) => {
-                if (resolve) resolve(value);
-                setOpen(false);
-              }}
-            />
+            {DialogComponent &&
+              React.createElement(DialogComponent, {
+                ...(options as Record<string, unknown>),
+                close: (value: unknown) => {
+                  if (resolve) resolve(value);
+                  setOpen(false);
+                },
+              } as React.ComponentProps<typeof DialogComponent>)}
           </DialogContent>
         </Dialog>
       )}
@@ -99,7 +100,7 @@ export function createDialog<ParamType = unknown, ReturnType = undefined>(
      * it will be rendered to the deepest available slot.
      */
     slot?: DialogProviderSlot;
-  }
+  },
 ) {
   return {
     show: (props: ParamType) => {
