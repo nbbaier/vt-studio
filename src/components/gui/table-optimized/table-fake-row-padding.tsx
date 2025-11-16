@@ -1,17 +1,17 @@
 export default function TableFakeRowPadding({
-  colStart,
-  colEnd,
+	colStart,
+	colEnd,
 }: {
-  colEnd: number;
-  colStart: number;
+	colEnd: number;
+	colStart: number;
 }) {
-  return colEnd - colStart > 0 ? (
-    <td
-      style={{
-        gridColumn: `span ${colEnd - colStart}`,
-      }}
-    />
-  ) : (
-    <></>
-  );
+	return colEnd - colStart > 0 ? (
+		<td
+			style={{
+				gridColumn: `span ${colEnd - colStart}`,
+			}}
+		/>
+	) : (
+		<></>
+	);
 }

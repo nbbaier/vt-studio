@@ -4,27 +4,27 @@ import { OuterbaseAPIQueryRaw, OuterbaseDatabaseConfig } from "../api-type";
 import { OuterbaseQueryable } from "./query";
 
 export function transformOuterbaseResult(
-  result: OuterbaseAPIQueryRaw
+	result: OuterbaseAPIQueryRaw,
 ): DatabaseResultSet {
-  return {
-    rows: result.items,
-    headers: result.headers,
-    stat: result.stat ?? {
-      rowsAffected: 0,
-      rowsRead: null,
-      rowsWritten: null,
-      queryDurationMs: null,
-    },
-    lastInsertRowid: result.lastInsertRowid,
-  };
+	return {
+		rows: result.items,
+		headers: result.headers,
+		stat: result.stat ?? {
+			rowsAffected: 0,
+			rowsRead: null,
+			rowsWritten: null,
+			queryDurationMs: null,
+		},
+		lastInsertRowid: result.lastInsertRowid,
+	};
 }
 
 export function createOuterbaseDatabaseDriver(
-  type: string,
-  config: OuterbaseDatabaseConfig
+	type: string,
+	config: OuterbaseDatabaseConfig,
 ) {
-  const queryable = new OuterbaseQueryable(config);
+	const queryable = new OuterbaseQueryable(config);
 
-  // Val Town-only migration: Only SQLite dialect is supported
-  return new SqliteLikeBaseDriver(queryable);
+	// Val Town-only migration: Only SQLite dialect is supported
+	return new SqliteLikeBaseDriver(queryable);
 }
