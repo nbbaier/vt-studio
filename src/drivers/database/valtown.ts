@@ -1,148 +1,148 @@
 import type {
-  DatabaseHeader,
-  DatabaseResultSet,
-  DatabaseRow,
-  QueryableBaseDriver,
+	DatabaseHeader,
+	DatabaseResultSet,
+	DatabaseRow,
+	QueryableBaseDriver,
 } from "@/drivers/base-driver";
 import { convertSqliteType } from "@/drivers/sqlite/sql-helper";
 
 // Val Town API types
 export type InStatement =
-  | string
-  | {
-      sql: string;
-      args: unknown[];
-    };
+	| string
+	| {
+			sql: string;
+			args: unknown[];
+	  };
 
 export interface ResultSet {
-  columns: string[];
-  columnTypes: string[];
-  rows: unknown[][];
-  rowsAffected: number;
-  lastInsertRowid?: bigint | number;
-  rowsRead?: number;
-  rowsWritten?: number;
-  queryDurationMS?: number;
+	columns: string[];
+	columnTypes: string[];
+	rows: unknown[][];
+	rowsAffected: number;
+	lastInsertRowid?: bigint | number;
+	rowsRead?: number;
+	rowsWritten?: number;
+	queryDurationMS?: number;
 }
 
 function transformRawResult(raw: ResultSet): DatabaseResultSet {
-  const headerSet = new Set();
+	const headerSet = new Set();
 
-  const headers: DatabaseHeader[] = raw.columns.map(
-    (colName: string, colIdx: number) => {
-      const colType = raw.columnTypes[colIdx];
-      let renameColName = colName;
+	const headers: DatabaseHeader[] = raw.columns.map(
+		(colName: string, colIdx: number) => {
+			const colType = raw.columnTypes[colIdx];
+			let renameColName = colName;
 
-      for (let i = 0; i < 20; i++) {
-        if (!headerSet.has(renameColName)) break;
-        renameColName = `__${colName}_${i}`;
-      }
+			for (let i = 0; i < 20; i++) {
+				if (!headerSet.has(renameColName)) break;
+				renameColName = `__${colName}_${i}`;
+			}
 
-      headerSet.add(renameColName);
+			headerSet.add(renameColName);
 
-      return {
-        name: renameColName,
-        displayName: colName,
-        originalType: colType,
-        type: convertSqliteType(colType),
-      };
-    },
-  );
+			return {
+				name: renameColName,
+				displayName: colName,
+				originalType: colType,
+				type: convertSqliteType(colType),
+			};
+		},
+	);
 
-  const rows = raw.rows.map((r: unknown[]) =>
-    headers.reduce((a, b, idx) => {
-      const cellValue = r[idx];
-      if (cellValue instanceof Uint8Array) {
-        a[b.name] = Array.from(cellValue);
-      } else {
-        a[b.name] = r[idx];
-      }
-      return a;
-    }, {} as DatabaseRow),
-  );
+	const rows = raw.rows.map((r: unknown[]) =>
+		headers.reduce((a, b, idx) => {
+			const cellValue = r[idx];
+			if (cellValue instanceof Uint8Array) {
+				a[b.name] = Array.from(cellValue);
+			} else {
+				a[b.name] = r[idx];
+			}
+			return a;
+		}, {} as DatabaseRow),
+	);
 
-  return {
-    rows,
-    stat: {
-      rowsAffected: raw.rowsAffected,
+	return {
+		rows,
+		stat: {
+			rowsAffected: raw.rowsAffected,
 
-      // This is unique for stateless driver
-      rowsRead: raw.rowsRead ?? null,
-      rowsWritten: raw.rowsWritten ?? null,
-      queryDurationMs: raw.queryDurationMS ?? null,
-    },
+			// This is unique for stateless driver
+			rowsRead: raw.rowsRead ?? null,
+			rowsWritten: raw.rowsWritten ?? null,
+			queryDurationMs: raw.queryDurationMS ?? null,
+		},
 
-    headers,
-    lastInsertRowid:
-      raw.lastInsertRowid === undefined
-        ? undefined
-        : Number(raw.lastInsertRowid),
-  };
+		headers,
+		lastInsertRowid:
+			raw.lastInsertRowid === undefined
+				? undefined
+				: Number(raw.lastInsertRowid),
+	};
 }
 
 export class ValtownQueryable implements QueryableBaseDriver {
-  constructor(protected token: string) {}
+	constructor(protected token: string) {}
 
-  async transaction(stmts: InStatement[]): Promise<DatabaseResultSet[]> {
-    const r = await fetch(`https://api.val.town/v1/sqlite/batch`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        statements: stmts,
-        mode: "write",
-      }),
-    });
+	async transaction(stmts: InStatement[]): Promise<DatabaseResultSet[]> {
+		const r = await fetch(`https://api.val.town/v1/sqlite/batch`, {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${this.token}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				statements: stmts,
+				mode: "write",
+			}),
+		});
 
-    if (!r.ok) {
-      const errorText = await r.text();
-      throw new Error(
-        `Val Town API error (${r.status}): ${errorText || r.statusText}`,
-      );
-    }
+		if (!r.ok) {
+			const errorText = await r.text();
+			throw new Error(
+				`Val Town API error (${r.status}): ${errorText || r.statusText}`,
+			);
+		}
 
-    const json = await r.json();
+		const json = await r.json();
 
-    // Handle error response format
-    if (json.error) {
-      throw new Error(`Val Town API error: ${json.error}`);
-    }
+		// Handle error response format
+		if (json.error) {
+			throw new Error(`Val Town API error: ${json.error}`);
+		}
 
-    if (!Array.isArray(json)) {
-      throw new Error(
-        `Unexpected response format from Val Town API: ${JSON.stringify(json)}`,
-      );
-    }
+		if (!Array.isArray(json)) {
+			throw new Error(
+				`Unexpected response format from Val Town API: ${JSON.stringify(json)}`,
+			);
+		}
 
-    return json.map(transformRawResult);
-  }
+		return json.map(transformRawResult);
+	}
 
-  async query(stmt: InStatement): Promise<DatabaseResultSet> {
-    const r = await fetch(`https://api.val.town/v1/sqlite/execute`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ statement: stmt }),
-    });
+	async query(stmt: InStatement): Promise<DatabaseResultSet> {
+		const r = await fetch(`https://api.val.town/v1/sqlite/execute`, {
+			method: "POST",
+			headers: {
+				Authorization: `Bearer ${this.token}`,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ statement: stmt }),
+		});
 
-    if (!r.ok) {
-      const errorText = await r.text();
-      throw new Error(
-        `Val Town API error (${r.status}): ${errorText || r.statusText}`,
-      );
-    }
+		if (!r.ok) {
+			const errorText = await r.text();
+			throw new Error(
+				`Val Town API error (${r.status}): ${errorText || r.statusText}`,
+			);
+		}
 
-    const json = await r.json();
+		const json = await r.json();
 
-    // Handle error response format
-    if (json.error) {
-      throw new Error(`Val Town API error: ${json.error}`);
-    }
+		// Handle error response format
+		if (json.error) {
+			throw new Error(`Val Town API error: ${json.error}`);
+		}
 
-    return transformRawResult(json as ResultSet);
-  }
+		return transformRawResult(json as ResultSet);
+	}
 }

@@ -6,36 +6,36 @@ import type { BaseDriver } from "@/drivers/base-driver";
 import type { SavedDocDriver } from "@/drivers/saved-doc/saved-doc-driver";
 
 export interface StudioContextProps {
-  databaseDriver: BaseDriver;
-  docDriver?: SavedDocDriver;
+	databaseDriver: BaseDriver;
+	docDriver?: SavedDocDriver;
 
-  // Moving from useConfig previously
-  color: string;
-  name: string;
-  onBack?: () => void;
-  extensions: StudioExtensionManager;
-  containerClassName?: string;
-  agentDriver?: AgentDriverList;
+	// Moving from useConfig previously
+	color: string;
+	name: string;
+	onBack?: () => void;
+	extensions: StudioExtensionManager;
+	containerClassName?: string;
+	agentDriver?: AgentDriverList;
 }
 
 const StudioContext = createContext<StudioContextProps>({
-  databaseDriver: {} as unknown as BaseDriver,
-  name: "",
-  color: "",
-  extensions: new StudioExtensionManager([]),
-  onBack: noop,
-  containerClassName: "",
+	databaseDriver: {} as unknown as BaseDriver,
+	name: "",
+	color: "",
+	extensions: new StudioExtensionManager([]),
+	onBack: noop,
+	containerClassName: "",
 });
 
 export function useStudioContext() {
-  return useContext(StudioContext);
+	return useContext(StudioContext);
 }
 
 export function StudioContextProvider({
-  children,
-  value,
+	children,
+	value,
 }: PropsWithChildren<{ value: StudioContextProps }>) {
-  return (
-    <StudioContext.Provider value={value}>{children}</StudioContext.Provider>
-  );
+	return (
+		<StudioContext.Provider value={value}>{children}</StudioContext.Provider>
+	);
 }

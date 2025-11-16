@@ -1,52 +1,52 @@
 import { noop } from "lodash";
 import {
-  createContext,
-  type Dispatch,
-  type PropsWithChildren,
-  type SetStateAction,
-  useContext,
+	createContext,
+	type Dispatch,
+	type PropsWithChildren,
+	type SetStateAction,
+	useContext,
 } from "react";
 import type { BoardSourceDriver } from "@/drivers/board-source/base-source";
 import type { IBoardStorageDriver } from "@/drivers/board-storage/base";
 import type { BoardEditorMode, DashboardProps } from ".";
 
 interface BoardContextSettingProps {
-  autoRefresh: string[];
-  name: string;
+	autoRefresh: string[];
+	name: string;
 }
 
 interface BoardContextProps {
-  value?: DashboardProps;
-  onChange?: (value: DashboardProps) => void;
-  sources?: BoardSourceDriver;
-  storage?: IBoardStorageDriver;
-  setting?: BoardContextSettingProps;
-  lastRunTimestamp: number;
-  setBoardMode: Dispatch<SetStateAction<BoardEditorMode>>;
-  boardMode: BoardEditorMode;
-  filterValue: Record<string, string>;
-  onFilterValueChange?: (value: Record<string, string>) => void;
-  resolvedFilterValue: Record<string, string>;
+	value?: DashboardProps;
+	onChange?: (value: DashboardProps) => void;
+	sources?: BoardSourceDriver;
+	storage?: IBoardStorageDriver;
+	setting?: BoardContextSettingProps;
+	lastRunTimestamp: number;
+	setBoardMode: Dispatch<SetStateAction<BoardEditorMode>>;
+	boardMode: BoardEditorMode;
+	filterValue: Record<string, string>;
+	onFilterValueChange?: (value: Record<string, string>) => void;
+	resolvedFilterValue: Record<string, string>;
 }
 
 const BoardContext = createContext<BoardContextProps>({
-  lastRunTimestamp: 0,
-  setBoardMode: noop,
-  boardMode: null,
-  filterValue: {},
-  onFilterValueChange: noop,
-  resolvedFilterValue: {},
+	lastRunTimestamp: 0,
+	setBoardMode: noop,
+	boardMode: null,
+	filterValue: {},
+	onFilterValueChange: noop,
+	resolvedFilterValue: {},
 });
 
 export function useBoardContext() {
-  return useContext(BoardContext);
+	return useContext(BoardContext);
 }
 
 export function BoardProvider({
-  children,
-  ...value
+	children,
+	...value
 }: PropsWithChildren<BoardContextProps>) {
-  return (
-    <BoardContext.Provider value={value}>{children}</BoardContext.Provider>
-  );
+	return (
+		<BoardContext.Provider value={value}>{children}</BoardContext.Provider>
+	);
 }

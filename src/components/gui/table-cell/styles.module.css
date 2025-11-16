@@ -1,17 +1,17 @@
 .cell {
-  line-height: 34px;
-  height: 35px;
-  border: 1px solid transparent;
+	line-height: 34px;
+	height: 35px;
+	border: 1px solid transparent;
 }
 
 .focus {
-  border: 1px solid #e00;
+	border: 1px solid #e00;
 }
 
 .change {
-  @apply bg-yellow-200;
+	@apply bg-yellow-200;
 }
 
 :global(.dark) .change.change {
-  @apply bg-yellow-500;
+	@apply bg-yellow-500;
 }

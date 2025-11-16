@@ -1,43 +1,43 @@
 .prompt-line-preview {
-  background: #abf7b1;
+	background: #abf7b1;
 }
 
 .prompt-line-selected {
-  background: #f5f5f5;
+	background: #f5f5f5;
 }
 
 .dark .prompt-line-selected {
-  background: #222;
+	background: #222;
 }
 
 .cm-deletedChunk {
-  background-color: #fab1a0;
+	background-color: #fab1a0;
 }
 
 .dark .cm-deletedChunk {
-  background-color: #b54b4b;
+	background-color: #b54b4b;
 }
 
 .cm-changedLine {
-  background-color: #55efc4;
+	background-color: #55efc4;
 }
 
 .cm-changedLine {
-  background-color: #55efc4;
+	background-color: #55efc4;
 }
 
 .dark .cm-changedLine {
-  background-color: #2f6542;
+	background-color: #2f6542;
 }
 
 .cm-insertedLine .cm-changedText {
-  background: none;
+	background: none;
 }
 
 .cm-deletedChunk .cm-deletedText {
-  background: none;
+	background: none;
 }
 
 .cm-deletedChunk del {
-  text-decoration: none;
+	text-decoration: none;
 }

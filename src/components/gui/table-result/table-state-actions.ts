@@ -2,46 +2,46 @@ import type OptimizeTableState from "../table-optimized/optimize-table-state";
 import type { TableHeaderMetadata } from "./type";
 
 export function duplicateRow(state: OptimizeTableState<TableHeaderMetadata>) {
-  const rowIndex = state.getFocus()?.y;
-  if (!rowIndex) return;
+	const rowIndex = state.getFocus()?.y;
+	if (!rowIndex) return;
 
-  const currentRow = state.getRowByIndex(rowIndex);
+	const currentRow = state.getRowByIndex(rowIndex);
 
-  if (currentRow) {
-    const currentRowData = { ...currentRow.raw, ...currentRow.change };
+	if (currentRow) {
+		const currentRowData = { ...currentRow.raw, ...currentRow.change };
 
-    // Remove all generated column
-    for (const header of state.getHeaders()) {
-      if (header.metadata.columnSchema?.constraint?.generatedExpression) {
-        delete currentRowData[header.name];
-      }
-    }
+		// Remove all generated column
+		for (const header of state.getHeaders()) {
+			if (header.metadata.columnSchema?.constraint?.generatedExpression) {
+				delete currentRowData[header.name];
+			}
+		}
 
-    state.insertNewRow(rowIndex, currentRowData);
-  }
+		state.insertNewRow(rowIndex, currentRowData);
+	}
 }
 
 export function duplicateRowWithoutKey(
-  state: OptimizeTableState<TableHeaderMetadata>,
+	state: OptimizeTableState<TableHeaderMetadata>,
 ) {
-  const rowIndex = state.getFocus()?.y;
-  if (!rowIndex) return;
+	const rowIndex = state.getFocus()?.y;
+	if (!rowIndex) return;
 
-  const currentRow = state.getRowByIndex(rowIndex);
+	const currentRow = state.getRowByIndex(rowIndex);
 
-  if (currentRow) {
-    const currentRowData = { ...currentRow.raw, ...currentRow.change };
+	if (currentRow) {
+		const currentRowData = { ...currentRow.raw, ...currentRow.change };
 
-    // Remove all generated column
-    for (const header of state.getHeaders()) {
-      if (
-        header.metadata.columnSchema?.constraint?.generatedExpression ||
-        header.metadata.isPrimaryKey
-      ) {
-        delete currentRowData[header.name];
-      }
-    }
+		// Remove all generated column
+		for (const header of state.getHeaders()) {
+			if (
+				header.metadata.columnSchema?.constraint?.generatedExpression ||
+				header.metadata.isPrimaryKey
+			) {
+				delete currentRowData[header.name];
+			}
+		}
 
-    state.insertNewRow(rowIndex, currentRowData);
-  }
+		state.insertNewRow(rowIndex, currentRowData);
+	}
 }

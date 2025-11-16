@@ -5,149 +5,149 @@ import { Button } from "@/components/orbit/button";
 import { Toggle } from "@/components/orbit/toggle";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import HighlightText from "@/components/ui/highlight-text";
 import type {
-  DatabaseTableColumn,
-  DatabaseTableSchema,
+	DatabaseTableColumn,
+	DatabaseTableSchema,
 } from "@/drivers/base-driver";
 import { cn } from "@/lib/utils";
 import DataCatalogTableColumnModal from "./data-catalog-table-column-modal";
 import { useDataCatalogContext } from "./data-model-tab";
 
 interface DataCatalogTableColumnProps {
-  table: DatabaseTableSchema;
-  column: DatabaseTableColumn;
-  hasDefinitionOnly?: boolean;
+	table: DatabaseTableSchema;
+	column: DatabaseTableColumn;
+	hasDefinitionOnly?: boolean;
 }
 
 export default function DataCatalogTableColumn({
-  column,
-  table,
-  hasDefinitionOnly,
+	column,
+	table,
+	hasDefinitionOnly,
 }: DataCatalogTableColumnProps) {
-  const { driver, search } = useDataCatalogContext();
-  const [open, setOpen] = useState(false);
-  const [enabled, setEnabled] = useState<boolean>(() => {
-    if (!table.tableName) {
-      return true;
-    }
-    const modelColumn = driver.getColumn(
-      table.schemaName,
-      table.tableName,
-      column.name,
-    );
-    return modelColumn?.hide ?? true;
-  });
+	const { driver, search } = useDataCatalogContext();
+	const [open, setOpen] = useState(false);
+	const [enabled, setEnabled] = useState<boolean>(() => {
+		if (!table.tableName) {
+			return true;
+		}
+		const modelColumn = driver.getColumn(
+			table.schemaName,
+			table.tableName,
+			column.name,
+		);
+		return modelColumn?.hide ?? true;
+	});
 
-  const handleClickToggle = useCallback(() => {
-    if (!table.tableName || !column.name) return;
-    const modelColumn = driver.getColumn(
-      table.schemaName,
-      table.tableName,
-      column.name,
-    );
-    driver
-      .updateColumn(table.schemaName, table.tableName ?? "", column.name, {
-        samples: modelColumn?.samples ?? [],
-        definition: modelColumn?.definition ?? "",
-        hide: !enabled,
-      })
-      .then(() =>
-        toast.success(`${column.name} is turned ${!enabled ? "on" : "off"}`),
-      )
-      .catch(() => toast.error("Failed to update column"));
-    setEnabled((prev) => !prev);
-  }, [driver, enabled, table, column]);
+	const handleClickToggle = useCallback(() => {
+		if (!table.tableName || !column.name) return;
+		const modelColumn = driver.getColumn(
+			table.schemaName,
+			table.tableName,
+			column.name,
+		);
+		driver
+			.updateColumn(table.schemaName, table.tableName ?? "", column.name, {
+				samples: modelColumn?.samples ?? [],
+				definition: modelColumn?.definition ?? "",
+				hide: !enabled,
+			})
+			.then(() =>
+				toast.success(`${column.name} is turned ${!enabled ? "on" : "off"}`),
+			)
+			.catch(() => toast.error("Failed to update column"));
+		setEnabled((prev) => !prev);
+	}, [driver, enabled, table, column]);
 
-  if (!table.tableName) {
-    return null;
-  }
+	if (!table.tableName) {
+		return null;
+	}
 
-  const modelColumn = driver.getColumn(
-    table.schemaName,
-    table.tableName,
-    column.name,
-  );
+	const modelColumn = driver.getColumn(
+		table.schemaName,
+		table.tableName,
+		column.name,
+	);
 
-  if (hasDefinitionOnly) {
-    return null;
-  }
+	if (hasDefinitionOnly) {
+		return null;
+	}
 
-  return (
-    <div
-      key={column.name}
-      className={cn(
-        "border-accent flex items-center border-t pt-2 pb-2 text-sm",
-        enabled ? "opacity-100" : "opacity-50",
-      )}
-    >
-      <Toggle size="sm" toggled={enabled} onChange={handleClickToggle} />
-      <div className="flex w-[150px] items-center p-2 text-base">
-        <HighlightText text={column.name} highlight={search} />
-      </div>
-      <div className="text-muted-foreground flex-1 p-2 text-base">
-        {modelColumn?.definition || "No description"}
-      </div>
-      <div className="w-[150px] p-2">
-        {modelColumn && modelColumn?.samples.length > 0 && (
-          <span className="bg-secondary rounded p-1 px-2 text-sm">
-            {modelColumn?.samples.length} sample data
-          </span>
-        )}
-      </div>
-      {
-        //=================
-        // Dropdown menu
-        //=================
-      }
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild disabled={!enabled}>
-          <Button variant="ghost">
-            <LucideMoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="p-2">
-          <DropdownMenuItem
-            className="gap-5"
-            onClick={() => {
-              setOpen(true);
-            }}
-          >
-            Edit Column
-            <div className="flex-1" />
-            <Edit3 className="h-4 w-4" />
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="gap-5" onClick={handleClickToggle}>
-            Hide from EZQL
-            <div className="flex-1" />
-            <EyeOff className="h-4 w-4" />
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      {
-        //=================
-        // Column metadata modal
-        //=================
-      }
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          {open && (
-            <DataCatalogTableColumnModal
-              schemaName={table.schemaName}
-              tableName={table.tableName}
-              columnName={column.name}
-              onClose={() => setOpen(false)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+	return (
+		<div
+			key={column.name}
+			className={cn(
+				"border-accent flex items-center border-t pt-2 pb-2 text-sm",
+				enabled ? "opacity-100" : "opacity-50",
+			)}
+		>
+			<Toggle size="sm" toggled={enabled} onChange={handleClickToggle} />
+			<div className="flex w-[150px] items-center p-2 text-base">
+				<HighlightText text={column.name} highlight={search} />
+			</div>
+			<div className="text-muted-foreground flex-1 p-2 text-base">
+				{modelColumn?.definition || "No description"}
+			</div>
+			<div className="w-[150px] p-2">
+				{modelColumn && modelColumn?.samples.length > 0 && (
+					<span className="bg-secondary rounded p-1 px-2 text-sm">
+						{modelColumn?.samples.length} sample data
+					</span>
+				)}
+			</div>
+			{
+				//=================
+				// Dropdown menu
+				//=================
+			}
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild disabled={!enabled}>
+					<Button variant="ghost">
+						<LucideMoreHorizontal className="h-4 w-4" />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end" className="p-2">
+					<DropdownMenuItem
+						className="gap-5"
+						onClick={() => {
+							setOpen(true);
+						}}
+					>
+						Edit Column
+						<div className="flex-1" />
+						<Edit3 className="h-4 w-4" />
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem className="gap-5" onClick={handleClickToggle}>
+						Hide from EZQL
+						<div className="flex-1" />
+						<EyeOff className="h-4 w-4" />
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+			{
+				//=================
+				// Column metadata modal
+				//=================
+			}
+			<Dialog open={open} onOpenChange={setOpen}>
+				<DialogContent>
+					{open && (
+						<DataCatalogTableColumnModal
+							schemaName={table.schemaName}
+							tableName={table.tableName}
+							columnName={column.name}
+							onClose={() => setOpen(false)}
+						/>
+					)}
+				</DialogContent>
+			</Dialog>
+		</div>
+	);
 }
