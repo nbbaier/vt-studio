@@ -57,7 +57,6 @@ export interface OuterbaseAPISourceInput {
 		require: boolean;
 		rejectUnauthorized: boolean;
 	};
-	starbasedb_options?: { database_path: string; database_token: string };
 	base_id: string;
 	connection_id?: string;
 }

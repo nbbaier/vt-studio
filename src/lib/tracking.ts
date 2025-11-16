@@ -7,9 +7,7 @@ export interface TrackEventItem {
 }
 
 export function normalizedPathname(pathname: string) {
-	const patterns = {
-		"/playground/mysql/[roomName]": /\/playground\/mysql\/(\w)+/i,
-	};
+	const patterns: Record<string, RegExp> = {};
 
 	for (const [pattern, reg] of Object.entries(patterns)) {
 		if (reg.test(pathname)) {

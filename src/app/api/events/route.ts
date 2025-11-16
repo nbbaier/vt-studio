@@ -2,7 +2,7 @@
 // The collected data helps enhance user experience, identify and fix bugs,
 // and gain insights for improving the product.
 //
-// All recorded data will be stored in the Starbase Database.
+// Note: Analytics tracking is currently disabled for Val Town-only deployment.
 
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";

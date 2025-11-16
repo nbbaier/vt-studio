@@ -97,28 +97,8 @@ class IframeConnection {
 	}
 }
 
-class ElectronConnection {
-	listen() {
-		// do nothing here
-	}
-
-	query(stmt: string): Promise<DatabaseResultSet> {
-		return (
-			window.outerbaseIpc?.query(stmt) ??
-			Promise.resolve({} as DatabaseResultSet)
-		);
-	}
-
-	transaction(stmts: string[]): Promise<DatabaseResultSet[]> {
-		return window.outerbaseIpc?.transaction(stmts) ?? Promise.resolve([]);
-	}
-}
-
 export class EmbedQueryable implements QueryableBaseDriver {
-	protected conn =
-		typeof window !== "undefined" && window?.outerbaseIpc
-			? new ElectronConnection()
-			: new IframeConnection();
+	protected conn = new IframeConnection();
 
 	listen() {
 		this.conn.listen();
