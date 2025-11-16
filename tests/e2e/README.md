@@ -1,10 +1,20 @@
 # Val Town Studio - E2E Test Suite
 
-Comprehensive end-to-end test suite for Val Town Studio using Playwright.
+> **⚠️ NOTE: E2E tests temporarily removed (Nov 2024)**
+>
+> The comprehensive Playwright test suite has been temporarily removed due to performance issues causing excessive test execution times. This document is preserved as a reference for what the E2E test suite should cover when re-implemented.
+>
+> **When re-implementing:**
+> - Focus on critical user paths first (token config, query execution, disconnect)
+> - Use faster test strategies (component testing, API contract testing)
+> - Consider visual regression testing tools (Percy, Chromatic)
+> - Optimize with single-browser testing initially (chromium only)
+> - Mock Val Town API responses to avoid network latency
+> - Keep test suite under 2 minutes total execution time
 
 ## Overview
 
-This test suite validates the entire user journey from token configuration through to database operations in the Studio interface.
+This document describes the comprehensive end-to-end test suite that validates the entire user journey from token configuration through to database operations in the Studio interface.
 
 ## Test Structure
 
