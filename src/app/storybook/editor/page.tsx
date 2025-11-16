@@ -3,7 +3,7 @@ import { useState } from "react";
 import SqlEditor from "@/components/gui/sql-editor";
 
 export default function StorybookEditorPage() {
-  const [value, setValue] = useState(`CREATE TABLE customer(
+	const [value, setValue] = useState(`CREATE TABLE customer(
   cust_id INTEGER PRIMARY KEY,
   cust_name TEXT,
   cust_addr TEXT
@@ -22,46 +22,46 @@ BEGIN
 END;
 `);
 
-  return (
-    <div>
-      <SqlEditor
-        dialect="sqlite"
-        value={value}
-        onChange={setValue}
-        onPrompt={async (_prompt, selected) => {
-          const selectedText = selected?.text;
+	return (
+		<div>
+			<SqlEditor
+				dialect="sqlite"
+				value={value}
+				onChange={setValue}
+				onPrompt={async (_prompt, selected) => {
+					const selectedText = selected?.text;
 
-          // do some fake delay
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+					// do some fake delay
+					await new Promise((resolve) => setTimeout(resolve, 1000));
 
-          // random error
-          if (Math.random() < 0.2) {
-            throw new Error("Random error");
-          }
+					// random error
+					if (Math.random() < 0.2) {
+						throw new Error("Random error");
+					}
 
-          const lines = selectedText?.split("\n") || [];
+					const lines = selectedText?.split("\n") || [];
 
-          for (let i = 0; i < lines.length; i++) {
-            if (Math.random() > 0.5) {
-              lines.splice(i, 0, `some random text ${Math.random()}`);
-              i++;
-            }
-          }
+					for (let i = 0; i < lines.length; i++) {
+						if (Math.random() > 0.5) {
+							lines.splice(i, 0, `some random text ${Math.random()}`);
+							i++;
+						}
+					}
 
-          for (let i = 0; i < 5; i++) {
-            // add random lines at the end
-            if (Math.random() > 0.5) {
-              lines.push(`some random text ${Math.random()}`);
-            }
-          }
+					for (let i = 0; i < 5; i++) {
+						// add random lines at the end
+						if (Math.random() > 0.5) {
+							lines.push(`some random text ${Math.random()}`);
+						}
+					}
 
-          // randomly remove lines
-          const finalLines = lines.filter(() => Math.random() > 0.35);
-          console.log(finalLines);
+					// randomly remove lines
+					const finalLines = lines.filter(() => Math.random() > 0.35);
+					console.log(finalLines);
 
-          return finalLines.join("\n");
-        }}
-      />
-    </div>
-  );
+					return finalLines.join("\n");
+				}}
+			/>
+		</div>
+	);
 }

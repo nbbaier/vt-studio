@@ -3,9 +3,9 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 export const BaseHandle = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & HandleProps
+	HTMLDivElement,
+	React.HTMLAttributes<HTMLDivElement> & HandleProps
 >(({ className, ...props }, ref) => (
-  <Handle ref={ref} className={cn("", className)} {...props} />
+	<Handle ref={ref} className={cn("", className)} {...props} />
 ));
 BaseHandle.displayName = "BaseHandle";

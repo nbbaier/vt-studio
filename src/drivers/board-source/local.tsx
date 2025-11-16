@@ -1,79 +1,84 @@
 import type { SavedConnectionRawLocalStorage } from "@/lib/saved-connection-storage";
 import type {
-  BaseDriver,
-  DatabaseResultSet,
-  DatabaseSchemas,
+	BaseDriver,
+	DatabaseResultSet,
+	DatabaseSchemas,
 } from "../base-driver";
 import { createLocalDriver } from "../helpers";
 import { type BoardSource, BoardSourceDriver } from "./base-source";
 
 export default class LocalBoardSource extends BoardSourceDriver {
-  protected sources: SavedConnectionRawLocalStorage[];
-  protected drivers: Record<string, BaseDriver> = {};
+	protected sources: SavedConnectionRawLocalStorage[];
+	protected drivers: Record<string, BaseDriver> = {};
 
-  protected cacheSchemas: Record<
-    string,
-    {
-      schema: DatabaseSchemas;
-      selectedSchema: string;
-    }
-  > = {};
+	protected cacheSchemas: Record<
+		string,
+		{
+			schema: DatabaseSchemas;
+			selectedSchema: string;
+		}
+	> = {};
 
-  constructor(sources: SavedConnectionRawLocalStorage[]) {
-    super();
-    this.sources = sources;
-  }
+	constructor(sources: SavedConnectionRawLocalStorage[]) {
+		super();
+		this.sources = sources;
+	}
 
-  sourceList(): BoardSource[] {
-    return this.sources.map((source) => {
-      return {
-        id: source.id!,
-        name: source.name,
-        type: source.driver ?? "sqlite",
-      };
-    });
-  }
+	sourceList(): BoardSource[] {
+		return this.sources
+			.filter((source) => source.id)
+			.map((source) => {
+				if (!source.id) {
+					throw new Error("Source id is required");
+				}
+				return {
+					id: source.id,
+					name: source.name,
+					type: source.driver ?? "sqlite",
+				};
+			});
+	}
 
-  getDriver(sourceId: string) {
-    const source = this.sources.find((s) => s.id === sourceId);
+	getDriver(sourceId: string) {
+		const source = this.sources.find((s) => s.id === sourceId);
 
-    if (!source) {
-      throw new Error("Source does not exist");
-    }
+		if (!source) {
+			throw new Error("Source does not exist");
+		}
 
-    if (!this.drivers[sourceId]) {
-      this.drivers[sourceId] = createLocalDriver(source);
-    }
+		if (!this.drivers[sourceId]) {
+			this.drivers[sourceId] = createLocalDriver(source);
+		}
 
-    return this.drivers[sourceId];
-  }
+		return this.drivers[sourceId];
+	}
 
-  query(sourceId: string, statement: string): Promise<DatabaseResultSet> {
-    const driver = this.getDriver(sourceId);
+	query(sourceId: string, statement: string): Promise<DatabaseResultSet> {
+		const driver = this.getDriver(sourceId);
 
-    if (!driver) {
-      throw new Error("Soruce does not exist");
-    }
+		if (!driver) {
+			throw new Error("Soruce does not exist");
+		}
 
-    return driver.query(statement);
-  }
+		return driver.query(statement);
+	}
 
-  async schemas(sourceId: string) {
-    const driver = this.getDriver(sourceId);
+	async schemas(sourceId: string) {
+		const driver = this.getDriver(sourceId);
 
-    if (this.cacheSchemas[sourceId]) {
-      return this.cacheSchemas[sourceId];
-    }
+		if (this.cacheSchemas[sourceId]) {
+			return this.cacheSchemas[sourceId];
+		}
 
-    this.cacheSchemas[sourceId] = {
-      schema: await driver.schemas(),
-      selectedSchema: driver.getFlags().defaultSchema,
-    };
+		this.cacheSchemas[sourceId] = {
+			schema: await driver.schemas(),
+			selectedSchema: driver.getFlags().defaultSchema,
+		};
 
-    return this.cacheSchemas[sourceId];
-  }
+		return this.cacheSchemas[sourceId];
+	}
 
-  cleanup(): void {
-    // do nothing
-  }
+	cleanup(): void {
+		// do nothing
+	}
 }

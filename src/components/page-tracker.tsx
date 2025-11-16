@@ -5,88 +5,88 @@ import { useEffect } from "react";
 import { normalizedPathname, sendAnalyticEvents } from "@/lib/tracking";
 
 export default function PageTracker() {
-  const pathname = usePathname();
+	const pathname = usePathname();
 
-  // Track page views
-  useEffect(() => {
-    const normalized = normalizedPathname(pathname);
+	// Track page views
+	useEffect(() => {
+		const normalized = normalizedPathname(pathname);
 
-    sendAnalyticEvents([
-      {
-        name: "page_view",
-        data: {
-          path: normalized,
-          full_path: pathname === normalized ? undefined : pathname,
-        },
-      },
-    ]);
-  }, [pathname]);
+		sendAnalyticEvents([
+			{
+				name: "page_view",
+				data: {
+					path: normalized,
+					full_path: pathname === normalized ? undefined : pathname,
+				},
+			},
+		]);
+	}, [pathname]);
 
-  // Track unhandle rejection
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+	// Track unhandle rejection
+	useEffect(() => {
+		if (typeof window === "undefined") return;
 
-    const handler = (event: PromiseRejectionEvent) => {
-      if (typeof event.reason === "string") {
-        sendAnalyticEvents([
-          {
-            name: "unhandledrejection",
-            data: { message: event.reason, path: window.location.pathname },
-          },
-        ]);
-      } else if (event.reason?.message) {
-        sendAnalyticEvents([
-          {
-            name: "unhandledrejection",
-            data: {
-              message: event.reason.message,
-              stack: event.reason.stack,
-              path: window.location.pathname,
-            },
-          },
-        ]);
-      } else {
-        sendAnalyticEvents([
-          {
-            name: "unhandledrejection",
-            data: {
-              message: event.toString(),
-            },
-          },
-        ]);
-      }
-    };
+		const handler = (event: PromiseRejectionEvent) => {
+			if (typeof event.reason === "string") {
+				sendAnalyticEvents([
+					{
+						name: "unhandledrejection",
+						data: { message: event.reason, path: window.location.pathname },
+					},
+				]);
+			} else if (event.reason?.message) {
+				sendAnalyticEvents([
+					{
+						name: "unhandledrejection",
+						data: {
+							message: event.reason.message,
+							stack: event.reason.stack,
+							path: window.location.pathname,
+						},
+					},
+				]);
+			} else {
+				sendAnalyticEvents([
+					{
+						name: "unhandledrejection",
+						data: {
+							message: event.toString(),
+						},
+					},
+				]);
+			}
+		};
 
-    window.addEventListener("unhandledrejection", handler);
+		window.addEventListener("unhandledrejection", handler);
 
-    return () => {
-      window.removeEventListener("unhandledrejection", handler);
-    };
-  }, []);
+		return () => {
+			window.removeEventListener("unhandledrejection", handler);
+		};
+	}, []);
 
-  // Track other unhandled error
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+	// Track other unhandled error
+	useEffect(() => {
+		if (typeof window === "undefined") return;
 
-    const handler = (event: ErrorEvent) => {
-      sendAnalyticEvents([
-        {
-          name: "error",
-          data: {
-            message: event.message,
-            filename: event.filename,
-            lineno: event.lineno,
-            colno: event.colno,
-          },
-        },
-      ]);
-    };
+		const handler = (event: ErrorEvent) => {
+			sendAnalyticEvents([
+				{
+					name: "error",
+					data: {
+						message: event.message,
+						filename: event.filename,
+						lineno: event.lineno,
+						colno: event.colno,
+					},
+				},
+			]);
+		};
 
-    window.addEventListener("error", handler);
-    return () => {
-      window.removeEventListener("error", handler);
-    };
-  }, []);
+		window.addEventListener("error", handler);
+		return () => {
+			window.removeEventListener("error", handler);
+		};
+	}, []);
 
-  return null;
+	return null;
 }

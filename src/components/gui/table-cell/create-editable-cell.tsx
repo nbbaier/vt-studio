@@ -1,6 +1,6 @@
-import type { DatabaseValue } from "@/drivers/base-driver";
 import type { ColumnType } from "@outerbase/sdk-transform";
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { DatabaseValue } from "@/drivers/base-driver";
 import { useFullEditor } from "../providers/full-editor-provider";
 import type { OptimizeTableHeaderWithIndexProps } from "../table-optimized";
 import type OptimizeTableState from "../table-optimized/optimize-table-state";
@@ -8,184 +8,184 @@ import type { TableHeaderMetadata } from "../table-result/type";
 import GenericCell from "./generic-cell";
 
 export interface TableEditableCell<T = unknown> {
-  value: DatabaseValue<T>;
-  valueType: ColumnType | undefined;
-  isChanged?: boolean;
-  focus?: boolean;
-  editMode?: boolean;
-  state: OptimizeTableState;
-  onChange?: (newValue: DatabaseValue<T>) => void;
-  editor?: "input" | "json" | "text";
-  header: OptimizeTableHeaderWithIndexProps<TableHeaderMetadata>;
+	value: DatabaseValue<T>;
+	valueType: ColumnType | undefined;
+	isChanged?: boolean;
+	focus?: boolean;
+	editMode?: boolean;
+	state: OptimizeTableState;
+	onChange?: (newValue: DatabaseValue<T>) => void;
+	editor?: "input" | "json" | "text";
+	header: OptimizeTableHeaderWithIndexProps<TableHeaderMetadata>;
 }
 
 interface TabeEditableCellProps<T = unknown> {
-  valueToString: (v: DatabaseValue<T>) => DatabaseValue<string>;
-  toValue: (v: DatabaseValue<string>) => DatabaseValue<T>;
-  align?: "left" | "right";
+	valueToString: (v: DatabaseValue<T>) => DatabaseValue<string>;
+	toValue: (v: DatabaseValue<string>) => DatabaseValue<T>;
+	align?: "left" | "right";
 }
 
 function InputCellEditor({
-  value,
-  align,
-  discardChange,
-  readOnly,
-  applyChange,
-  onChange,
-  state,
+	value,
+	align,
+	discardChange,
+	readOnly,
+	applyChange,
+	onChange,
+	state,
 }: Readonly<{
-  align?: "left" | "right";
-  applyChange: (v: DatabaseValue<string>, shouldExit?: boolean) => void;
-  discardChange: () => void;
-  value: DatabaseValue<string>;
-  onChange: (v: string) => void;
-  state: OptimizeTableState;
-  readOnly?: boolean;
+	align?: "left" | "right";
+	applyChange: (v: DatabaseValue<string>, shouldExit?: boolean) => void;
+	discardChange: () => void;
+	value: DatabaseValue<string>;
+	onChange: (v: string) => void;
+	state: OptimizeTableState;
+	readOnly?: boolean;
 }>) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const shouldExit = useRef(true);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const shouldExit = useRef(true);
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.select();
-      inputRef.current.focus();
-    }
-  }, []);
+	useEffect(() => {
+		if (inputRef.current) {
+			inputRef.current.select();
+			inputRef.current.focus();
+		}
+	}, []);
 
-  return (
-    <input
-      ref={inputRef}
-      readOnly={readOnly}
-      onBlur={() => {
-        applyChange(value, shouldExit.current);
-      }}
-      onChange={(e) => {
-        onChange(e.currentTarget.value);
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") {
-          applyChange(value);
-          e.stopPropagation();
-        } else if (e.key === "Escape") {
-          discardChange();
-        } else if (e.key === "Tab") {
-          // Enter the next cell
-          const focus = state.getFocus();
-          if (focus) {
-            const colCount = state.getHeaderCount();
-            const n = focus.y * colCount + focus.x + 1;
-            const x = n % colCount;
-            const y = Math.floor(n / colCount);
-            if (y >= state.getRowsCount()) return;
+	return (
+		<input
+			ref={inputRef}
+			readOnly={readOnly}
+			onBlur={() => {
+				applyChange(value, shouldExit.current);
+			}}
+			onChange={(e) => {
+				onChange(e.currentTarget.value);
+			}}
+			onKeyDown={(e) => {
+				if (e.key === "Enter") {
+					applyChange(value);
+					e.stopPropagation();
+				} else if (e.key === "Escape") {
+					discardChange();
+				} else if (e.key === "Tab") {
+					// Enter the next cell
+					const focus = state.getFocus();
+					if (focus) {
+						const colCount = state.getHeaderCount();
+						const n = focus.y * colCount + focus.x + 1;
+						const x = n % colCount;
+						const y = Math.floor(n / colCount);
+						if (y >= state.getRowsCount()) return;
 
-            shouldExit.current = false;
-            applyChange(value, false);
+						shouldExit.current = false;
+						applyChange(value, false);
 
-            state.setFocus(y, x);
-            state.scrollToCell(x === 0 ? "left" : "right", "bottom", focus);
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }
-      }}
-      type="text"
-      className={
-        align === "right"
-          ? "h-full w-full border-0 bg-inherit pr-2 pl-2 text-right font-mono outline-hidden"
-          : "h-full w-full border-0 bg-inherit pr-2 pl-2 font-mono outline-hidden"
-      }
-      value={value ?? ""}
-    />
-  );
+						state.setFocus(y, x);
+						state.scrollToCell(x === 0 ? "left" : "right", "bottom", focus);
+						e.preventDefault();
+						e.stopPropagation();
+					}
+				}
+			}}
+			type="text"
+			className={
+				align === "right"
+					? "h-full w-full border-0 bg-inherit pr-2 pl-2 text-right font-mono outline-hidden"
+					: "h-full w-full border-0 bg-inherit pr-2 pl-2 font-mono outline-hidden"
+			}
+			value={value ?? ""}
+		/>
+	);
 }
 
 export default function createEditableCell<T = unknown>({
-  valueToString,
-  toValue,
-  align,
+	valueToString,
+	toValue,
+	align,
 }: TabeEditableCellProps<T>): React.FC<TableEditableCell<T>> {
-  return function GenericEditableCell({
-    value,
-    valueType,
-    focus,
-    onChange,
-    state,
-    editor,
-    editMode,
-    header,
-  }: TableEditableCell<T>) {
-    const [editValue, setEditValue] = useState<DatabaseValue<string>>(
-      valueToString(value)
-    );
-    const { openEditor } = useFullEditor();
+	return function GenericEditableCell({
+		value,
+		valueType,
+		focus,
+		onChange,
+		state,
+		editor,
+		editMode,
+		header,
+	}: TableEditableCell<T>) {
+		const [editValue, setEditValue] = useState<DatabaseValue<string>>(
+			valueToString(value),
+		);
+		const { openEditor } = useFullEditor();
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function
-    useEffect(() => {
-      setEditValue(valueToString(value));
-    }, [value]);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function
+		useEffect(() => {
+			setEditValue(valueToString(value));
+		}, [value]);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: toValue is a stable closure variable from the factory function
-    const applyChange = useCallback(
-      (v: DatabaseValue<string>, shouldExitEdit = true) => {
-        if (onChange) onChange(toValue(v));
-        if (shouldExitEdit) {
-          state.exitEditMode();
-        }
-      },
-      [onChange, state]
-    );
+		// biome-ignore lint/correctness/useExhaustiveDependencies: toValue is a stable closure variable from the factory function
+		const applyChange = useCallback(
+			(v: DatabaseValue<string>, shouldExitEdit = true) => {
+				if (onChange) onChange(toValue(v));
+				if (shouldExitEdit) {
+					state.exitEditMode();
+				}
+			},
+			[onChange, state],
+		);
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function
-    const discardChange = useCallback(() => {
-      setEditValue(valueToString(value));
-      state.exitEditMode();
-    }, [state, value]);
+		// biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function
+		const discardChange = useCallback(() => {
+			setEditValue(valueToString(value));
+			state.exitEditMode();
+		}, [state, value]);
 
-    const uneditableColumn = header.setting.readonly;
+		const uneditableColumn = header.setting.readonly;
 
-    if (
-      !uneditableColumn &&
-      editMode &&
-      (editor === undefined || editor === "input")
-    ) {
-      return (
-        <div className={"flex h-[35px] leading-[35px]"}>
-          <InputCellEditor
-            state={state}
-            readOnly={state.getReadOnlyMode()}
-            align={align}
-            applyChange={applyChange}
-            discardChange={discardChange}
-            onChange={setEditValue}
-            value={editValue}
-          />
-        </div>
-      );
-    }
+		if (
+			!uneditableColumn &&
+			editMode &&
+			(editor === undefined || editor === "input")
+		) {
+			return (
+				<div className={"flex h-[35px] leading-[35px]"}>
+					<InputCellEditor
+						state={state}
+						readOnly={state.getReadOnlyMode()}
+						align={align}
+						applyChange={applyChange}
+						discardChange={discardChange}
+						onChange={setEditValue}
+						value={editValue}
+					/>
+				</div>
+			);
+		}
 
-    return (
-      <GenericCell
-        header={header}
-        value={toValue(editValue)}
-        valueType={valueType}
-        focus={focus}
-        align={align}
-        onDoubleClick={() => {
-          if (
-            typeof editValue === "string" &&
-            (editor === "json" || editor === "text")
-          ) {
-            openEditor({
-              format: editor,
-              initialValue: editValue,
-              readOnly: state.getReadOnlyMode(),
-              onCancel: () => state.exitEditMode(),
-              onSave: applyChange,
-            });
-          }
-          state.enterEditMode();
-        }}
-      />
-    );
-  };
+		return (
+			<GenericCell
+				header={header}
+				value={toValue(editValue)}
+				valueType={valueType}
+				focus={focus}
+				align={align}
+				onDoubleClick={() => {
+					if (
+						typeof editValue === "string" &&
+						(editor === "json" || editor === "text")
+					) {
+						openEditor({
+							format: editor,
+							initialValue: editValue,
+							readOnly: state.getReadOnlyMode(),
+							onCancel: () => state.exitEditMode(),
+							onSave: applyChange,
+						});
+					}
+					state.enterEditMode();
+				}}
+			/>
+		);
+	};
 }

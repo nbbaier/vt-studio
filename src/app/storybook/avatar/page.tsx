@@ -9,14 +9,14 @@ const userLImg = "/logo.svg";
 const userB = "brandon";
 
 export default function AvatarStorybook() {
-  return (
-    <Section>
-      <Inset>
-        <Block title="Avatar">
-          <Avatar username={userL} image={userLImg} size="base" />
-          <Avatar username={userB} image={undefined} />
-        </Block>
-      </Inset>
-    </Section>
-  );
+	return (
+		<Section>
+			<Inset>
+				<Block title="Avatar">
+					<Avatar username={userL} image={userLImg} size="base" />
+					<Avatar username={userB} image={undefined} />
+				</Block>
+			</Inset>
+		</Section>
+	);
 }

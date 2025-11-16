@@ -1,16 +1,16 @@
 import {
-  createContext,
-  type PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
+	createContext,
+	type PropsWithChildren,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
 } from "react";
 import ConnectingDialog from "@/components/gui/connection-dialog";
 import type {
-  DatabaseSchemaItem,
-  DatabaseSchemas,
+	DatabaseSchemaItem,
+	DatabaseSchemas,
 } from "@/drivers/base-driver";
 import { useAutoComplete } from "./auto-complete-provider";
 import { useStudioContext } from "./driver-provider";
@@ -18,156 +18,156 @@ import { useStudioContext } from "./driver-provider";
 type AutoCompletionSchema = Record<string, Record<string, string[]> | string[]>;
 
 const SchemaContext = createContext<{
-  schema: DatabaseSchemas;
-  currentSchema: DatabaseSchemaItem[];
-  autoCompleteSchema: AutoCompletionSchema;
-  currentSchemaName: string;
-  refresh: () => void;
+	schema: DatabaseSchemas;
+	currentSchema: DatabaseSchemaItem[];
+	autoCompleteSchema: AutoCompletionSchema;
+	currentSchemaName: string;
+	refresh: () => void;
 }>({
-  schema: {},
-  autoCompleteSchema: {},
-  currentSchema: [],
-  currentSchemaName: "",
-  refresh: () => {
-    throw new Error("Not implemented");
-  },
+	schema: {},
+	autoCompleteSchema: {},
+	currentSchema: [],
+	currentSchemaName: "",
+	refresh: () => {
+		throw new Error("Not implemented");
+	},
 });
 
 function generateAutoCompleteFromSchemaItems(
-  items?: DatabaseSchemaItem[]
+	items?: DatabaseSchemaItem[],
 ): Record<string, string[]> {
-  if (!items) return {};
+	if (!items) return {};
 
-  return items
-    .filter((x) => x.type === "table" || x.type === "view")
-    .reduce(
-      (a, b) => {
-        a[b.name] = (b.tableSchema?.columns ?? []).map((c) => c.name);
-        return a;
-      },
-      {} as Record<string, string[]>
-    );
+	return items
+		.filter((x) => x.type === "table" || x.type === "view")
+		.reduce(
+			(a, b) => {
+				a[b.name] = (b.tableSchema?.columns ?? []).map((c) => c.name);
+				return a;
+			},
+			{} as Record<string, string[]>,
+		);
 }
 
 export function generateAutoComplete(
-  currentSchemaName: string,
-  schema: DatabaseSchemas
+	currentSchemaName: string,
+	schema: DatabaseSchemas,
 ) {
-  return {
-    ...generateAutoCompleteFromSchemaItems(schema[currentSchemaName]),
-    ...Object.entries(schema).reduce((a, [schemaName, tableList]) => {
-      a[schemaName] = generateAutoCompleteFromSchemaItems(tableList);
-      return a;
-    }, {} as AutoCompletionSchema),
-  };
+	return {
+		...generateAutoCompleteFromSchemaItems(schema[currentSchemaName]),
+		...Object.entries(schema).reduce((a, [schemaName, tableList]) => {
+			a[schemaName] = generateAutoCompleteFromSchemaItems(tableList);
+			return a;
+		}, {} as AutoCompletionSchema),
+	};
 }
 
 export function useSchema() {
-  return useContext(SchemaContext);
+	return useContext(SchemaContext);
 }
 
 export function SchemaProvider({ children }: Readonly<PropsWithChildren>) {
-  const { updateTableList, updateTableSchema } = useAutoComplete();
-  const [error, setError] = useState<string>();
-  const [loading, setLoading] = useState(true);
-  const { databaseDriver, extensions } = useStudioContext();
+	const { updateTableList, updateTableSchema } = useAutoComplete();
+	const [error, setError] = useState<string>();
+	const [loading, setLoading] = useState(true);
+	const { databaseDriver, extensions } = useStudioContext();
 
-  const [schema, setSchema] = useState<DatabaseSchemas>({});
-  const [currentSchema, setCurrentSchema] = useState<DatabaseSchemaItem[]>([]);
-  const [currentSchemaName, setCurrentSchemaName] = useState(
-    () => databaseDriver.getFlags().defaultSchema
-  );
+	const [schema, setSchema] = useState<DatabaseSchemas>({});
+	const [currentSchema, setCurrentSchema] = useState<DatabaseSchemaItem[]>([]);
+	const [currentSchemaName, setCurrentSchemaName] = useState(
+		() => databaseDriver.getFlags().defaultSchema,
+	);
 
-  const fetchSchema = useCallback(
-    (refresh?: boolean) => {
-      if (refresh) {
-        setLoading(true);
-      }
+	const fetchSchema = useCallback(
+		(refresh?: boolean) => {
+			if (refresh) {
+				setLoading(true);
+			}
 
-      const getSchema = async () => {
-        const schemaResult = await databaseDriver.schemas();
-        let selectedSchema = null;
+			const getSchema = async () => {
+				const schemaResult = await databaseDriver.schemas();
+				let selectedSchema = null;
 
-        // If databasse driver support get current schema,
-        // We will use it to override the default schema
-        if (databaseDriver.getFlags().supportUseStatement) {
-          selectedSchema = await databaseDriver.getCurrentSchema();
-        }
+				// If databasse driver support get current schema,
+				// We will use it to override the default schema
+				if (databaseDriver.getFlags().supportUseStatement) {
+					selectedSchema = await databaseDriver.getCurrentSchema();
+				}
 
-        return { schemaResult, selectedSchema };
-      };
+				return { schemaResult, selectedSchema };
+			};
 
-      getSchema()
-        .then((result) => {
-          setSchema(result.schemaResult);
+			getSchema()
+				.then((result) => {
+					setSchema(result.schemaResult);
 
-          if (result.selectedSchema) {
-            setCurrentSchemaName(result.selectedSchema);
-          }
+					if (result.selectedSchema) {
+						setCurrentSchemaName(result.selectedSchema);
+					}
 
-          setError(undefined);
-          setLoading(false);
-        })
-        .catch((e) => {
-          setError(e.message);
-          setLoading(false);
-        });
-    },
-    [databaseDriver]
-  );
+					setError(undefined);
+					setLoading(false);
+				})
+				.catch((e) => {
+					setError(e.message);
+					setLoading(false);
+				});
+		},
+		[databaseDriver],
+	);
 
-  useEffect(() => {
-    if (schema[currentSchemaName]) {
-      setCurrentSchema(schema[currentSchemaName]);
-    }
-  }, [currentSchemaName, schema]);
+	useEffect(() => {
+		if (schema[currentSchemaName]) {
+			setCurrentSchema(schema[currentSchemaName]);
+		}
+	}, [currentSchemaName, schema]);
 
-  /**
-   * Triggered when re-fetching the database schema.
-   * This is particularly useful for Outerbase Cloud,
-   * which needs to update its data catalog to provide
-   * the schema to the AI.
-   */
-  useEffect(() => {
-    if (schema && Object.entries(schema).length > 0) {
-      extensions.triggerAfterFetchSchemaCallback(schema);
-    }
-  }, [schema, extensions]);
+	/**
+	 * Triggered when re-fetching the database schema.
+	 * This is particularly useful for Outerbase Cloud,
+	 * which needs to update its data catalog to provide
+	 * the schema to the AI.
+	 */
+	useEffect(() => {
+		if (schema && Object.entries(schema).length > 0) {
+			extensions.triggerAfterFetchSchemaCallback(schema);
+		}
+	}, [schema, extensions]);
 
-  useEffect(() => {
-    const sortedTableList = [...currentSchema];
-    sortedTableList.sort((a, b) => {
-      return a.name.localeCompare(b.name);
-    });
+	useEffect(() => {
+		const sortedTableList = [...currentSchema];
+		sortedTableList.sort((a, b) => {
+			return a.name.localeCompare(b.name);
+		});
 
-    updateTableList(currentSchema.map((table) => table.name));
+		updateTableList(currentSchema.map((table) => table.name));
 
-    for (const table of currentSchema) {
-      if (table.tableSchema) {
-        updateTableSchema(table.name, table.tableSchema.columns);
-      }
-    }
-  }, [currentSchema, updateTableList, updateTableSchema]);
+		for (const table of currentSchema) {
+			if (table.tableSchema) {
+				updateTableSchema(table.name, table.tableSchema.columns);
+			}
+		}
+	}, [currentSchema, updateTableList, updateTableSchema]);
 
-  useEffect(() => {
-    fetchSchema(true);
-  }, [fetchSchema]);
+	useEffect(() => {
+		fetchSchema(true);
+	}, [fetchSchema]);
 
-  const props = useMemo(() => {
-    return {
-      schema,
-      currentSchema,
-      currentSchemaName,
-      refresh: fetchSchema,
-      autoCompleteSchema: generateAutoComplete(currentSchemaName, schema),
-    };
-  }, [schema, fetchSchema, currentSchema, currentSchemaName]);
+	const props = useMemo(() => {
+		return {
+			schema,
+			currentSchema,
+			currentSchemaName,
+			refresh: fetchSchema,
+			autoCompleteSchema: generateAutoComplete(currentSchemaName, schema),
+		};
+	}, [schema, fetchSchema, currentSchema, currentSchemaName]);
 
-  if (error || loading) {
-    return <ConnectingDialog message={error} loading={loading} />;
-  }
+	if (error || loading) {
+		return <ConnectingDialog message={error} loading={loading} />;
+	}
 
-  return (
-    <SchemaContext.Provider value={props}>{children}</SchemaContext.Provider>
-  );
+	return (
+		<SchemaContext.Provider value={props}>{children}</SchemaContext.Provider>
+	);
 }
