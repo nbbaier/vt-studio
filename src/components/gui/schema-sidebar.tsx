@@ -1,6 +1,6 @@
 import { Plus } from "@phosphor-icons/react";
 import { LucideSearch } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
 import { scc } from "@/core/command";
@@ -21,6 +21,26 @@ export default function SchemaView() {
 	const { databaseDriver, extensions } = useStudioContext();
 	const { currentSchemaName } = useSchema();
 	const [isCreateSchema, setIsCreateSchema] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [showButton, setShowButton] = useState(true);
+
+	useEffect(() => {
+		const container = containerRef.current;
+		if (!container) return;
+
+		const resizeObserver = new ResizeObserver((entries) => {
+			for (const entry of entries) {
+				const width = entry.contentRect.width;
+				setShowButton(width >= 200);
+			}
+		});
+
+		resizeObserver.observe(container);
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, []);
 
 	const contentMenu = useMemo(() => {
 		const items: StudioExtensionMenuItem[] = [];
@@ -62,6 +82,7 @@ export default function SchemaView() {
 							size: "icon",
 						}),
 						"h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200",
+						!showButton && "invisible pointer-events-none",
 					)}
 					onClick={contentMenu[0].onClick}
 				>
@@ -80,6 +101,7 @@ export default function SchemaView() {
 								size: "icon",
 							}),
 							"h-8 w-8 rounded-full bg-neutral-800 dark:bg-neutral-200",
+							!showButton && "invisible pointer-events-none",
 						)}
 					>
 						<Plus size={16} weight="bold" />
@@ -96,9 +118,9 @@ export default function SchemaView() {
 				</DropdownMenuContent>
 			</DropdownMenu>
 		);
-	}, [contentMenu]);
+	}, [contentMenu, showButton]);
 	return (
-		<div className="flex grow flex-col overflow-hidden">
+		<div ref={containerRef} className="flex grow flex-col overflow-hidden">
 			{isCreateSchema && (
 				<SchemaCreateDialog
 					onClose={() => {

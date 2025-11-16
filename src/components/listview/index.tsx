@@ -79,8 +79,11 @@ function CollapsedButton({
 	return hasCollapsed ? (
 		<button
 			type="button"
-			onClick={onClick}
-			className="border-0 bg-transparent p-0"
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick();
+			}}
+			className="border-0 bg-transparent p-0 cursor-pointer"
 		>
 			{collapsed ? (
 				<LucideChevronDown className={cn("h-4 w-4")} />
@@ -162,8 +165,9 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
 									if (onContextMenu) setContextMenu(onContextMenu(item));
 								}}
 							>
-								<button
-									type="button"
+								{/* biome-ignore lint/a11y/useSemanticElements: Using div with role="button" to allow nested button for collapse control */}
+								<div
+									role="button"
 									tabIndex={0}
 									onDoubleClick={() => {
 										if (onDoubleClick) {
@@ -251,7 +255,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
 											</span>
 										</div>
 									)}
-								</button>
+								</div>
 							</li>
 							{isCollapsed &&
 								renderList({
