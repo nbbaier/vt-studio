@@ -13,6 +13,7 @@
       "!dist",
       "!build",
       "!public",
+      "!tests",
       "!src/**/*.test.ts",
       "!src/**/*.test.tsx"
     ]
@@ -31,6 +32,9 @@
     "formatter": {
       "quoteStyle": "double"
     }
+  },
+  "css": {
+    "parser": { "tailwindDirectives": true }
   },
   "assist": {
     "enabled": true,
