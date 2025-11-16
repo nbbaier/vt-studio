@@ -26,7 +26,7 @@ export default defineConfig({
     ...(process.env.CI ? [["github"] as const] : []),
   ],
 
-  /* Shared settings for all the projects below */
+  /* Shared settings for all tests */
   use: {
     /* Base URL to use in actions like `await page.goto('/')` */
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://localhost:3008",
@@ -39,15 +39,18 @@ export default defineConfig({
 
     /* Video on failure */
     video: "retain-on-failure",
+
+    /* Default to Desktop Chrome viewport */
+    ...devices["Desktop Chrome"],
   },
 
-	/* Configure projects for major browsers */
-	projects: [
-		{
-			name: "chromium",
-			use: { ...devices["Desktop Chrome"] },
-		},
-	],
+  /* Configure projects for major browsers */
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
 
   /* Run your local dev server before starting the tests */
   webServer: {

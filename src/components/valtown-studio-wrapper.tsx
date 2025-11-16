@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 import { Studio } from "@/components/gui/studio";
 import { StudioExtensionManager } from "@/core/extension-manager";
 import { createSQLiteExtensions } from "@/core/standard-extension";
@@ -14,6 +12,8 @@ import {
   setValtownToken,
   type ValtownTokenData,
 } from "@/lib/valtown-token-storage";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 const STUDIO_DOC_ID = "valtown-studio-docs";
 
@@ -41,7 +41,10 @@ function TokenConfigurationUI({
   };
 
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center p-4">
+    <div
+      data-testid="token-config"
+      className="bg-background flex min-h-screen items-center justify-center p-4"
+    >
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold">Val Town Studio</h1>

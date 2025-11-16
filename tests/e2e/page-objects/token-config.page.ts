@@ -1,4 +1,4 @@
-import type { Page, Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 
 /**
  * Page Object Model for the Token Configuration interface
@@ -22,9 +22,7 @@ export class TokenConfigPage {
     this.page = page;
 
     this.container = page.locator('[data-testid="token-config"]');
-    this.heading = page
-      .locator("h1, h2")
-      .filter({ hasText: /Val Town|Connect/i });
+    this.heading = page.getByRole("heading", { name: "Connect to Val Town" });
     this.nameInput = page.locator(
       'input[name="name"], input[placeholder*="name" i]'
     );
@@ -41,11 +39,19 @@ export class TokenConfigPage {
   }
 
   async goto() {
-    await this.page.goto("/");
+    await this.page.goto("/", { waitUntil: "networkidle" });
   }
 
   async waitForLoad() {
-    await this.container.waitFor({ state: "visible", timeout: 10000 });
+    // Wait for the token config container to be visible
+    // Using waitForSelector is more reliable than locator.waitFor for initial page loads
+    // Also wait for a child element (heading) to ensure React has fully rendered
+    await this.page.waitForSelector('[data-testid="token-config"]', {
+      state: "visible",
+      timeout: 10000,
+    });
+    // Additional check: wait for heading to ensure content is rendered
+    await this.heading.waitFor({ state: "visible", timeout: 5000 });
   }
 
   async isVisible(): Promise<boolean> {

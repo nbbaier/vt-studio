@@ -1,11 +1,11 @@
-import { test, expect } from "@playwright/test";
-import { TokenConfigPage } from "./page-objects/token-config.page";
-import { StudioPage } from "./page-objects/studio.page";
+import { expect, test } from "@playwright/test";
 import {
+  TEST_DATA,
   TestHelpers,
   ValtownAPIMock,
-  TEST_DATA,
 } from "./fixtures/test-helpers";
+import { StudioPage } from "./page-objects/studio.page";
+import { TokenConfigPage } from "./page-objects/token-config.page";
 
 test.describe("Token Configuration Flow", () => {
   let tokenConfigPage: TokenConfigPage;
@@ -19,12 +19,15 @@ test.describe("Token Configuration Flow", () => {
     helpers = new TestHelpers(page);
     apiMock = new ValtownAPIMock(page);
 
+    // Navigate to a page first to establish page context
+    await page.goto("/");
+
     // Clear token before each test
     await helpers.clearValtownToken();
   });
 
   test("should show token configuration UI when no token exists", async ({
-    page,
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
   }) => {
     await tokenConfigPage.goto();
 
@@ -44,7 +47,10 @@ test.describe("Token Configuration Flow", () => {
     await expect(tokenConfigPage.connectButton).toBeDisabled();
   });
 
-  test("should have link to Val Town API settings", async ({ page }) => {
+  test("should have link to Val Town API settings", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
+    // eslint-disable-line @typescript-eslint/no-unused-vars
     await tokenConfigPage.goto();
     await tokenConfigPage.waitForLoad();
 
@@ -57,7 +63,7 @@ test.describe("Token Configuration Flow", () => {
   });
 
   test("should enable connect button when token is entered", async ({
-    page,
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
   }) => {
     await tokenConfigPage.goto();
     await tokenConfigPage.waitForLoad();
@@ -72,7 +78,9 @@ test.describe("Token Configuration Flow", () => {
     await expect(tokenConfigPage.connectButton).toBeEnabled();
   });
 
-  test("should connect successfully with valid token", async ({ page }) => {
+  test("should connect successfully with valid token", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await tokenConfigPage.goto();
     await tokenConfigPage.waitForLoad();
 
@@ -93,7 +101,9 @@ test.describe("Token Configuration Flow", () => {
     expect(savedToken).toBe(TEST_DATA.validToken);
   });
 
-  test("should show error message with invalid token", async ({ page }) => {
+  test("should show error message with invalid token", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await tokenConfigPage.goto();
     await tokenConfigPage.waitForLoad();
 
@@ -133,7 +143,9 @@ test.describe("Token Configuration Flow", () => {
     expect(savedName).toBe(TEST_DATA.connectionName);
   });
 
-  test("should handle empty token submission", async ({ page }) => {
+  test("should handle empty token submission", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await tokenConfigPage.goto();
     await tokenConfigPage.waitForLoad();
 

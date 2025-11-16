@@ -1,10 +1,10 @@
-import { test, expect } from "@playwright/test";
-import { StudioPage } from "./page-objects/studio.page";
+import { expect, test } from "@playwright/test";
 import {
+  TEST_DATA,
   TestHelpers,
   ValtownAPIMock,
-  TEST_DATA,
 } from "./fixtures/test-helpers";
+import { StudioPage } from "./page-objects/studio.page";
 
 test.describe("Studio Interface", () => {
   let studioPage: StudioPage;
@@ -24,7 +24,9 @@ test.describe("Studio Interface", () => {
     );
   });
 
-  test("should load Studio with valid token", async ({ page }) => {
+  test("should load Studio with valid token", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
 
     // Studio should load
@@ -36,7 +38,9 @@ test.describe("Studio Interface", () => {
     await expect(studioPage.sidebar).toBeVisible();
   });
 
-  test("should have SQL editor ready for input", async ({ page }) => {
+  test("should have SQL editor ready for input", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -51,7 +55,9 @@ test.describe("Studio Interface", () => {
     expect(editorContent).toContain("SELECT 1");
   });
 
-  test("should have execute query button", async ({ page }) => {
+  test("should have execute query button", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -62,7 +68,9 @@ test.describe("Studio Interface", () => {
     // await expect(studioPage.executeButton).toBeEnabled();
   });
 
-  test("should show schema sidebar", async ({ page }) => {
+  test("should show schema sidebar", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -76,7 +84,9 @@ test.describe("Studio Interface", () => {
     expect(hasSchemaTree).toBe(true);
   });
 
-  test("should have settings menu with disconnect option", async ({ page }) => {
+  test("should have settings menu with disconnect option", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -90,7 +100,9 @@ test.describe("Studio Interface", () => {
     await expect(studioPage.disconnectButton).toBeVisible();
   });
 
-  test("should support multiple tabs", async ({ page }) => {
+  test("should support multiple tabs", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -113,7 +125,9 @@ test.describe("Studio Interface", () => {
     }
   });
 
-  test("should have keyboard shortcuts", async ({ page }) => {
+  test("should have keyboard shortcuts", async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -134,7 +148,9 @@ test.describe("Studio Interface", () => {
     // Note: Actual keyboard shortcut testing depends on implementation
   });
 
-  test('should show branding as "Val Town Studio"', async ({ page }) => {
+  test('should show branding as "Val Town Studio"', async ({
+    page, // eslint-disable-line @typescript-eslint/no-unused-vars
+  }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
 
@@ -142,5 +158,4 @@ test.describe("Studio Interface", () => {
     const pageContent = await page.content();
     expect(pageContent.toLowerCase()).toContain("val town");
   });
-
 });
