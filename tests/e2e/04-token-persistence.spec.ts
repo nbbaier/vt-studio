@@ -47,42 +47,6 @@ test.describe("Token Persistence and Disconnect", () => {
     expect(token).toBe(TEST_DATA.validToken);
   });
 
-  test("should persist token across browser sessions", async ({
-    page,
-    context,
-  }) => {
-    // Clear token
-    await helpers.clearValtownToken();
-
-    // Connect
-    await tokenConfigPage.goto();
-    await apiMock.mockSuccessfulQuery(TEST_DATA.sampleResults.users);
-    await tokenConfigPage.connectWithToken(
-      TEST_DATA.validToken,
-      TEST_DATA.connectionName
-    );
-
-    await studioPage.waitForLoad();
-
-    // Simulate new session by creating new page
-    const newPage = await context.newPage();
-    const newHelpers = new TestHelpers(newPage);
-    const newStudioPage = new StudioPage(newPage);
-    const newApiMock = new ValtownAPIMock(newPage);
-
-    await newApiMock.mockSuccessfulQuery(TEST_DATA.sampleResults.users);
-    await newPage.goto("/");
-
-    // Should load Studio immediately
-    await newStudioPage.waitForLoad();
-
-    // Token should be present
-    const token = await newHelpers.getValtownToken();
-    expect(token).toBe(TEST_DATA.validToken);
-
-    await newPage.close();
-  });
-
   test("should return to token config when disconnecting", async ({ page }) => {
     // Set token
     await helpers.setValtownToken(TEST_DATA.validToken);

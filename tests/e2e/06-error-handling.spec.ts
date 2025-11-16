@@ -90,33 +90,6 @@ test.describe("Error Handling", () => {
     expect(await studioPage.hasError()).toBe(true);
   });
 
-  test("should handle API timeout", async ({ page }) => {
-    await helpers.setValtownToken(TEST_DATA.validToken);
-
-    // Simulate slow response
-    await page.route(
-      "https://api.val.town/v1/sqlite/execute",
-      async (route) => {
-        await new Promise((resolve) => setTimeout(resolve, 30000)); // 30s delay
-        await route.fulfill({
-          status: 200,
-          body: JSON.stringify(TEST_DATA.sampleResults.users),
-        });
-      }
-    );
-
-    await studioPage.goto();
-    await studioPage.waitForLoad();
-
-    await studioPage.typeSQL("SELECT * FROM users");
-    await studioPage.executeQuery();
-
-    // Should show loading state or timeout error
-    await page.waitForTimeout(5000);
-
-    // Note: Actual timeout handling depends on implementation
-  });
-
   test("should show error for permission denied", async ({ page }) => {
     await helpers.setValtownToken(TEST_DATA.validToken);
     await apiMock.mockFailedQuery("Permission denied");

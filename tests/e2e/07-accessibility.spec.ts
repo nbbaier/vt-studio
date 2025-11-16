@@ -140,21 +140,6 @@ test.describe("Accessibility", () => {
     expect(title.toLowerCase()).toContain("val town");
   });
 
-  test("should have contrast-compliant colors", async ({ page }) => {
-    await helpers.setValtownToken(TEST_DATA.validToken);
-    await apiMock.mockSuccessfulQuery(TEST_DATA.sampleResults.users);
-
-    await studioPage.goto();
-    await studioPage.waitForLoad();
-
-    // Note: Automated contrast checking requires additional libraries
-    // like axe-core. This is a placeholder for manual verification.
-
-    // Could use: await injectAxe(page) and await checkA11y(page)
-    // For now, just verify page loads
-    await expect(studioPage.studioContainer).toBeVisible();
-  });
-
   test("should support reduced motion preferences", async ({ page }) => {
     // Set reduced motion preference
     await page.emulateMedia({ reducedMotion: "reduce" });

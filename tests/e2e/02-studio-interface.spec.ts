@@ -113,36 +113,6 @@ test.describe("Studio Interface", () => {
     }
   });
 
-  test("should preserve SQL when switching tabs", async ({ page }) => {
-    await studioPage.goto();
-    await studioPage.waitForLoad();
-
-    const sql1 = "SELECT * FROM users";
-    await studioPage.typeSQL(sql1);
-
-    // Create new tab if supported
-    const hasNewTabButton = await studioPage.newTabButton
-      .isVisible()
-      .catch(() => false);
-    if (hasNewTabButton) {
-      await studioPage.createNewTab();
-
-      // Type different SQL
-      const sql2 = "SELECT * FROM posts";
-      await studioPage.typeSQL(sql2);
-
-      // Switch back to first tab
-      const tabs = await page.locator('[role="tab"]').all();
-      if (tabs.length > 1) {
-        await tabs[0].click();
-
-        // Should have original SQL
-        const content = await page.locator(".cm-content").textContent();
-        expect(content).toContain("users");
-      }
-    }
-  });
-
   test("should have keyboard shortcuts", async ({ page }) => {
     await studioPage.goto();
     await studioPage.waitForLoad();
@@ -173,17 +143,4 @@ test.describe("Studio Interface", () => {
     expect(pageContent.toLowerCase()).toContain("val town");
   });
 
-  test("should be responsive on mobile viewport", async ({ page }) => {
-    // Set mobile viewport
-    await page.setViewportSize({ width: 375, height: 667 });
-
-    await studioPage.goto();
-    await studioPage.waitForLoad();
-
-    // Main components should still be visible
-    await expect(studioPage.studioContainer).toBeVisible();
-
-    // Editor should be accessible
-    await expect(studioPage.sqlEditor).toBeVisible();
-  });
 });

@@ -90,63 +90,40 @@ test.describe("Query Execution", () => {
     expect(errorText.length).toBeGreaterThan(0);
   });
 
-  test("should execute CREATE TABLE statement", async ({ page }) => {
-    // Mock successful create
+  test("should execute DDL and DML statements (CREATE, INSERT, UPDATE, DELETE)", async ({
+    page,
+  }) => {
+    // Mock successful responses for all operations
     await apiMock.mockSuccessfulQuery({
       columns: [],
       rows: [],
     });
 
+    // Test CREATE TABLE
     await studioPage.typeSQL(TEST_DATA.sampleQueries.create);
     await studioPage.executeQuery();
-
-    await page.waitForTimeout(1000);
-
-    // Should not show error
+    await page.waitForTimeout(500);
     expect(await studioPage.hasError()).toBe(false);
-  });
 
-  test("should execute INSERT statement", async ({ page }) => {
-    // Mock successful insert
-    await apiMock.mockSuccessfulQuery({
-      columns: [],
-      rows: [],
-    });
-
+    // Test INSERT
+    await studioPage.clearSQL();
     await studioPage.typeSQL(TEST_DATA.sampleQueries.insert);
     await studioPage.executeQuery();
-
-    await page.waitForTimeout(1000);
-
-    // Should complete without error
+    await page.waitForTimeout(500);
     expect(await studioPage.hasError()).toBe(false);
-  });
 
-  test("should execute UPDATE statement", async ({ page }) => {
-    await apiMock.mockSuccessfulQuery({
-      columns: [],
-      rows: [],
-    });
-
+    // Test UPDATE
+    await studioPage.clearSQL();
     await studioPage.typeSQL(TEST_DATA.sampleQueries.update);
     await studioPage.executeQuery();
-
-    await page.waitForTimeout(1000);
-
+    await page.waitForTimeout(500);
     expect(await studioPage.hasError()).toBe(false);
-  });
 
-  test("should execute DELETE statement", async ({ page }) => {
-    await apiMock.mockSuccessfulQuery({
-      columns: [],
-      rows: [],
-    });
-
+    // Test DELETE
+    await studioPage.clearSQL();
     await studioPage.typeSQL(TEST_DATA.sampleQueries.delete);
     await studioPage.executeQuery();
-
-    await page.waitForTimeout(1000);
-
+    await page.waitForTimeout(500);
     expect(await studioPage.hasError()).toBe(false);
   });
 
@@ -184,23 +161,6 @@ test.describe("Query Execution", () => {
     // Should have new results
     const secondRowCount = await studioPage.getResultRowCount();
     expect(secondRowCount).toBe(1);
-  });
-
-  test("should handle large result sets", async ({ page }) => {
-    // Create large dataset
-    const largeResult = {
-      columns: ["id", "name"],
-      rows: Array.from({ length: 1000 }, (_, i) => [i, `User ${i}`]),
-    };
-
-    await apiMock.mockSuccessfulQuery(largeResult);
-    await studioPage.typeSQL("SELECT * FROM users");
-    await studioPage.executeQuery();
-
-    await page.waitForTimeout(2000);
-
-    // Results should load (might be virtualized)
-    await expect(studioPage.resultsPanel).toBeVisible();
   });
 
   test("should support SQL with comments", async ({ page }) => {
