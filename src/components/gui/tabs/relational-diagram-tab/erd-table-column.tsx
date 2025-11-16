@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Position } from "@xyflow/react";
 import { Key } from "lucide-react";
-import { ERDSchemaNodeColumnProps } from "./database-schema-node";
+import type { ERDSchemaNodeColumnProps } from "./database-schema-node";
 
 export default function ERDTableColumn({
   column,

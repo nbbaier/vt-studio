@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseTableSchemaChange } from "@/drivers/base-driver";
+import type { DatabaseTableSchemaChange } from "@/drivers/base-driver";
 import {
   LucideAlertCircle,
   LucideLoader,
@@ -52,9 +52,9 @@ export default function SchemaSaveDialog({
                 schemaName={schema.schemaName}
               />
             ),
-            key: "_schema_" + schema.name.new,
-            identifier: "_schema_" + schema.name.new,
-            title: "Edit " + schema.name.new,
+            key: `_schema_${schema.name.new}`,
+            identifier: `_schema_${schema.name.new}`,
+            title: `Edit ${schema.name.new}`,
             icon: LucideTableProperties,
           });
         } else if (schema.name.old && schema.schemaName) {

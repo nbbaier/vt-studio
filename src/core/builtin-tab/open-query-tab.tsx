@@ -26,7 +26,7 @@ export const builtinOpenQueryTab = createTabExtension<
   generate: (options) => {
     const title = options?.saved
       ? (options.name ?? "Query")
-      : "Query " + (QUERY_COUNTER++).toString();
+      : `Query ${(QUERY_COUNTER++).toString()}`;
 
     const component = options?.saved ? (
       <QueryWindow

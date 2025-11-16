@@ -1,7 +1,7 @@
 import { CloudflareIcon } from "@/components/icons/outerbase-icon";
-import { ReactElement } from "react";
-import { BaseDriver } from "../base-driver";
-import { AgentBaseDriver, AgentPromptOption } from "./base";
+import type { ReactElement } from "react";
+import type { BaseDriver } from "../base-driver";
+import type { AgentBaseDriver, AgentPromptOption } from "./base";
 import { ChatGPTDriver } from "./chatgpt";
 import CloudflareAgentDriver from "./cloudflare";
 

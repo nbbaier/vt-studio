@@ -2,7 +2,7 @@ import { StudioExtension } from "@/core/extension-base";
 import { createTabExtension } from "@/core/extension-tab";
 import ViewTab from "./view-tab";
 import { LucideView } from "lucide-react";
-import { StudioExtensionContext } from "@/core/extension-manager";
+import type { StudioExtensionContext } from "@/core/extension-manager";
 
 export const viewEditorExtensionTab = createTabExtension<{
   schemaName?: string;

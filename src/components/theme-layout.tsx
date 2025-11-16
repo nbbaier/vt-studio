@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { ThemeProvider } from "next-themes";
 import Script from "next/script";
-import { Fragment, PropsWithChildren, useEffect } from "react";
+import { type PropsWithChildren, useEffect } from "react";
 
 export default function ThemeLayout({
   children,
@@ -29,9 +29,7 @@ export default function ThemeLayout({
         enableColorScheme
         attribute="class"
       >
-        <TooltipProvider>
-          <Fragment>{children}</Fragment>
-        </TooltipProvider>
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
       </ThemeProvider>
       <PageTracker />

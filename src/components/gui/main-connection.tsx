@@ -30,7 +30,7 @@ function MainConnectionContainer() {
   const { name } = useStudioContext();
 
   useEffect(() => {
-    document.title = name + " - " + WEBSITE_NAME;
+    document.title = `${name} - ${WEBSITE_NAME}`;
   }, [name]);
 
   return (

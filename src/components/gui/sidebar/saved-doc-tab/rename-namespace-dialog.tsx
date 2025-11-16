@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useStudioContext } from "@/context/driver-provider";
-import { SavedDocNamespace } from "@/drivers/saved-doc/saved-doc-driver";
+import type { SavedDocNamespace } from "@/drivers/saved-doc/saved-doc-driver";
 import { useCallback, useState } from "react";
 
 interface Props {

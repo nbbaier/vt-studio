@@ -1,8 +1,11 @@
-import { DatabaseTableColumnConstraint, SqlOrder } from "@/drivers/base-driver";
+import type {
+  DatabaseTableColumnConstraint,
+  SqlOrder,
+} from "@/drivers/base-driver";
 import { LucideKeyRound } from "lucide-react";
 import { Button } from "../../ui/button";
 import ConflictClauseOptions from "./column-conflict-clause";
-import { ColumnChangeEvent } from "./schema-editor-column-list";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import {
   Select,

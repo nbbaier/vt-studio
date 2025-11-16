@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@/components/orbit/button";
+import { Button, type ButtonProps } from "@/components/orbit/button";
 import { cn } from "@/lib/utils";
 import { ArrowsClockwise } from "@phosphor-icons/react";
 

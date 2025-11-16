@@ -1,9 +1,9 @@
-import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { LucideStar } from "lucide-react";
 import { Button } from "../../ui/button";
 import ConflictClauseOptions from "./column-conflict-clause";
-import { ColumnChangeEvent } from "./schema-editor-column-list";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 
 export default function ColumnUniquePopup({
   constraint,

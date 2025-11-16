@@ -1,9 +1,9 @@
 import OptimizeTable, {
-  OptimizeTableHeaderWithIndexProps,
+  type OptimizeTableHeaderWithIndexProps,
 } from "@/components/gui/table-optimized";
-import OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
+import type OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
 import { useStudioContext } from "@/context/driver-provider";
-import { ColumnSortOption } from "@/drivers/base-driver";
+import type { ColumnSortOption } from "@/drivers/base-driver";
 import { exportDataAsDelimitedText } from "@/lib/export-helper";
 import { KEY_BINDING } from "@/lib/key-matcher";
 import { cn } from "@/lib/utils";
@@ -14,12 +14,8 @@ import {
   LucideSortAsc,
   LucideSortDesc,
 } from "lucide-react";
-import React, {
-  PropsWithChildren,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import type React from "react";
+import { type PropsWithChildren, useCallback, useMemo, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +25,7 @@ import {
 } from "../ui/dropdown-menu";
 import useTableResultContextMenu from "./table-result/context-menu";
 import tableResultCellRenderer from "./table-result/render-cell";
-import { TableHeaderMetadata } from "./table-result/type";
+import type { TableHeaderMetadata } from "./table-result/type";
 
 interface ResultTableProps {
   data: OptimizeTableState<TableHeaderMetadata>;

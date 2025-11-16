@@ -1,10 +1,10 @@
-import {
+import type {
   ExportFormat,
   ExportOptions,
   ExportSelection,
   ExportTarget,
 } from "@/components/gui/export/export-result-button";
-import OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
+import type OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
 import { getSingleTableName } from "@/components/gui/tabs/query-tab";
 import {
   escapeDelimitedValue,
@@ -54,7 +54,7 @@ function cellToExcelValue(value: unknown, nullValue: string = "NULL") {
   if (value === undefined) return "";
   if (value === null) return parseUserInput(nullValue);
   const parsed = Number(value);
-  return isNaN(parsed) ? value : parsed;
+  return Number.isNaN(parsed) ? value : parsed;
 }
 
 export function exportRowsToExcel(

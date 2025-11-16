@@ -1,5 +1,5 @@
-import { DatabaseSchemas } from "@/drivers/base-driver";
-import { BoardSource } from "@/drivers/board-source/base-source";
+import type { DatabaseSchemas } from "@/drivers/base-driver";
+import type { BoardSource } from "@/drivers/board-source/base-source";
 import { OuterbaseAPIError } from "@/outerbase-cloud/api-type";
 import { CaretDown, WarningCircle } from "@phosphor-icons/react";
 import { useCallback, useEffect, useRef, useState } from "react";

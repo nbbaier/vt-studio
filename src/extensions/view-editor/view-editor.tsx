@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseViewSchema } from "@/drivers/base-driver";
+import type { DatabaseViewSchema } from "@/drivers/base-driver";
 import { produce } from "immer";
 import { useMemo } from "react";
 import SchemaNameSelect from "../../components/gui/schema-editor/schema-name-select";

@@ -1,8 +1,8 @@
-import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { LucideCheck } from "lucide-react";
 import { Button } from "../../ui/button";
-import { ColumnChangeEvent } from "./schema-editor-column-list";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 import { Textarea } from "../../ui/textarea";
 
 export default function ColumnCheckPopup({

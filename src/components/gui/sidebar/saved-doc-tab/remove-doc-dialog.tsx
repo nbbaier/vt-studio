@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useStudioContext } from "@/context/driver-provider";
-import { SavedDocData } from "@/drivers/saved-doc/saved-doc-driver";
+import type { SavedDocData } from "@/drivers/saved-doc/saved-doc-driver";
 import { useCallback, useState } from "react";
 
 interface Props {

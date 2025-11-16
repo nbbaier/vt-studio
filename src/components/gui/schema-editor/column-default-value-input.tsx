@@ -5,9 +5,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { ChevronsUpDown } from "lucide-react";
-import { ChangeEvent, useCallback, useMemo } from "react";
+import { type ChangeEvent, useCallback, useMemo } from "react";
 import { Input } from "../../ui/input";
 
 export default function ColumnDefaultValueInput({

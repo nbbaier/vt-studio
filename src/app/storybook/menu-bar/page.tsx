@@ -2,7 +2,7 @@
 
 import Block from "@/components/orbit/block";
 import Inset from "@/components/orbit/inset";
-import { MenuBar, MenuBarItemProps } from "@/components/orbit/menu-bar";
+import { MenuBar, type MenuBarItemProps } from "@/components/orbit/menu-bar";
 import Section from "@/components/orbit/section";
 import { useState } from "react";
 

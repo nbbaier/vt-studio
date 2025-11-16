@@ -1,4 +1,4 @@
-import { WindowTabItemProps } from "@/components/gui/windows-tab";
+import type { WindowTabItemProps } from "@/components/gui/windows-tab";
 import { scc } from "./command";
 import { CommunicationChannel } from "./channel";
 

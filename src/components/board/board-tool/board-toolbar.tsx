@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { DashboardProps } from "..";
+import type { DashboardProps } from "..";
 import { buttonVariants } from "../../ui/button";
 import { BoardButtonMenu } from "./board-button-menu";
 import { BoardTitleMenu } from "./board-title-menu";

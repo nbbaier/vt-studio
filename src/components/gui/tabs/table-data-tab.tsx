@@ -16,7 +16,7 @@ import {
 import { useAutoComplete } from "@/context/auto-complete-provider";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import {
+import type {
   ColumnSortOption,
   DatabaseResultStat,
   DatabaseTableSchema,
@@ -34,10 +34,10 @@ import AggregateResultButton from "../aggregate-result/aggregate-result-button";
 import ExportResultButton from "../export/export-result-button";
 import OpacityLoading from "../loading-opacity";
 import ResultStats from "../result-stat";
-import OptimizeTableState from "../table-optimized/optimize-table-state";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
 import useTableResultColumnFilter from "../table-result/filter-column";
 import { createTableStateFromResult } from "../table-result/helper";
-import { TableHeaderMetadata } from "../table-result/type";
+import type { TableHeaderMetadata } from "../table-result/type";
 import { Toolbar } from "../toolbar";
 import { useCurrentTab } from "../windows-tab";
 
@@ -73,7 +73,7 @@ export default function TableDataWindow({
   const [finalLimit, setFinalLimit] = useState(50);
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const [revision, setRevision] = useState(1);
+  const [_revision, setRevision] = useState(1);
   const [lastQueryTimestamp, setLastQueryTimestamp] = useState(0);
 
   // We cache the schema to prevent re-initial
@@ -101,7 +101,7 @@ export default function TableDataWindow({
           schemas: cachedSchema,
         });
 
-        tableState.setSql("SELECT * FROM " + tableName + ";");
+        tableState.setSql(`SELECT * FROM ${tableName};`);
 
         setData(tableState);
 
@@ -125,11 +125,9 @@ export default function TableDataWindow({
     schemaName,
     sortColumns,
     updateTableSchema,
-    setStat,
     where,
     finalOffset,
     finalLimit,
-    revision,
     cachedSchema,
   ]);
 
@@ -159,7 +157,7 @@ export default function TableDataWindow({
       })
       .catch(console.error)
       .finally(() => setIsExecuting(false));
-  }, [databaseDriver, tableName, tableSchema, data, setExecuteError]);
+  }, [databaseDriver, tableName, tableSchema, data]);
 
   const onDiscard = useCallback(() => {
     if (data) {
@@ -356,12 +354,12 @@ export default function TableDataWindow({
                       try {
                         const finalValue = Math.max(
                           0,
-                          parseInt(e.currentTarget.value)
+                          parseInt(e.currentTarget.value, 10)
                         );
                         if (finalValue !== finalLimit) {
                           setFinalLimit(finalValue);
                         }
-                      } catch (e) {
+                      } catch (_e) {
                         setLimit(finalLimit.toString());
                       }
                     }}
@@ -382,13 +380,13 @@ export default function TableDataWindow({
                       try {
                         const finalValue = Math.max(
                           0,
-                          parseInt(e.currentTarget.value)
+                          parseInt(e.currentTarget.value, 10)
                         );
                         if (finalValue !== finalOffset) {
                           setFinalOffset(finalValue);
                         }
                         setOffset(finalValue.toString());
-                      } catch (e) {
+                      } catch (_e) {
                         setOffset(finalOffset.toString());
                       }
                     }}

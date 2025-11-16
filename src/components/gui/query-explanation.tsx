@@ -1,4 +1,7 @@
-import { DatabaseResultSet, SupportedDialect } from "@/drivers/base-driver";
+import type {
+  DatabaseResultSet,
+  SupportedDialect,
+} from "@/drivers/base-driver";
 import { useMemo } from "react";
 import { z } from "zod";
 import QueryExplanationDiagram from "./query-explanation-diagram";

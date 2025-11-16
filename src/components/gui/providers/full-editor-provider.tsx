@@ -3,8 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import {
   createContext,
-  Fragment,
-  PropsWithChildren,
+  type PropsWithChildren,
   useContext,
   useMemo,
   useState,
@@ -75,7 +74,6 @@ function FullEditorSheet({ option }: { option: FullEditorOption }) {
 
           {option.format === "text" && (
             <textarea
-              autoFocus
               className="w-full grow bg-inherit p-4 font-mono outline-hidden"
               value={value}
               onChange={(e) => setValue(e.currentTarget.value)}
@@ -126,12 +124,12 @@ export function FullEditorProvider({ children }: PropsWithChildren) {
         setOption(null);
       },
     };
-  }, [setOption]);
+  }, []);
 
   return (
     <FullEditorContext.Provider value={props}>
       {option && <FullEditorSheet option={option} />}
-      <Fragment>{children}</Fragment>
+      {children}
     </FullEditorContext.Provider>
   );
 }

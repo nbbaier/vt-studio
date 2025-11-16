@@ -11,33 +11,33 @@
 }
 
 .cm-deletedChunk {
-  background-color: #fab1a0 !important;
+  background-color: #fab1a0;
 }
 
 .dark .cm-deletedChunk {
-  background-color: #b54b4b !important;
+  background-color: #b54b4b;
 }
 
 .cm-changedLine {
-  background-color: #55efc4 !important;
+  background-color: #55efc4;
 }
 
 .cm-changedLine {
-  background-color: #55efc4 !important;
+  background-color: #55efc4;
 }
 
 .dark .cm-changedLine {
-  background-color: #2f6542 !important;
+  background-color: #2f6542;
 }
 
 .cm-insertedLine .cm-changedText {
-  background: none !important;
+  background: none;
 }
 
 .cm-deletedChunk .cm-deletedText {
-  background: none !important;
+  background: none;
 }
 
 .cm-deletedChunk del {
-  text-decoration: none !important;
+  text-decoration: none;
 }

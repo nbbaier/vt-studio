@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { produce } from "immer";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
-import DataCatalogDriver, { DataCatalogTableRelationship } from "./driver";
+import type DataCatalogDriver from "./driver";
+import type { DataCatalogTableRelationship } from "./driver";
 
 interface IRelationship extends Omit<DataCatalogTableRelationship, "id"> {
   id?: string;

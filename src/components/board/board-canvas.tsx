@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useCallback } from "react";
 import RGL, { WidthProvider } from "react-grid-layout";
-import { DashboardProps } from ".";
+import type { DashboardProps } from ".";
 import { buttonVariants } from "../ui/button";
 import {
   DropdownMenu,

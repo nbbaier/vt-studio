@@ -1,6 +1,6 @@
-import { DatabaseTableColumn } from "@/drivers/base-driver";
+import type { DatabaseTableColumn } from "@/drivers/base-driver";
 import {
-  PropsWithChildren,
+  type PropsWithChildren,
   createContext,
   useCallback,
   useContext,
@@ -43,20 +43,17 @@ export function AutoCompleteProvider({ children }: PropsWithChildren) {
         };
       });
     },
-    [setInternalSchema]
+    []
   );
 
-  const updateTableList = useCallback(
-    (tableName: string[]) => {
-      setInternalSchema(
-        tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
-          acc[name] = [];
-          return acc;
-        }, {})
-      );
-    },
-    [setInternalSchema]
-  );
+  const updateTableList = useCallback((tableName: string[]) => {
+    setInternalSchema(
+      tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
+        acc[name] = [];
+        return acc;
+      }, {})
+    );
+  }, []);
 
   const schema = useMemo(() => {
     return Object.entries(internalSchema).reduce<Record<string, string[]>>(

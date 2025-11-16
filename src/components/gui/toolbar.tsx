@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { LucideLoader } from "lucide-react";
-import { PropsWithChildren, ReactElement } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
 import { buttonVariants } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";

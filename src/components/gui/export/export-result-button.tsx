@@ -12,9 +12,8 @@ import {
 import { getFormatHandlers } from "@/lib/export-helper";
 import { useCallback, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import OptimizeTableState, {
-  TableSelectionRange,
-} from "../table-optimized/optimize-table-state";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
+import type { TableSelectionRange } from "../table-optimized/optimize-table-state";
 
 export type ExportTarget = "clipboard" | "file";
 export type ExportFormat = "csv" | "delimited" | "json" | "sql" | "xlsx";
@@ -188,7 +187,7 @@ export default function ExportResultButton({
 
   useEffect(() => {
     saveSettingToStorage(exportSetting);
-  }, [exportSelection, exportSetting]);
+  }, [exportSetting, saveSettingToStorage]);
 
   const SelectedRange = ({
     ranges,
@@ -393,7 +392,7 @@ export default function ExportResultButton({
                             : "0"
                         }
                         onChange={(value) => {
-                          setSelectedRangeIndex(parseInt(value));
+                          setSelectedRangeIndex(parseInt(value, 10));
                         }}
                       />
                     )}

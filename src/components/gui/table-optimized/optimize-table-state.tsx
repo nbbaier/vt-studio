@@ -1,6 +1,6 @@
 import { selectArrayFromIndexList } from "@/lib/export-helper";
 import deepEqual from "deep-equal";
-import { OptimizeTableHeaderProps, TableCellDecorator } from ".";
+import type { OptimizeTableHeaderProps, TableCellDecorator } from ".";
 
 export interface OptimizeTableRowValue {
   raw: Record<string, unknown>;
@@ -363,7 +363,7 @@ export default class OptimizeTableState<HeaderMetadata = unknown> {
     if (row) {
       if (row.isNewRow && row.changeKey) {
         delete this.changeLogs[row.changeKey];
-        this.data = this.data.filter((dataRow) => dataRow != row);
+        this.data = this.data.filter((dataRow) => dataRow !== row);
       } else {
         row.isRemoved = true;
         if (!row.changeKey) {

@@ -1,6 +1,6 @@
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { MultipleQueryResult } from "@/lib/sql/multiple-query";
+import type { MultipleQueryResult } from "@/lib/sql/multiple-query";
 import { useMemo, useState } from "react";
 import AggregateResultButton from "../aggregate-result/aggregate-result-button";
 import ExportResultButton from "../export/export-result-button";

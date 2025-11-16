@@ -1,4 +1,4 @@
-import { PromptSelectedFragment } from "@/components/editor/prompt-plugin";
+import type { PromptSelectedFragment } from "@/components/editor/prompt-plugin";
 import SqlEditor from "@/components/gui/sql-editor";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -21,7 +21,7 @@ import {
 import { TAB_PREFIX_SAVED_QUERY } from "@/const";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import {
+import type {
   SavedDocData,
   SavedDocInput,
 } from "@/drivers/saved-doc/saved-doc-driver";
@@ -29,14 +29,14 @@ import { escapeSqlValue, extractInputValue } from "@/drivers/sqlite/sql-helper";
 import { KEY_BINDING } from "@/lib/key-matcher";
 import {
   multipleQuery,
-  MultipleQueryProgress,
-  MultipleQueryResult,
+  type MultipleQueryProgress,
+  type MultipleQueryResult,
 } from "@/lib/sql/multiple-query";
 import { sendAnalyticEvents } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
 import { tokenizeSql } from "@outerbase/sdk-transform";
 import { CaretDown } from "@phosphor-icons/react";
-import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import {
   LucideGrid,
   LucideMessageSquareWarning,
@@ -54,7 +54,10 @@ import {
 } from "../sql-editor/statement-highlight";
 import ExplainResultTab from "../tabs-result/explain-result-tab";
 import QueryResult from "../tabs-result/query-result-tab";
-import WindowTabs, { useTabsContext, WindowTabItemProps } from "../windows-tab";
+import WindowTabs, {
+  useTabsContext,
+  type WindowTabItemProps,
+} from "../windows-tab";
 import { QueryPlaceholder } from "./query-placeholder";
 
 interface QueryWindowProps {
@@ -146,7 +149,7 @@ export default function QueryWindow({
         explained &&
         statement.toLowerCase().indexOf("explain query plan") !== 0
       ) {
-        statement = "explain query plan " + statement;
+        statement = `explain query plan ${statement}`;
       }
 
       if (statement) {
@@ -262,8 +265,8 @@ export default function QueryWindow({
       ) {
         queryTabs.push({
           component: <ExplainResultTab data={queryResult.result} />,
-          key: "explain_" + queryResult.order,
-          identifier: "explain_" + queryResult.order,
+          key: `explain_${queryResult.order}`,
+          identifier: `explain_${queryResult.order}`,
           title: "Explain (Visual)",
           icon: LucideMessageSquareWarning,
         });
@@ -271,10 +274,10 @@ export default function QueryWindow({
 
       queryTabs.push({
         component: <QueryResult result={queryResult} key={queryResult.order} />,
-        key: "query_" + queryResult.order,
-        identifier: "query_" + queryResult.order,
+        key: `query_${queryResult.order}`,
+        identifier: `query_${queryResult.order}`,
         title:
-          `${getSingleTableName(queryResult.sql) ?? "Query " + (queryResult.order + 1)}` +
+          `${getSingleTableName(queryResult.sql) ?? `Query ${queryResult.order + 1}`}` +
           ` (${queryResult.result.rows.length}x${queryResult.result.headers.length})`,
         icon: LucideGrid,
       });
@@ -377,10 +380,9 @@ export default function QueryWindow({
                 */}
                 {typeof navigator !== "undefined" &&
                   (() => {
-                    const modifierKey =
-                      navigator.platform && navigator.platform.includes("Mac")
-                        ? "Cmd"
-                        : "Ctrl";
+                    const modifierKey = navigator.platform?.includes("Mac")
+                      ? "Cmd"
+                      : "Ctrl";
                     return (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -534,7 +536,7 @@ export function getSingleTableName(query: string): string | null {
 
     // No table found
     return null;
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

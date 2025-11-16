@@ -1,6 +1,6 @@
 import { BaseHandle } from "@/components/base-handle";
 import { Position } from "@xyflow/react";
-import { ExplainNodeProps } from "../build-query-explanation-flow";
+import type { ExplainNodeProps } from "../build-query-explanation-flow";
 import {
   Tooltip,
   TooltipContent,

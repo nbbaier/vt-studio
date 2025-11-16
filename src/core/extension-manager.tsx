@@ -1,10 +1,13 @@
-import { OptimizeTableHeaderProps } from "@/components/gui/table-optimized";
-import OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
-import { TableHeaderMetadata } from "@/components/gui/table-result/type";
-import { DatabaseSchemaItem, DatabaseSchemas } from "@/drivers/base-driver";
-import { ReactElement } from "react";
-import { IStudioExtension } from "./extension-base";
-import { BeforeQueryPipeline } from "./query-pipeline";
+import type { OptimizeTableHeaderProps } from "@/components/gui/table-optimized";
+import type OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
+import type { TableHeaderMetadata } from "@/components/gui/table-result/type";
+import type {
+  DatabaseSchemaItem,
+  DatabaseSchemas,
+} from "@/drivers/base-driver";
+import type { ReactElement } from "react";
+import type { IStudioExtension } from "./extension-base";
+import type { BeforeQueryPipeline } from "./query-pipeline";
 
 interface RegisterSidebarOption {
   key: string;

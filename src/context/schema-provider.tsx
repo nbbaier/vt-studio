@@ -1,7 +1,10 @@
 import ConnectingDialog from "@/components/gui/connection-dialog";
-import { DatabaseSchemaItem, DatabaseSchemas } from "@/drivers/base-driver";
+import type {
+  DatabaseSchemaItem,
+  DatabaseSchemas,
+} from "@/drivers/base-driver";
 import {
-  PropsWithChildren,
+  type PropsWithChildren,
   createContext,
   useCallback,
   useContext,
@@ -110,14 +113,14 @@ export function SchemaProvider({ children }: Readonly<PropsWithChildren>) {
           setLoading(false);
         });
     },
-    [databaseDriver, setError]
+    [databaseDriver]
   );
 
   useEffect(() => {
     if (schema[currentSchemaName]) {
       setCurrentSchema(schema[currentSchemaName]);
     }
-  }, [currentSchemaName, schema, setCurrentSchema]);
+  }, [currentSchemaName, schema]);
 
   /**
    * Triggered when re-fetching the database schema.

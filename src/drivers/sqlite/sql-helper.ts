@@ -1,4 +1,4 @@
-import { DatabaseValue } from "@/drivers/base-driver";
+import type { DatabaseValue } from "@/drivers/base-driver";
 import { hex } from "@/lib/bit-operation";
 import { parseUserInput } from "@/lib/export-helper";
 import { ColumnType } from "@outerbase/sdk-transform";
@@ -44,7 +44,7 @@ export function extractInputValue(input: string): string | number {
   }
 
   const parsedNumber = parseFloat(trimmedInput);
-  if (!isNaN(parsedNumber)) {
+  if (!Number.isNaN(parsedNumber)) {
     return parsedNumber;
   }
 

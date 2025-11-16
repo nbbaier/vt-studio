@@ -1,7 +1,7 @@
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
 import { scc } from "@/core/command";
-import { StudioExtensionMenuItem } from "@/core/extension-manager";
+import type { StudioExtensionMenuItem } from "@/core/extension-manager";
 import { cn } from "@/lib/utils";
 import { Plus } from "@phosphor-icons/react";
 import { LucideSearch } from "lucide-react";

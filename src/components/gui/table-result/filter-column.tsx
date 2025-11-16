@@ -14,7 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Check, ListChecks, LucideSettings2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import OptimizeTableState from "../table-optimized/optimize-table-state";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
 
 import { Button } from "@/components/orbit/button";
 

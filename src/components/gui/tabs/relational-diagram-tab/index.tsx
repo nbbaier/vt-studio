@@ -3,7 +3,7 @@ import { DevTools } from "@/components/gui/tabs/relational-diagram-tab/devtools"
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseSchemas } from "@/drivers/base-driver";
+import type { DatabaseSchemas } from "@/drivers/base-driver";
 import Dagre from "@dagrejs/dagre";
 import {
   AlignCenterHorizontalSimple,
@@ -12,10 +12,10 @@ import {
 import {
   Background,
   Controls,
-  Edge,
+  type Edge,
   MarkerType,
   MiniMap,
-  Node,
+  type Node,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
@@ -81,7 +81,7 @@ function mapSchema(
 
     // Get the relationship via column constraint
     for (const column of item.tableSchema?.columns || []) {
-      if (column.constraint && column.constraint.foreignKey) {
+      if (column.constraint?.foreignKey) {
         tableNameWithRelationship.add(item.name);
         tableNameWithRelationship.add(
           column.constraint.foreignKey.foreignTableName || ""

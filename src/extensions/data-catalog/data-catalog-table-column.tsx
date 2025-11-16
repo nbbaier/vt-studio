@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import HighlightText from "@/components/ui/highlight-text";
-import {
+import type {
   DatabaseTableColumn,
   DatabaseTableSchema,
 } from "@/drivers/base-driver";

@@ -1,5 +1,5 @@
 "use client";
-import { ListView, ListViewItem } from "@/components/listview";
+import { ListView, type ListViewItem } from "@/components/listview";
 import { Input } from "@/components/ui/input";
 import { LucideDatabase, LucideTable } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";

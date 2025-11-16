@@ -1,8 +1,6 @@
 import { DatabaseResultSet } from "./drivers/base-driver";
 import { SavedDocNamespace } from "./drivers/saved-doc/saved-doc-driver";
 
-export {};
-
 interface OuterbaseIPC {
   docs?: {
     load(): Promise<{

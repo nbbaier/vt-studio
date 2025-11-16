@@ -3,7 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ColumnTypeSuggestionGroup } from "@/drivers/base-driver";
+import type { ColumnTypeSuggestionGroup } from "@/drivers/base-driver";
 import { useMemo, useState } from "react";
 
 function ColumnTypeList({
@@ -95,27 +95,25 @@ export default function ColumnTypeSelector({
 
   const filteredSuggestions = suggestions
     .map((group) => {
-      {
-        return {
-          ...group,
-          suggestions: group.suggestions
-            .filter((type) => {
-              return (
-                type.name.toLowerCase().startsWith(parsedType.toLowerCase()) &&
-                type.name !== "uuid"
-              );
-            })
-            .map((x) => {
-              if (["enum", "set"].includes(x.name)) {
-                return {
-                  ...x,
-                  parameters: [{ name: "", default: "'Y','N'" }],
-                };
-              }
-              return x;
-            }),
-        };
-      }
+      return {
+        ...group,
+        suggestions: group.suggestions
+          .filter((type) => {
+            return (
+              type.name.toLowerCase().startsWith(parsedType.toLowerCase()) &&
+              type.name !== "uuid"
+            );
+          })
+          .map((x) => {
+            if (["enum", "set"].includes(x.name)) {
+              return {
+                ...x,
+                parameters: [{ name: "", default: "'Y','N'" }],
+              };
+            }
+            return x;
+          }),
+      };
     })
     .filter((group) => group.suggestions.length > 0);
 

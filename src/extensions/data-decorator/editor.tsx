@@ -1,5 +1,5 @@
-import { OptimizeTableHeaderProps } from "@/components/gui/table-optimized";
-import OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
+import type { OptimizeTableHeaderProps } from "@/components/gui/table-optimized";
+import type OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,

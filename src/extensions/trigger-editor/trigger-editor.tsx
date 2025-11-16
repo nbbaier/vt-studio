@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import {
+import type {
   DatabaseTriggerSchema,
   TriggerOperation,
   TriggerWhen,

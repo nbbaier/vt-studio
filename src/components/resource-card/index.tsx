@@ -6,7 +6,7 @@ import {
   Triangle,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { PropsWithChildren, useState } from "react";
+import { type PropsWithChildren, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

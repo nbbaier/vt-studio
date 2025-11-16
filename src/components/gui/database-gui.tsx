@@ -7,9 +7,9 @@ import {
 } from "@/components/ui/resizable";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import SchemaView from "./schema-sidebar";
-import SidebarTab, { SidebarTabItem } from "./sidebar-tab";
+import SidebarTab, { type SidebarTabItem } from "./sidebar-tab";
 import ToolSidebar from "./sidebar/tools-sidebar";
-import WindowTabs, { WindowTabItemProps } from "./windows-tab";
+import WindowTabs, { type WindowTabItemProps } from "./windows-tab";
 
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
@@ -195,7 +195,7 @@ export default function DatabaseGui() {
 
       previousLogTabKey.current = currentTab.key;
     }
-  }, [tabs, selectedTabIndex, previousLogTabKey]);
+  }, [tabs, selectedTabIndex]);
 
   return (
     <div className={cn("flex h-screen w-screen flex-col", containerClassName)}>

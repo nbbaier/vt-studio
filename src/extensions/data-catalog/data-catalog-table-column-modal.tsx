@@ -13,7 +13,7 @@ import { produce } from "immer";
 import { LucideLoader } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDataCatalogContext } from "./data-model-tab";
-import { DataCatalogColumnInput } from "./driver";
+import type { DataCatalogColumnInput } from "./driver";
 
 interface DataCatalogTableColumnModalProps {
   schemaName: string;

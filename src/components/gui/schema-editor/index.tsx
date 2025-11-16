@@ -1,9 +1,14 @@
 import { useStudioContext } from "@/context/driver-provider";
-import { DatabaseTableSchemaChange } from "@/drivers/base-driver";
+import type { DatabaseTableSchemaChange } from "@/drivers/base-driver";
 import { generateId } from "@/lib/generate-id";
 import { checkSchemaChange } from "@/lib/sql/sql-generate.schema";
 import { LucideCode, LucideCopy, LucidePlus, LucideSave } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useMemo,
+} from "react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "../../ui/button";
 import { Input } from "../../ui/input";

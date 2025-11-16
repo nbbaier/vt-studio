@@ -8,7 +8,7 @@ export const builtinOpenTableTab = createTabExtension<{
 }>({
   name: "table",
   key: (options) => {
-    return options.schemaName + "-" + options?.tableName;
+    return `${options.schemaName}-${options?.tableName}`;
   },
   generate: (options) => ({
     title: options.tableName,

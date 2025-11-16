@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useStudioContext } from "@/context/driver-provider";
-import {
+import type {
   SavedDocData,
   SavedDocNamespace,
 } from "@/drivers/saved-doc/saved-doc-driver";

@@ -1,5 +1,5 @@
 import { useStudioContext } from "@/context/driver-provider";
-import {
+import type {
   SavedDocData,
   SavedDocInput,
   SavedDocNamespace,

@@ -12,13 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DatabaseTableSchema } from "@/drivers/base-driver";
+import type { DatabaseTableSchema } from "@/drivers/base-driver";
 import { cn } from "@/lib/utils";
 import { Blend, ChevronDown, Edit3, LucideMoreHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 import DataCatalogTableColumn from "./data-catalog-table-column";
 import { useDataCatalogContext } from "./data-model-tab";
-import DataCatalogDriver from "./driver";
+import type DataCatalogDriver from "./driver";
 import TableMetadataModal from "./table-metadata-modal";
 import VirtualJoinColumn from "./virtual-column";
 import { virtualJoinDialog } from "./virtual-join-modal";
@@ -46,7 +46,7 @@ export default function DataCatalogTableAccordion({
 
   // Check if any of the column match?
   const matchColumns = useMemo(() => {
-    if (!search || search.toLowerCase() === table.tableName!.toLowerCase()) {
+    if (!search || search.toLowerCase() === table.tableName?.toLowerCase()) {
       return table.columns;
     }
     return table.columns.filter((column) =>
@@ -56,7 +56,7 @@ export default function DataCatalogTableAccordion({
 
   const matchedTableName = useMemo(() => {
     if (search) {
-      return table.tableName!.toLowerCase().includes(search?.toLowerCase());
+      return table.tableName?.toLowerCase().includes(search?.toLowerCase());
     }
     return true;
   }, [search, table]);

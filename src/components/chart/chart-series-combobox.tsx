@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { ThemeColors } from "./chart-type";
+import type { ThemeColors } from "./chart-type";
 import SimpleColorPicker from "./simple-color-picker";
 interface SimpleComboValue {
   value: string;
@@ -84,7 +84,7 @@ export function ChartSeriesCombobox({
                   <SimpleColorPicker
                     selected={color}
                     onThemeChange={onThemeChange}
-                    onChange={function (color: string): void {
+                    onChange={(color: string): void => {
                       onChangeColor(color);
                     }}
                   ></SimpleColorPicker>

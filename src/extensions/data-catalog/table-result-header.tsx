@@ -2,7 +2,7 @@ import { Button } from "@/components/orbit/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import DataCatalogDriver from "./driver";
+import type DataCatalogDriver from "./driver";
 
 interface DataCatalogResultHeaderProps {
   schemaName: string;

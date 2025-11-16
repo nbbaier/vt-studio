@@ -1,5 +1,5 @@
-import { DatabaseTableColumnChange } from "@/drivers/base-driver";
-import { PropsWithChildren, createContext, useContext } from "react";
+import type { DatabaseTableColumnChange } from "@/drivers/base-driver";
+import { type PropsWithChildren, createContext, useContext } from "react";
 
 const ColumnContext = createContext<{ columns: DatabaseTableColumnChange[] }>({
   columns: [],

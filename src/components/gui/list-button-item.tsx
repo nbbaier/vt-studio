@@ -1,5 +1,5 @@
 import { buttonVariants } from "../ui/button";
-import { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 export default function ListButtonItem({

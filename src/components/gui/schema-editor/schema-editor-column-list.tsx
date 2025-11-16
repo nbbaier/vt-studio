@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useStudioContext } from "@/context/driver-provider";
-import {
+import type {
   DatabaseTableColumn,
   DatabaseTableColumnChange,
   DatabaseTableColumnConstraint,
@@ -9,7 +9,7 @@ import {
 } from "@/drivers/base-driver";
 import { checkSchemaColumnChange } from "@/lib/sql/sql-generate.schema";
 import { cn } from "@/lib/utils";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
   SortableContext,
@@ -19,7 +19,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { LucidePlus, LucideTrash2 } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useMemo,
+} from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

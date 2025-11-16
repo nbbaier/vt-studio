@@ -1,7 +1,8 @@
 import { cn } from "@/lib/utils";
-import React, { type ReactElement } from "react";
+import type React from "react";
+import type { ReactElement } from "react";
 import type { OptimizeTableHeaderWithIndexProps } from ".";
-import OptimizeTableState from "./optimize-table-state";
+import type OptimizeTableState from "./optimize-table-state";
 import TableHeaderResizeHandler from "./table-header-resize-handler";
 
 export default function TableHeader<HeaderMetadata = unknown>({

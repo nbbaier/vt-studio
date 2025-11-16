@@ -14,8 +14,8 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   contextMenuChannel,
-  OpenContextMenuList,
-  OpenContextMenuOptions,
+  type OpenContextMenuList,
+  type OpenContextMenuOptions,
 } from "@/core/channel-builtin";
 
 export function ContextMenuList({ menu }: { menu: OpenContextMenuList }) {
@@ -87,7 +87,7 @@ export default function ContextMenuHandler() {
     return contextMenuChannel.listen((data) => {
       setMenu(data);
     });
-  }, [setMenu]);
+  }, []);
 
   useEffect(() => {
     if (menu && contextRef.current) {
@@ -103,7 +103,7 @@ export default function ContextMenuHandler() {
 
       contextRef.current.dispatchEvent(ev);
     }
-  }, [menu, contextRef]);
+  }, [menu]);
 
   return (
     <div style={{ position: "fixed", left: -20, top: -20 }}>

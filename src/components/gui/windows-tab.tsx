@@ -110,7 +110,7 @@ export default function WindowTabs({
       container.scrollLeft +=
         selectedTabRect.right - containerRect.right + menuWidth + 1;
     }
-  }, [selected, tabs]);
+  }, [selected]);
 
   useEffect(() => {
     const container = tabContainerRef.current;

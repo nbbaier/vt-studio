@@ -1,8 +1,8 @@
 "use client";
 
 import OptimizeTable, {
-  OptimizeTableCellRenderProps,
-  OptimizeTableHeaderWithIndexProps,
+  type OptimizeTableCellRenderProps,
+  type OptimizeTableHeaderWithIndexProps,
 } from "@/components/gui/table-optimized";
 import { createSimpleTableState } from "@/components/gui/table-optimized/helper";
 import { useCallback, useMemo } from "react";

@@ -1,8 +1,8 @@
 "use client";
 import { noop } from "lodash";
 import {
-  PropsWithChildren,
-  ReactElement,
+  type PropsWithChildren,
+  type ReactElement,
   createContext,
   useCallback,
   useContext,
@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { Loader } from "lucide-react";
 import CodePreview from "../gui/code-preview";
 

@@ -1,6 +1,9 @@
-import { DatabaseResultSet } from "@/drivers/base-driver";
+import type { DatabaseResultSet } from "@/drivers/base-driver";
 import { SqliteLikeBaseDriver } from "@/drivers/sqlite-base-driver";
-import { OuterbaseAPIQueryRaw, OuterbaseDatabaseConfig } from "../api-type";
+import type {
+  OuterbaseAPIQueryRaw,
+  OuterbaseDatabaseConfig,
+} from "../api-type";
 import { OuterbaseQueryable } from "./query";
 
 export function transformOuterbaseResult(
@@ -20,7 +23,7 @@ export function transformOuterbaseResult(
 }
 
 export function createOuterbaseDatabaseDriver(
-  type: string,
+  _type: string,
   config: OuterbaseDatabaseConfig
 ) {
   const queryable = new OuterbaseQueryable(config);

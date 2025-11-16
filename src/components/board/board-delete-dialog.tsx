@@ -1,8 +1,8 @@
-import { IBoardStorageDriver } from "@/drivers/board-storage/base";
+import type { IBoardStorageDriver } from "@/drivers/board-storage/base";
 import { produce } from "immer";
 import { LucideLoader } from "lucide-react";
 import { useCallback, useState } from "react";
-import { DashboardProps } from ".";
+import type { DashboardProps } from ".";
 import CopyableText from "../copyable-text";
 import { createDialog } from "../create-dialog";
 import LabelInput from "../label-input";

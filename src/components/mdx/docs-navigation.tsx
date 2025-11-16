@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { LucideAlignJustify } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { DocTableContent } from "./docs";
+import type { DocTableContent } from "./docs";
 
 export function DocNavigation({
   content,

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseSchemaChange } from "@/drivers/base-driver";
+import type { DatabaseSchemaChange } from "@/drivers/base-driver";
 import { LucideAlertCircle, LucideLoader, LucideSave } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
@@ -31,19 +31,17 @@ export function SchemaDatabaseCreateForm({
   }, [databaseDriver, value]);
 
   const onSave = useCallback(() => {
-    {
-      setIsExecuting(true);
-      databaseDriver
-        .transaction([previewScript])
-        .then(() => {
-          refreshSchema();
-          onClose();
-        })
-        .catch((err) => setErrorMessage((err as Error).message))
-        .finally(() => {
-          setIsExecuting(false);
-        });
-    }
+    setIsExecuting(true);
+    databaseDriver
+      .transaction([previewScript])
+      .then(() => {
+        refreshSchema();
+        onClose();
+      })
+      .catch((err) => setErrorMessage((err as Error).message))
+      .finally(() => {
+        setIsExecuting(false);
+      });
   }, [databaseDriver, onClose, previewScript, refreshSchema]);
 
   const schemaNames = Object.keys(schema)

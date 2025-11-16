@@ -12,7 +12,7 @@ import { Edit3, LucideMoreHorizontal, Trash } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useDataCatalogContext } from "./data-model-tab";
-import { DataCatalogTableRelationship } from "./driver";
+import type { DataCatalogTableRelationship } from "./driver";
 import { virtualJoinDialog } from "./virtual-join-modal";
 
 interface Props {

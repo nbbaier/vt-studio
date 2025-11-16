@@ -1,7 +1,7 @@
 import {
-  Edge,
-  Node,
-  Position,
+  type Edge,
+  type Node,
+  type Position,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import {
   buildQueryExplanationFlow,
-  ExplanationMysql,
+  type ExplanationMysql,
 } from "./build-query-explanation-flow";
 import { QueryBlock } from "./node-type/query-block";
 import { NestedLoop } from "./node-type/nested-loop";

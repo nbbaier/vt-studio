@@ -10,7 +10,7 @@ import {
   getValtownToken,
   removeValtownToken,
   setValtownToken,
-  ValtownTokenData,
+  type ValtownTokenData,
 } from "@/lib/valtown-token-storage";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";

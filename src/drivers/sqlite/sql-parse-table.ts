@@ -6,7 +6,7 @@ import type {
   DatabaseTableSchema,
   SqlOrder,
 } from "@/drivers/base-driver";
-import { Token, tokenizeSql } from "@outerbase/sdk-transform";
+import { type Token, tokenizeSql } from "@outerbase/sdk-transform";
 import { unescapeIdentity } from "./sql-helper";
 
 // This class represents a new cursor implementation for SQL parsing that operates on an array of strings
@@ -147,7 +147,7 @@ export class CursorV2 {
   }
 
   toStringWithParen() {
-    return "(" + this.toString() + ")";
+    return `(${this.toString()})`;
   }
 }
 

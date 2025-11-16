@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { SketchPicker } from "react-color";
-import { ThemeColors, THEMES } from "./chart-type";
+import { type ThemeColors, THEMES } from "./chart-type";
 
 const presetColors = [
   "#D0021B",

@@ -1,20 +1,20 @@
 import { generateAutoComplete } from "@/context/schema-provider";
-import { DatabaseResultSet, DatabaseSchemas } from "@/drivers/base-driver";
+import type { DatabaseResultSet, DatabaseSchemas } from "@/drivers/base-driver";
 
-import { fillVariables, SupportedDialect } from "@outerbase/sdk-transform";
+import { fillVariables, type SupportedDialect } from "@outerbase/sdk-transform";
 import { ChartBar, Play, Table } from "@phosphor-icons/react";
 import { produce } from "immer";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DashboardProps } from ".";
+import type { DashboardProps } from ".";
 import Chart from "../chart";
-import { ChartValue } from "../chart/chart-type";
+import type { ChartValue } from "../chart/chart-type";
 import EditChartMenu from "../chart/edit-chart-menu";
 import ResultTable from "../gui/query-result-table";
 import SqlEditor from "../gui/sql-editor";
-import OptimizeTableState from "../gui/table-optimized/optimize-table-state";
+import type OptimizeTableState from "../gui/table-optimized/optimize-table-state";
 import { createTableStateFromResult } from "../gui/table-result/helper";
-import { TableHeaderMetadata } from "../gui/table-result/type";
+import type { TableHeaderMetadata } from "../gui/table-result/type";
 import { Button } from "../orbit/button";
 import { MenuBar } from "../orbit/menu-bar";
 import { createAutoBoardChartValue } from "./board-auto-value";
@@ -42,7 +42,7 @@ export default function BoardChartEditor({
   const [value, setValue] = useState<ChartValue>(() => {
     if (initialValue) return initialValue;
 
-    if (boardValue?.charts && boardValue.charts.length) {
+    if (boardValue?.charts?.length) {
       return {
         ...NEW_CHART_EMPTY_VALUE,
         source_id: boardValue?.charts[0].source_id,

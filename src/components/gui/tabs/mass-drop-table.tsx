@@ -9,9 +9,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseSchemaItem } from "@/drivers/base-driver";
+import type { DatabaseSchemaItem } from "@/drivers/base-driver";
 import { Check, Spinner, Table, Trash, XCircle } from "@phosphor-icons/react";
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
 import { Toolbar, ToolbarButton } from "../toolbar";
 
 function ConfirmDialog({

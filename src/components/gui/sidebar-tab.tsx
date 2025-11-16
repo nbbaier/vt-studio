@@ -4,7 +4,7 @@ import { ArrowLeft } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ReactElement, useState } from "react";
+import { type ReactElement, useState } from "react";
 import ThemeToggle from "../theme-toggle";
 import {
   DropdownMenu,

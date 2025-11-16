@@ -1,9 +1,9 @@
 import {
   buildTableResultHeader,
-  BuildTableResultProps,
+  type BuildTableResultProps,
 } from "@/lib/build-table-result";
 import OptimizeTableState from "../table-optimized/optimize-table-state";
-import { TableHeaderMetadata } from "./type";
+import type { TableHeaderMetadata } from "./type";
 
 export function createTableStateFromResult(props: BuildTableResultProps) {
   const r = new OptimizeTableState<TableHeaderMetadata>(

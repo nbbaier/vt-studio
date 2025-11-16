@@ -1,9 +1,9 @@
 import {
   BaseEdge,
   getSmoothStepPath,
-  Handle,
-  InternalNode,
-  Node,
+  type Handle,
+  type InternalNode,
+  type Node,
   Position,
   useInternalNode,
   type Edge,

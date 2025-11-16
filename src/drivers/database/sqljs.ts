@@ -1,10 +1,10 @@
-import {
+import type {
   DatabaseHeader,
   DatabaseResultSet,
   DatabaseRow,
   QueryableBaseDriver,
 } from "@/drivers/base-driver";
-import { BindParams, Database } from "sql.js";
+import type { BindParams, Database } from "sql.js";
 import { SqliteLikeBaseDriver } from "../sqlite-base-driver";
 
 // SQL.js query types

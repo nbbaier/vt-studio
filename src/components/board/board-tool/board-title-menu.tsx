@@ -1,5 +1,5 @@
 import { produce } from "immer";
-import { DashboardProps } from "..";
+import type { DashboardProps } from "..";
 
 interface Props {
   value: DashboardProps;

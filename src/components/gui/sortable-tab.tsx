@@ -1,10 +1,10 @@
 import { CSS } from "@/lib/dnd-kit";
 import { cn } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
-import { LucideIcon, LucideX } from "lucide-react";
+import { type LucideIcon, LucideX } from "lucide-react";
 import { forwardRef } from "react";
-import { ButtonProps } from "../ui/button";
-import { WindowTabItemProps } from "./windows-tab";
+import type { ButtonProps } from "../ui/button";
+import type { WindowTabItemProps } from "./windows-tab";
 
 interface SortableTabProps {
   tab: WindowTabItemProps;

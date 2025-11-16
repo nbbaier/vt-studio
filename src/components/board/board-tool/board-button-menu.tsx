@@ -29,7 +29,7 @@ function useAutoRefresh(interval: number) {
   useEffect(() => {
     setIsReset(true);
     setTimeLeft(0);
-  }, [interval]);
+  }, []);
 
   useEffect(() => {
     if (interval > 0 && isReset) {
@@ -55,7 +55,7 @@ function useAutoRefresh(interval: number) {
 
       return () => clearInterval(run);
     }
-  }, [interval, isActive, timeLeft]);
+  }, [isActive, timeLeft]);
 
   return timeLeft;
 }
@@ -88,7 +88,7 @@ export function BoardButtonMenu(props: Props) {
       <button
         className={buttonVariants({ size: "sm", variant: "ghost" })}
         onClick={() => {
-          props.onRefresh && props.onRefresh();
+          props.onRefresh?.();
         }}
       >
         <div className="flex items-center gap-2">

@@ -1,5 +1,5 @@
 import { useSchema } from "@/context/schema-provider";
-import {
+import type {
   DatabaseTableColumnConstraint,
   DatabaseTableConstraintChange,
   DatabaseTableSchemaChange,
@@ -15,9 +15,9 @@ import {
   LucideTrash2,
 } from "lucide-react";
 import {
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
+  type Dispatch,
+  type PropsWithChildren,
+  type SetStateAction,
   useCallback,
   useMemo,
 } from "react";

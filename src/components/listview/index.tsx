@@ -4,15 +4,15 @@ import {
   ContextMenuContent,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { OpenContextMenuList } from "@/core/channel-builtin";
+import type { OpenContextMenuList } from "@/core/channel-builtin";
 import { cn } from "@/lib/utils";
-import { Icon } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { LucideChevronDown, LucideChevronRight } from "lucide-react";
 import React, {
-  Dispatch,
+  type Dispatch,
   Fragment,
-  MutableRefObject,
-  SetStateAction,
+  type MutableRefObject,
+  type SetStateAction,
   useRef,
   useState,
 } from "react";
@@ -219,14 +219,13 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                       <div
                         className="h-[20px] rounded-sm border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
                         style={{
-                          width:
-                            Math.max(
-                              Math.ceil(
-                                (item.progressBarValue / item.progressBarMax) *
-                                  100
-                              ),
-                              5
-                            ) + "%",
+                          width: `${Math.max(
+                            Math.ceil(
+                              (item.progressBarValue / item.progressBarMax) *
+                                100
+                            ),
+                            5
+                          )}%`,
                         }}
                       ></div>
                       <span className="absolute right-0">
@@ -265,7 +264,6 @@ export function ListView<T = unknown>(props: ListViewProps<T>) {
     <ContextMenu modal={false} onOpenChange={setContextOpen}>
       <ContextMenuTrigger asChild>
         <div
-          tabIndex={0}
           className={cn(full ? "grow overflow-auto" : "", "select-none")}
           onContextMenu={(e) => {
             if (stopParentPropagation.current) {

@@ -12,7 +12,7 @@ import { produce } from "immer";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { useDataCatalogContext } from "./data-model-tab";
-import { DataCatalogTableMetadata } from "./driver";
+import type { DataCatalogTableMetadata } from "./driver";
 
 interface DataCatalogTableColumnModalProps {
   schemaName: string;
