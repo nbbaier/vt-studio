@@ -1,7 +1,7 @@
-import { fillVariables, SupportedDialect } from "@outerbase/sdk-transform";
+import { fillVariables, type SupportedDialect } from "@outerbase/sdk-transform";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Chart from "../chart";
-import { ChartValue } from "../chart/chart-type";
+import type { ChartValue } from "../chart/chart-type";
 import { useBoardContext } from "./board-provider";
 import BoardSqlErrorLog from "./board-sql-error-log";
 
@@ -43,7 +43,7 @@ export default function BoardChart({ value }: { value: ChartValue }) {
       .finally(() => {
         setLoading(false);
       });
-  }, [sources, sourceId, finalSql, lastRunTimestamp, loaderRef]);
+  }, [sources, sourceId, finalSql]);
 
   useEffect(() => {
     if (loaderRef.current && loading) {
@@ -59,7 +59,7 @@ export default function BoardChart({ value }: { value: ChartValue }) {
       }, 100);
       return () => clearInterval(interval);
     }
-  }, [lastRunTimestamp, loading, loaderRef]);
+  }, [lastRunTimestamp, loading]);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import { SavedConnectionRawLocalStorage } from "@/lib/saved-connection-storage";
+import type { SavedConnectionRawLocalStorage } from "@/lib/saved-connection-storage";
 import { ValtownQueryable } from "./database/valtown";
 import { SqliteLikeBaseDriver } from "./sqlite-base-driver";
 

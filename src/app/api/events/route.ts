@@ -5,7 +5,7 @@
 // All recorded data will be stored in the Starbase Database.
 
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import zod from "zod";
 import { insertTrackingRecord } from "./insert-tracking-record";
 

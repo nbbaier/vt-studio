@@ -6,11 +6,12 @@ interface CopyableTextProps {
 
 export default function CopyableText({ text }: CopyableTextProps) {
   return (
-    <span
-      className="bg-secondary inline-flex cursor-pointer items-center p-1 px-2 font-mono"
+    <button
+      type="button"
+      className="bg-secondary inline-flex cursor-pointer items-center border-0 p-1 px-2 font-mono"
       onClick={() => navigator.clipboard.writeText(text)}
     >
       {text} <Copy className="ml-2 h-4 w-4" />
-    </span>
+    </button>
   );
 }

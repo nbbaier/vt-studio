@@ -1,10 +1,10 @@
 import { generateId } from "@/lib/generate-id";
-import {
+import type {
   BaseDriver,
   DatabaseSchemas,
   DatabaseTableSchema,
 } from "../base-driver";
-import { AgentBaseDriver, AgentPromptOption } from "./base";
+import { AgentBaseDriver, type AgentPromptOption } from "./base";
 
 export interface ChatHistory {
   id: string;
@@ -35,11 +35,11 @@ export default abstract class CommonAgentDriverImplementation extends AgentBaseD
 
     if (option.schema) {
       parts.push(
-        "Here is " + this.driver.getFlags().dialect + " my database schema:\n\n"
+        `Here is ${this.driver.getFlags().dialect} my database schema:\n\n`
       );
 
       parts.push(
-        "```sql\n" + this.convertSchemaToDDLContent(option.schema) + "```"
+        `\`\`\`sql\n${this.convertSchemaToDDLContent(option.schema)}\`\`\``
       );
     }
 
@@ -81,8 +81,7 @@ export default abstract class CommonAgentDriverImplementation extends AgentBaseD
       if (option.selected) {
         session.messages.push({
           role: "user",
-          content:
-            "This is my selected query ```sql\n" + option.selected + "```",
+          content: `This is my selected query \`\`\`sql\n${option.selected}\`\`\``,
         });
       }
     }

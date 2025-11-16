@@ -1,10 +1,10 @@
+import { useMemo } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
-import { useMemo } from "react";
 
 interface Props {
   placeholders: Record<string, string>;
@@ -26,7 +26,7 @@ export function QueryPlaceholder({
       <div className="relative max-h-[400px] overflow-auto rounded border">
         <table className="w-full border-separate border-spacing-0 text-sm">
           <thead className="sticky top-0">
-            <tr className="h-[35px] bg-secondary text-xs">
+            <tr className="bg-secondary h-[35px] text-xs">
               <th className="border-r px-2 text-left">Variables</th>
               <th className="px-2 text-left">Value</th>
             </tr>
@@ -34,7 +34,7 @@ export function QueryPlaceholder({
           <tbody>
             {Object.entries(placeholders).map(([key, value]) => (
               <tr key={key}>
-                <td className="border-r border-t px-4 py-2">{key}</td>
+                <td className="border-t border-r px-4 py-2">{key}</td>
                 <td className="border-t px-4 py-2">
                   <input
                     type="text"

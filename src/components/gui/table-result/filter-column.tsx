@@ -1,4 +1,8 @@
 // import { Button } from "@/components/ui/button";
+
+import { Check, ListChecks, LucideSettings2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/orbit/button";
 import {
   Command,
   CommandGroup,
@@ -12,11 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Check, ListChecks, LucideSettings2 } from "lucide-react";
-import { useEffect, useState } from "react";
-import OptimizeTableState from "../table-optimized/optimize-table-state";
-
-import { Button } from "@/components/orbit/button";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
 
 export default function useTableResultColumnFilter({
   state,
@@ -58,6 +58,7 @@ export default function useTableResultColumnFilter({
           {!!columnFilterBadge && (
             <>
               <button
+                type="button"
                 onClick={() => {
                   setColumnIndexList(headers.map((_, idx) => idx));
                 }}

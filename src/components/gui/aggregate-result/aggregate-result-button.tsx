@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { buttonVariants } from "../../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import ListButtonItem from "../list-button-item";
-import OptimizeTableState from "../table-optimized/optimize-table-state";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
 
 export type AggregateFunction = "sum" | "avg" | "min" | "max" | "count";
 export interface AggregateResult {
@@ -20,7 +20,7 @@ function isValidDate(value: string): boolean {
   if (!dateRegex.test(value)) return false;
 
   const parsedDate = new Date(value);
-  return !isNaN(parsedDate.getTime());
+  return !Number.isNaN(parsedDate.getTime());
 }
 
 function isValidDateTime(value: string): boolean {
@@ -28,15 +28,15 @@ function isValidDateTime(value: string): boolean {
   if (!dateTimeRegex.test(value)) return false;
 
   const parsedDate = new Date(value);
-  return !isNaN(parsedDate.getTime());
+  return !Number.isNaN(parsedDate.getTime());
 }
 
 function calculateAggregateResult(data: OptimizeTableState): AggregateResult {
-  let sum: number | string | undefined = undefined;
-  let avg: number | string | undefined = undefined;
-  let min: number | string | undefined = undefined;
-  let max: number | string | undefined = undefined;
-  let detectedDataType: undefined | "date" | "number" | "string" = undefined;
+  let sum: number | string | undefined;
+  let avg: number | string | undefined;
+  let min: number | string | undefined;
+  let max: number | string | undefined;
+  let detectedDataType: undefined | "date" | "number" | "string";
 
   const ranges = data.getSelectionRanges();
 
@@ -77,39 +77,43 @@ function calculateAggregateResult(data: OptimizeTableState): AggregateResult {
   }
 
   // Sampling the values to detect the data type
-  if (!isNaN(Number(values[0]))) {
+  if (!Number.isNaN(Number(values[0]))) {
     detectedDataType = "number";
-  } else if (typeof values[0] === "string" && !isNaN(Date.parse(values[0]))) {
+  } else if (
+    typeof values[0] === "string" &&
+    !Number.isNaN(Date.parse(values[0]))
+  ) {
     detectedDataType = "date";
   }
 
   // Aggregate the values based on the detected data type
   if (detectedDataType === "number") {
+    // Use local numeric accumulators to avoid mixing string|number unions
+    let sumNum: number | undefined = sum as number | undefined;
+    let minNum: number | undefined = min as number | undefined;
+    let maxNum: number | undefined = max as number | undefined;
+
     for (const value of values) {
       const parsed = Number(value);
-      if (!isNaN(parsed)) {
-        sum = sum !== undefined ? sum + parsed : parsed;
-        min =
-          min !== undefined
-            ? (min as number) < parsed
-              ? min
-              : parsed
-            : parsed;
-        max =
-          max !== undefined
-            ? (max as number) > parsed
-              ? max
-              : parsed
-            : parsed;
+      if (!Number.isNaN(parsed)) {
+        sumNum = sumNum !== undefined ? sumNum + parsed : parsed;
+        minNum =
+          minNum !== undefined ? (minNum < parsed ? minNum : parsed) : parsed;
+        maxNum =
+          maxNum !== undefined ? (maxNum > parsed ? maxNum : parsed) : parsed;
       }
     }
+    // Sync back to union-typed vars used in the function result
+    sum = sumNum;
+    min = minNum;
+    max = maxNum;
   } else if (detectedDataType === "date") {
     for (const value of values) {
       if (typeof value !== "string") continue;
 
       if (isValidDate(value) || isValidDateTime(value)) {
         const parsed = Date.parse(value as string);
-        if (!isNaN(parsed)) {
+        if (!Number.isNaN(parsed)) {
           min =
             min !== undefined
               ? Date.parse(min as string) < parsed
@@ -127,14 +131,18 @@ function calculateAggregateResult(data: OptimizeTableState): AggregateResult {
     }
   }
 
-  if (sum !== undefined && values.length > 0) {
+  if (
+    detectedDataType === "number" &&
+    typeof sum === "number" &&
+    values.length > 0
+  ) {
     avg = sum / values.length;
   }
 
   if (detectedDataType === "number") {
     return {
-      sum: formatNumber(sum),
-      avg: formatNumber(avg),
+      sum: formatNumber(sum as number | undefined),
+      avg: formatNumber(avg as number | undefined),
       min: formatNumber(min as number),
       max: formatNumber(max as number),
       count: selectedCell.size,
@@ -199,7 +207,7 @@ export default function AggregateResultButton({
       displayResult = `MIN: ${result.min}`;
     } else if (result.max !== undefined) {
       displayResult = `MAX: ${result.max}`;
-    } else if (result.count != undefined) {
+    } else if (result.count !== undefined) {
       displayResult = `COUNT: ${result.count}`;
     }
   }
@@ -225,45 +233,45 @@ export default function AggregateResultButton({
         <div className="flex flex-col p-4">
           {!!result.sum && (
             <ListButtonItem
-              text={"SUM: " + result.sum}
+              text={`SUM: ${result.sum}`}
               icon={defaultFunction === "sum" ? LucideCheck : undefined}
-              onClick={function (): void {
+              onClick={(): void => {
                 handleSetDefaultFunction("sum");
               }}
             />
           )}
           {!!result.avg && (
             <ListButtonItem
-              text={"AVG: " + result.avg}
+              text={`AVG: ${result.avg}`}
               icon={defaultFunction === "avg" ? LucideCheck : undefined}
-              onClick={function (): void {
+              onClick={(): void => {
                 handleSetDefaultFunction("avg");
               }}
             />
           )}
           {!!result.max && (
             <ListButtonItem
-              text={"MAX: " + result.max}
+              text={`MAX: ${result.max}`}
               icon={defaultFunction === "max" ? LucideCheck : undefined}
-              onClick={function (): void {
+              onClick={(): void => {
                 handleSetDefaultFunction("max");
               }}
             />
           )}
           {!!result.min && (
             <ListButtonItem
-              text={"MIN: " + result.min}
+              text={`MIN: ${result.min}`}
               icon={defaultFunction === "min" ? LucideCheck : undefined}
-              onClick={function (): void {
+              onClick={(): void => {
                 handleSetDefaultFunction("min");
               }}
             />
           )}
           {!!result.count && (
             <ListButtonItem
-              text={"COUNT: " + result.count}
+              text={`COUNT: ${result.count}`}
               icon={defaultFunction === "count" ? LucideCheck : undefined}
-              onClick={function (): void {
+              onClick={(): void => {
                 handleSetDefaultFunction("count");
               }}
             />

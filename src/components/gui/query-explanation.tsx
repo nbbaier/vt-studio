@@ -1,6 +1,9 @@
-import { DatabaseResultSet, SupportedDialect } from "@/drivers/base-driver";
 import { useMemo } from "react";
 import { z } from "zod";
+import type {
+  DatabaseResultSet,
+  SupportedDialect,
+} from "@/drivers/base-driver";
 import QueryExplanationDiagram from "./query-explanation-diagram";
 import { convertSQLiteRowToMySQL } from "./query-explanation-diagram/build-query-explanation-flow";
 
@@ -105,7 +108,7 @@ export function QueryExplanation(props: QueryExplanationProps) {
   );
 
   return (
-    <div className="p-5 font-mono h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto p-5 font-mono">
       <QueryExplanationDiagram items={value} />
     </div>
   );

@@ -1,13 +1,13 @@
 import {
   BaseEdge,
-  getSmoothStepPath,
-  Handle,
-  InternalNode,
-  Node,
-  Position,
-  useInternalNode,
   type Edge,
   type EdgeProps,
+  getSmoothStepPath,
+  type Handle,
+  type InternalNode,
+  type Node,
+  Position,
+  useInternalNode,
 } from "@xyflow/react";
 
 // returns the position (top,right,bottom or right) passed node compared to

@@ -1,10 +1,10 @@
+import { Component, Layers2 } from "lucide-react";
 import ClientOnly from "@/components/client-only";
 import { SidebarMenuHeader, SidebarMenuItem } from "@/components/sidebar-menu";
+import ThemeLayout from "@/components/theme-layout";
 import ThemeToggle from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Component, Layers2 } from "lucide-react";
-import ThemeLayout from "@/components/theme-layout";
 
 export default function StorybookRootLayout({
   children,

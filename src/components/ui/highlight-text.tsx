@@ -7,7 +7,7 @@ export default function HighlightText({ text, highlight }: Props) {
   if (!highlight) return <span>{text}</span>;
 
   const regex = new RegExp(
-    "(" + (highlight ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")",
+    `(${(highlight ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
     "i"
   );
 

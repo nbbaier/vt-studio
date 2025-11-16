@@ -1,4 +1,3 @@
-import { restrictToHorizontalAxis } from "@/lib/dnd-kit";
 import {
   closestCenter,
   DndContext,
@@ -23,6 +22,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { restrictToHorizontalAxis } from "@/lib/dnd-kit";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -110,7 +110,7 @@ export default function WindowTabs({
       container.scrollLeft +=
         selectedTabRect.right - containerRect.right + menuWidth + 1;
     }
-  }, [selected, tabs]);
+  }, [selected]);
 
   useEffect(() => {
     const container = tabContainerRef.current;

@@ -1,12 +1,20 @@
 import { cn } from "@/lib/utils";
 
-type ToggleProps = {
+type ToggleProps = Omit<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  "onChange"
+> & {
   size?: "sm" | "base" | "lg";
   toggled?: boolean;
   onChange?: (value: boolean) => void;
 };
 
-export const Toggle = ({ onChange, size = "base", toggled }: ToggleProps) => {
+export const Toggle = ({
+  onChange,
+  size = "base",
+  toggled,
+  ...props
+}: ToggleProps) => {
   return (
     <button
       className={cn(
@@ -22,6 +30,7 @@ export const Toggle = ({ onChange, size = "base", toggled }: ToggleProps) => {
       onClick={() => {
         if (onChange) onChange(!toggled);
       }}
+      {...props}
     >
       <div
         className={cn(

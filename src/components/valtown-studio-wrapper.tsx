@@ -10,7 +10,7 @@ import {
   getValtownToken,
   removeValtownToken,
   setValtownToken,
-  ValtownTokenData,
+  type ValtownTokenData,
 } from "@/lib/valtown-token-storage";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -41,7 +41,10 @@ function TokenConfigurationUI({
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div
+      data-testid="token-config"
+      className="bg-background flex min-h-screen items-center justify-center p-4"
+    >
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-3xl font-bold">Val Town Studio</h1>
@@ -64,10 +67,7 @@ function TokenConfigurationUI({
           </div>
 
           <div className="mb-4">
-            <label
-              htmlFor="name"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="name" className="mb-2 block text-sm font-medium">
               Connection Name (optional)
             </label>
             <input
@@ -76,7 +76,7 @@ function TokenConfigurationUI({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="My Val Town Database"
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-background w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
           </div>
 
@@ -93,13 +93,15 @@ function TokenConfigurationUI({
                 setError("");
               }}
               placeholder="Paste your Val Town API token here"
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="bg-background w-full rounded-md border px-3 py-2 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             />
             {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
           </div>
 
           <div className="bg-secondary mb-6 rounded-md p-4">
-            <p className="mb-2 text-sm font-medium">How to create an API token:</p>
+            <p className="mb-2 text-sm font-medium">
+              How to create an API token:
+            </p>
             <ol className="ml-4 list-decimal space-y-2 text-sm">
               <li>
                 Go to{" "}
@@ -114,7 +116,7 @@ function TokenConfigurationUI({
               <li>Click &quot;New&quot; to generate a new token</li>
               <li>
                 <strong>Required scopes:</strong>
-                <ul className="ml-4 mt-1 list-disc space-y-0.5">
+                <ul className="mt-1 ml-4 list-disc space-y-0.5">
                   <li className="font-mono text-xs">sqlite:read</li>
                   <li className="font-mono text-xs">sqlite:write</li>
                 </ul>
@@ -125,7 +127,7 @@ function TokenConfigurationUI({
 
           <button
             type="submit"
-            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
           >
             Connect
           </button>

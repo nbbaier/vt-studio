@@ -1,5 +1,5 @@
-import { PropsWithChildren } from "react";
 import Link from "next/link";
+import type { PropsWithChildren } from "react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -10,13 +10,13 @@ import {
 async function Topbar() {
   return (
     <header>
-      <div className="mx-auto container flex">
+      <div className="container mx-auto flex">
         <Link href="/">
-          <h1 className="text-lg py-2 text-white">
+          <h1 className="py-2 text-lg text-white">
             Outerbase <strong>Studio</strong>
           </h1>
         </Link>
-        <div className="grow flex items-center ml-3">
+        <div className="ml-3 flex grow items-center">
           <NavigationMenu className="hidden md:block">
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -31,7 +31,7 @@ async function Topbar() {
             </NavigationMenuList>
           </NavigationMenu>
         </div>
-        <div className="pr-4 flex items-center pt-1">
+        <div className="flex items-center pt-1 pr-4">
           <a
             className="github-button"
             href="https://github.com/invisal/libsql-studio"
@@ -39,7 +39,9 @@ async function Topbar() {
             data-size="large"
             data-show-count="true"
             aria-label="Star invisal/libsql-studio on GitHub"
-          ></a>
+          >
+            Star
+          </a>
         </div>
       </div>
     </header>
@@ -48,8 +50,8 @@ async function Topbar() {
 
 function Footer() {
   return (
-    <div className="py-4 text-sm mx-auto container px-8">
-      <div className="grid grid-cols-2 lg:grid-cols-4 mb-8">
+    <div className="container mx-auto px-8 py-4 text-sm">
+      <div className="mb-8 grid grid-cols-2 lg:grid-cols-4">
         <div className="mb-8">
           <h1 className="text-lg text-white">
             Outerbase <strong>Studio</strong>
@@ -59,7 +61,7 @@ function Footer() {
 
         <div className="mb-8">
           <div className="font-bold">Developers</div>
-          <ul className="flex flex-col gap-1 mt-3">
+          <ul className="mt-3 flex flex-col gap-1">
             <li>
               <Link href="/docs" className="hover:underline">
                 Documentation
@@ -78,7 +80,7 @@ function Footer() {
 
         <div className="mb-8">
           <div className="font-bold">Company</div>
-          <ul className="flex flex-col gap-1 mt-3">
+          <ul className="mt-3 flex flex-col gap-1">
             <li>
               <Link
                 href="https://www.outerbase.com/about/"
@@ -105,7 +107,7 @@ function Footer() {
 
         <div className="mb-8">
           <div className="font-bold">Legal & Compilance</div>
-          <ul className="flex flex-col gap-1 mt-3">
+          <ul className="mt-3 flex flex-col gap-1">
             <li>
               <Link href="/terms" className="hover:underline">
                 Terms of Service

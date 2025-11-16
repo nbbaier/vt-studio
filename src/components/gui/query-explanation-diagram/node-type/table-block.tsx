@@ -1,6 +1,9 @@
-import { BaseHandle } from "@/components/base-handle";
 import { Position } from "@xyflow/react";
-import { ExplainNodeProps, formatCost } from "../build-query-explanation-flow";
+import { BaseHandle } from "@/components/base-handle";
+import {
+  type ExplainNodeProps,
+  formatCost,
+} from "../build-query-explanation-flow";
 import { TooltipExplainHandle } from "./tooltip-handle";
 
 export function TableBlock(props: ExplainNodeProps) {
@@ -47,16 +50,16 @@ export function TableBlock(props: ExplainNodeProps) {
           type="source"
           position={Position.Top}
           id={props.id}
-          className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+          className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
         />
         <BaseHandle
           type="source"
           position={Position.Right}
           id={"right"}
-          className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+          className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
         />
         <div
-          className={`flex flex-row justify-between items-center text-[8pt]`}
+          className={`flex flex-row items-center justify-between text-[8pt]`}
         >
           <div
             className={`${props.data.cost_info.read_cost === 0 ? "hidden" : ""}`}
@@ -77,11 +80,11 @@ export function TableBlock(props: ExplainNodeProps) {
           </div>
         </div>
         <div
-          className={`p-2 text-white text-[9pt] border-b rounded-md text-center ${bgColor}`}
+          className={`rounded-md border-b p-2 text-center text-[9pt] text-white ${bgColor}`}
         >
           <small>{label}</small>
         </div>
-        <div className="flex flex-col justify-center text-[8pt] items-center">
+        <div className="flex flex-col items-center justify-center text-[8pt]">
           <div>
             <small>{props.data.table_name}</small>
           </div>

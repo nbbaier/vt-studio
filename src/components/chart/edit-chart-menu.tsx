@@ -1,14 +1,14 @@
 "use client";
 import { produce } from "immer";
 import { useTheme } from "next-themes";
-import { Dispatch, SetStateAction, useEffect, useMemo } from "react";
+import { type Dispatch, type SetStateAction, useEffect, useMemo } from "react";
 import { Label } from "../orbit/label";
 import { MenuBar } from "../orbit/menu-bar";
 import { Select } from "../orbit/select";
 import ChartBackgroundSelection, {
   capitalizeFirstChar,
 } from "./chart-background-selection";
-import { ChartValue, SingleValueFormat, THEMES } from "./chart-type";
+import { type ChartValue, type SingleValueFormat, THEMES } from "./chart-type";
 import ChartTypeSelection from "./chart-type-selection";
 import ChartYAxisSection from "./chart-y-axis-section";
 import { generateGradientColors } from "./echart-options-builder";
@@ -103,7 +103,7 @@ export default function EditChartMenu({
             label: col,
           }))}
           value={value.params.options?.xAxisKey ?? ""}
-          setValue={function (value: string): void {
+          setValue={(value: string): void => {
             onChange((prev) => {
               return produce(prev, (draft) => {
                 draft.params.options.xAxisKey = value;
@@ -186,7 +186,7 @@ export default function EditChartMenu({
             { value: "Pound", label: "Pound" },
             { value: "Yen", label: "Yen" },
           ]}
-          setValue={function (value: string): void {
+          setValue={(value: string): void => {
             onChange((prev) => {
               return produce(prev, (draft) => {
                 draft.params.options.format =
@@ -232,7 +232,7 @@ export default function EditChartMenu({
             { value: "White", label: "White" },
             { value: "Black", label: "Black" },
           ]}
-          setValue={function (value: string): void {
+          setValue={(value: string): void => {
             onChange((prev) => {
               return produce(prev, (draft) => {
                 if (value === "Automatic") {
@@ -262,7 +262,7 @@ export default function EditChartMenu({
       <Label title="Chart Title">
         <SimpleInput
           value={value.name}
-          onSumit={function (v: string): void {
+          onSumit={(v: string): void => {
             onChange((prev) => {
               return produce(prev, (draft) => {
                 draft.name = v;
@@ -275,7 +275,7 @@ export default function EditChartMenu({
 
       <ChartTypeSelection
         value={value}
-        onChange={function (value: SetStateAction<ChartValue>): void {
+        onChange={(value: SetStateAction<ChartValue>): void => {
           onChange(value);
         }}
       />
@@ -286,7 +286,7 @@ export default function EditChartMenu({
       {!isNotChartComponent && (
         <ChartYAxisSection
           value={value}
-          onChange={function (value: SetStateAction<ChartValue>): void {
+          onChange={(value: SetStateAction<ChartValue>): void => {
             onChange(value);
           }}
           isNotChartComponent={false}

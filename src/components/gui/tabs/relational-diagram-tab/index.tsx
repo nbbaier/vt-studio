@@ -1,9 +1,3 @@
-import { DatabaseSchemaNode } from "@/components/gui/tabs/relational-diagram-tab/database-schema-node";
-import { DevTools } from "@/components/gui/tabs/relational-diagram-tab/devtools";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { useSchema } from "@/context/schema-provider";
-import { DatabaseSchemas } from "@/drivers/base-driver";
 import Dagre from "@dagrejs/dagre";
 import {
   AlignCenterHorizontalSimple,
@@ -12,15 +6,21 @@ import {
 import {
   Background,
   Controls,
-  Edge,
+  type Edge,
   MarkerType,
   MiniMap,
-  Node,
+  type Node,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
+import { DatabaseSchemaNode } from "@/components/gui/tabs/relational-diagram-tab/database-schema-node";
+import { DevTools } from "@/components/gui/tabs/relational-diagram-tab/devtools";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useSchema } from "@/context/schema-provider";
+import type { DatabaseSchemas } from "@/drivers/base-driver";
 import "@xyflow/react/dist/style.css";
 import { LucideRefreshCcw } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -41,14 +41,16 @@ function getLayoutElements(
   const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   g.setGraph(options);
 
-  edges.forEach((edge) => g.setEdge(edge.source, edge.target));
-  nodes.forEach((node) =>
+  edges.forEach((edge) => {
+    g.setEdge(edge.source, edge.target);
+  });
+  nodes.forEach((node) => {
     g.setNode(node.id, {
       ...node,
       width: node.measured?.width ?? 0,
       height: node.measured?.height ?? 0,
-    })
-  );
+    });
+  });
 
   Dagre.layout(g);
 
@@ -81,7 +83,7 @@ function mapSchema(
 
     // Get the relationship via column constraint
     for (const column of item.tableSchema?.columns || []) {
-      if (column.constraint && column.constraint.foreignKey) {
+      if (column.constraint?.foreignKey) {
         tableNameWithRelationship.add(item.name);
         tableNameWithRelationship.add(
           column.constraint.foreignKey.foreignTableName || ""

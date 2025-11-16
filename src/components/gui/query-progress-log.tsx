@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import isEmptyResultStats from "@/lib/empty-state";
+import type { MultipleQueryProgress } from "@/lib/sql/multiple-query";
 import CodePreview from "./code-preview";
 import ResultStats from "./result-stat";
-import { MultipleQueryProgress } from "@/lib/sql/multiple-query";
-import isEmptyResultStats from "@/lib/empty-state";
 
 function formatTimeAgo(ms: number) {
   if (ms < 1000) {
@@ -35,7 +35,7 @@ export default function QueryProgressLog({
   const isEnded = total === value || !!progress.error;
 
   return (
-    <div className="p-4 overflow-hidden">
+    <div className="overflow-hidden p-4">
       <div>
         {isEnded ? (
           <strong>
@@ -48,12 +48,12 @@ export default function QueryProgressLog({
         )}
       </div>
 
-      <div className="flex flex-col gap-4 mt-4">
+      <div className="mt-4 flex flex-col gap-4">
         {last3.map((detail) => {
           return (
             <div key={detail.order}>
               {!!detail.error && (
-                <div className="mt-2 mb-2 text-red-500 font-mono">
+                <div className="mt-2 mb-2 font-mono text-red-500">
                   {detail.error}
                 </div>
               )}

@@ -1,15 +1,17 @@
 "use client";
+
 import { cn } from "@/lib/utils";
-import { Icon } from "@phosphor-icons/react";
-import React, {
-  ReactElement,
+import type { Icon } from "@phosphor-icons/react";
+import type React from "react";
+import {
+  type ReactElement,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import OptimizeTableState from "./optimize-table-state";
+import type OptimizeTableState from "./optimize-table-state";
 import OptimizeTableCell from "./table-cell";
 import TableFakeBodyPadding from "./table-fake-body-padding";
 import TableFakeRowPadding from "./table-fake-row-padding";
@@ -113,7 +115,7 @@ function renderCellList<HeaderMetadata = unknown>({
 
   const templateSizes =
     `${internalState.gutterColumnWidth}px ` +
-    headers.map((header) => headerSizes[header.index] + "px").join(" ");
+    headers.map((header) => `${headerSizes[header.index]}px`).join(" ");
 
   const onHeaderSizeWithRemap = (idx: number, newWidth: number) => {
     onHeaderResize(headers[idx]?.index ?? 0, newWidth);
@@ -260,11 +262,11 @@ export default function OptimizeTable<HeaderMetadata = unknown>({
 
   const rerender = useCallback(() => {
     setRevision((prev) => prev + 1);
-  }, [setRevision]);
+  }, []);
 
   useEffect(() => {
     internalState.setContainer(containerRef.current);
-  }, [internalState, containerRef]);
+  }, [internalState]);
 
   useEffect(() => {
     const changeCallback = () => {
@@ -327,7 +329,8 @@ export default function OptimizeTable<HeaderMetadata = unknown>({
     };
 
     return (
-      <div
+      <section
+        aria-label="Optimized table container"
         tabIndex={-1}
         onKeyDown={(e) => {
           if (onKeyDown) onKeyDown(internalState, e);
@@ -344,14 +347,8 @@ export default function OptimizeTable<HeaderMetadata = unknown>({
           e.preventDefault();
         }}
       >
-        <div
-          style={{
-            height: (internalState.getRowsCount() + 1) * rowHeight + 10,
-          }}
-        >
-          {renderCellList(common)}
-        </div>
-      </div>
+        {renderCellList(common)}
+      </section>
     );
   }, [
     rowEnd,

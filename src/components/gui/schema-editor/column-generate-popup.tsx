@@ -1,8 +1,7 @@
-import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { LucideSigma } from "lucide-react";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { Button } from "../../ui/button";
-import { ColumnChangeEvent } from "./schema-editor-column-list";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import {
   Select,
   SelectContent,
@@ -11,6 +10,7 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { Textarea } from "../../ui/textarea";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 
 export default function ColumnGeneratingPopup({
   constraint,
@@ -24,19 +24,19 @@ export default function ColumnGeneratingPopup({
   return (
     <Popover>
       <PopoverTrigger>
-        <span className="p-1 shadow-sm border rounded block">
-          <LucideSigma className="w-4 h-4" />
+        <span className="block rounded border p-1 shadow-sm">
+          <LucideSigma className="h-4 w-4" />
         </span>
       </PopoverTrigger>
       <PopoverContent>
         <div className="flex flex-col gap-2">
-          <div className="font-semibold text-sm">Generating Function</div>
+          <div className="text-sm font-semibold">Generating Function</div>
 
           <Textarea
             rows={4}
             disabled={disabled}
             placeholder="Generate Expression"
-            className="font-mono bg-background"
+            className="bg-background font-mono"
             onChange={(e) => {
               onChange({
                 constraint: {

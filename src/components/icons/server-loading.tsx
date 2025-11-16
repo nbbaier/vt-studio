@@ -8,12 +8,13 @@ export default function ServerLoadingAnimation({
   return (
     <div>
       <svg
-        className={cn("w-32 h-32", className)}
+        className={cn("h-32 w-32", className)}
         width="300"
         height="300"
         viewBox="40 40 220 220"
         xmlns="http://www.w3.org/2000/svg"
       >
+        <title>Server Loading Animation</title>
         <rect width="300" height="300" fill="none" />
         <rect
           x="62"
@@ -29,7 +30,7 @@ export default function ServerLoadingAnimation({
           width="201"
           height="58"
           rx="4.5"
-          className="stroke-gray-400 fill-white stroke-2 dark:stroke-gray-400 dark:fill-black"
+          className="fill-white stroke-gray-400 stroke-2 dark:fill-black dark:stroke-gray-400"
         />
         <rect
           x="230"
@@ -62,7 +63,7 @@ export default function ServerLoadingAnimation({
           width="60"
           height="8"
           rx="4"
-          className="fill-gray-500 animate-pulse duration-200"
+          className="animate-pulse fill-gray-500 duration-200"
         />
         <rect
           x="127"
@@ -86,7 +87,7 @@ export default function ServerLoadingAnimation({
           width="46"
           height="8"
           rx="4"
-          className="fill-gray-500 animate-pulse duration-200"
+          className="animate-pulse fill-gray-500 duration-200"
         />
         <rect
           x="62"
@@ -94,7 +95,7 @@ export default function ServerLoadingAnimation({
           width="57"
           height="8"
           rx="4"
-          className="fill-gray-500 animate-pulse duration-200"
+          className="animate-pulse fill-gray-500 duration-200"
         />
 
         <rect
@@ -103,7 +104,7 @@ export default function ServerLoadingAnimation({
           width="201"
           height="58"
           rx="4.5"
-          className="stroke-gray-400 fill-white stroke-2 dark:stroke-gray-400 dark:fill-black"
+          className="fill-white stroke-gray-400 stroke-2 dark:fill-black dark:stroke-gray-400"
         />
 
         <rect
@@ -144,7 +145,7 @@ export default function ServerLoadingAnimation({
           width="21"
           height="8"
           rx="4"
-          className="fill-gray-500 animate-pulse duration-200"
+          className="animate-pulse fill-gray-500 duration-200"
         />
         <rect
           x="62"
@@ -152,7 +153,7 @@ export default function ServerLoadingAnimation({
           width="30"
           height="8"
           rx="4"
-          className="fill-gray-500 animate-pulse duration-200"
+          className="animate-pulse fill-gray-500 duration-200"
         />
         <rect
           x="96"

@@ -1,12 +1,12 @@
-import { DatabaseForeignKeyClause } from "@/drivers/base-driver";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { LucideArrowUpRight } from "lucide-react";
+import type { DatabaseForeignKeyClause } from "@/drivers/base-driver";
 import { Button } from "../../ui/button";
-import { ColumnChangeEvent } from "./schema-editor-column-list";
+import { Label } from "../../ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import { Separator } from "../../ui/separator";
 import TableColumnCombobox from "../table-combobox/TableColumnCombobox";
 import TableCombobox from "../table-combobox/TableCombobox";
-import { Label } from "../../ui/label";
-import { Separator } from "../../ui/separator";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 
 export default function ColumnForeignKeyPopup({
   constraint,
@@ -22,17 +22,17 @@ export default function ColumnForeignKeyPopup({
   return (
     <Popover>
       <PopoverTrigger>
-        <span className="p-1 shadow-sm border rounded block bg-blue-300 dark:bg-blue-600">
-          <LucideArrowUpRight className="w-4 h-4" />
+        <span className="block rounded border bg-blue-300 p-1 shadow-sm dark:bg-blue-600">
+          <LucideArrowUpRight className="h-4 w-4" />
         </span>
       </PopoverTrigger>
       <PopoverContent>
         <div className="flex flex-col gap-2">
-          <div className="font-semibold text-sm">Foreign Key</div>
+          <div className="text-sm font-semibold">Foreign Key</div>
 
           <Separator />
 
-          <div className="flex flex-col gap-2 mt-2">
+          <div className="mt-2 flex flex-col gap-2">
             <Label className="text-xs font-normal">Foreign Table Name</Label>
             <TableCombobox
               schemaName={schemaName}
@@ -52,7 +52,7 @@ export default function ColumnForeignKeyPopup({
           </div>
 
           {constraint.foreignTableName && (
-            <div className="flex flex-col gap-2 mt-2">
+            <div className="mt-2 flex flex-col gap-2">
               <Label className="text-xs font-normal">Foreign Column Name</Label>
               <TableColumnCombobox
                 value={(constraint.foreignColumns ?? [undefined])[0]}

@@ -1,10 +1,10 @@
 "use client";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
-import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { LucideAlignJustify } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { DocTableContent } from "./docs";
+import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import type { DocTableContent } from "./docs";
 
 export function DocNavigation({
   content,
@@ -42,7 +42,7 @@ export function DocNavigation({
                     <li
                       key={content.title}
                       className={cn(
-                        "border-l border-gray-200 pl-4 py-1.5",
+                        "border-l border-gray-200 py-1.5 pl-4",
                         pathname === content.href ? "font-bold" : ""
                       )}
                     >
@@ -60,8 +60,8 @@ export function DocNavigation({
 
   return (
     <>
-      <div className="hidden md:block fixed left-0 top-0 bottom-0 w-[300px] border-r overflow-y-auto">
-        <div className="p-4 border-b">
+      <div className="fixed top-0 bottom-0 left-0 hidden w-[300px] overflow-y-auto border-r md:block">
+        <div className="border-b p-4">
           <div className="text-sm">
             Outerbase <strong>Studio</strong>
           </div>
@@ -69,7 +69,7 @@ export function DocNavigation({
         </div>
         {sideMenu}
       </div>
-      <div className="md:hidden p-2 border-b flex">
+      <div className="flex border-b p-2 md:hidden">
         <div className="grow px-2 font-bold">{title}</div>
         <Sheet>
           <SheetTrigger>

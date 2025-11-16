@@ -16,6 +16,7 @@ export const Label = ({
   title,
   required,
   requiredDescription,
+  htmlFor,
   ...props
 }: LabelProps) => {
   return (
@@ -24,6 +25,7 @@ export const Label = ({
         "text-ob-base-200 relative block w-full items-center gap-1 text-sm transition-colors *:w-full",
         className
       )}
+      htmlFor={htmlFor}
       {...props}
     >
       <div className="mb-1 flex w-max">

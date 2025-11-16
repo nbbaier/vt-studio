@@ -1,4 +1,4 @@
-import { Input, InputProps } from "./orbit/input";
+import { Input, type InputProps } from "./orbit/input";
 import { Label } from "./orbit/label";
 
 export default function LabelInput(

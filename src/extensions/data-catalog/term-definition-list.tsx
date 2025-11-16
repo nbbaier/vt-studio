@@ -1,5 +1,5 @@
 import { Edit3 } from "lucide-react";
-import { DataCatalogTermDefinition } from "./driver";
+import type { DataCatalogTermDefinition } from "./driver";
 
 interface Props {
   onSelect: (item: DataCatalogTermDefinition) => void;
@@ -10,10 +10,11 @@ export default function TermDefinitionList({ data, onSelect }: Props) {
     <div className="mt-10">
       {data?.map((item) => {
         return (
-          <div
+          <button
             onClick={() => onSelect(item)}
             key={item.id}
-            className="bg-accent mt-3 flex rounded-xl border p-5 hover:bg-gray-200 dark:bg-neutral-900 dark:hover:bg-neutral-800"
+            type="button"
+            className="bg-accent mt-3 flex w-full rounded-xl border p-5 hover:bg-gray-200 dark:bg-neutral-900 dark:hover:bg-neutral-800"
           >
             <div className="gap-5">
               <div className="text-lg font-bold">{item.name}</div>
@@ -26,7 +27,7 @@ export default function TermDefinitionList({ data, onSelect }: Props) {
             </div>
             <div className="flex-1" />
             <Edit3 size={18} />
-          </div>
+          </button>
         );
       })}
     </div>

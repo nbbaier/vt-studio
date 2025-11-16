@@ -1,5 +1,5 @@
 import { LucidePlus, LucideX } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -7,7 +7,7 @@ import {
   CommandInput,
   CommandItem,
 } from "../ui/command";
-import { useState } from "react";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
 interface Props {
   value: string[];
@@ -30,18 +30,19 @@ export default function ColumnListEditor({
         return (
           <div
             key={idx}
-            className="px-2 bg-secondary rounded flex items-center"
+            className="bg-secondary flex items-center rounded px-2"
           >
             <span className="p-1">{columnName}</span>
             {!disabled && (
-              <span
-                className="p-1 rounded-full ml-1 cursor-pointer hover:bg-red-400"
+              <button
+                type="button"
+                className="ml-1 cursor-pointer rounded-full border-0 bg-transparent p-1 hover:bg-red-400"
                 onClick={() => {
                   onChange(value.filter((c) => c !== columnName));
                 }}
               >
-                <LucideX className="w-3 h-3" />
-              </span>
+                <LucideX className="h-3 w-3" />
+              </button>
             )}
           </div>
         );
@@ -50,8 +51,8 @@ export default function ColumnListEditor({
       {!disabled && (
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger>
-            <button className="p-1 bg-secondary rounded">
-              <LucidePlus className="w-4 h-4" />
+            <button type="button" className="bg-secondary rounded p-1">
+              <LucidePlus className="h-4 w-4" />
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-[250px] p-0">

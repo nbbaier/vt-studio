@@ -1,6 +1,6 @@
-import { BaseHandle } from "@/components/base-handle";
-import { ExplainNodeProps } from "../build-query-explanation-flow";
 import { Position } from "@xyflow/react";
+import { BaseHandle } from "@/components/base-handle";
+import type { ExplainNodeProps } from "../build-query-explanation-flow";
 
 export function UnionBlock(props: ExplainNodeProps) {
   return (
@@ -9,15 +9,15 @@ export function UnionBlock(props: ExplainNodeProps) {
         type="source"
         position={Position.Right}
         id={props.id}
-        className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+        className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
       />
       <BaseHandle
         type="target"
         position={Position.Left}
         id={props.id}
-        className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+        className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
       />
-      <div className="flex flex-row justify-center max-w-[200px]  p-2 w-[150px] items-center bg-gray-300 text-gray-900 border-gray-900 text-[8pt]">
+      <div className="flex w-[150px] max-w-[200px] flex-row items-center justify-center border-gray-900 bg-gray-300 p-2 text-[8pt] text-gray-900">
         <small>{props.data.label}</small>
       </div>
     </div>

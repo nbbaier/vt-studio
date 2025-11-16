@@ -1,3 +1,6 @@
+import { produce } from "immer";
+import { useCallback, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { createDialog } from "@/components/create-dialog";
 import TableColumnCombobox from "@/components/gui/table-combobox/TableColumnCombobox";
 import TableCombobox from "@/components/gui/table-combobox/TableCombobox";
@@ -9,10 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { produce } from "immer";
-import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
-import DataCatalogDriver, { DataCatalogTableRelationship } from "./driver";
+import type DataCatalogDriver from "./driver";
+import type { DataCatalogTableRelationship } from "./driver";
 
 interface IRelationship extends Omit<DataCatalogTableRelationship, "id"> {
   id?: string;

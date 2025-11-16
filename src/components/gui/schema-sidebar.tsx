@@ -1,11 +1,11 @@
-import { useStudioContext } from "@/context/driver-provider";
-import { useSchema } from "@/context/schema-provider";
-import { scc } from "@/core/command";
-import { StudioExtensionMenuItem } from "@/core/extension-manager";
-import { cn } from "@/lib/utils";
 import { Plus } from "@phosphor-icons/react";
 import { LucideSearch } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useStudioContext } from "@/context/driver-provider";
+import { useSchema } from "@/context/schema-provider";
+import { scc } from "@/core/command";
+import type { StudioExtensionMenuItem } from "@/core/extension-manager";
+import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import {
   DropdownMenu,
@@ -56,6 +56,7 @@ export default function SchemaView() {
     if (contentMenu.length === 1) {
       return (
         <button
+          type="button"
           className={cn(
             buttonVariants({
               size: "icon",
@@ -73,6 +74,7 @@ export default function SchemaView() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            type="button"
             className={cn(
               buttonVariants({
                 size: "icon",

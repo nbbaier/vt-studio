@@ -1,10 +1,10 @@
 "use client";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import Script from "next/script";
+import { ThemeProvider } from "next-themes";
+import { type PropsWithChildren, useEffect } from "react";
 import PageTracker from "@/components/page-tracker";
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { ThemeProvider } from "next-themes";
-import Script from "next/script";
-import { Fragment, PropsWithChildren, useEffect } from "react";
 
 export default function ThemeLayout({
   children,
@@ -15,7 +15,7 @@ export default function ThemeLayout({
   overrideThemeVariables?: Record<string, string>;
 }>) {
   useEffect(() => {
-    if (overrideThemeVariables && typeof window === "undefined") {
+    if (overrideThemeVariables && typeof window !== "undefined") {
       Object.entries(overrideThemeVariables).forEach(([key, value]) => {
         document.body.style.setProperty(key, value);
       });
@@ -29,9 +29,7 @@ export default function ThemeLayout({
         enableColorScheme
         attribute="class"
       >
-        <TooltipProvider>
-          <Fragment>{children}</Fragment>
-        </TooltipProvider>
+        <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
       </ThemeProvider>
       <PageTracker />

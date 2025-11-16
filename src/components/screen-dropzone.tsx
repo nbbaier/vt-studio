@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 interface Props {
   onFileDrop: (file?: File, handler?: FileSystemFileHandle) => void;
@@ -11,10 +11,10 @@ export const unsupportFileHandlerDialogContent = {
   destructive: true,
   title: "Unsupported Browser",
   content: (
-    <p className="text-sm flex flex-col gap-2">
+    <p className="flex flex-col gap-2 text-sm">
       <p>
         Outerbase Studio SQLite client requires the{" "}
-        <span className="bg-muted font-mono px-2 inline-flex">
+        <span className="bg-muted inline-flex px-2 font-mono">
           FileSystemHandle
         </span>{" "}
         API to function.
@@ -38,10 +38,10 @@ export const unsupportFileHandlerDialogContent = {
         System API is disabled by default. To enable it:
       </p>
 
-      <ul className="list-disc list-inside">
+      <ul className="list-inside list-disc">
         <li>
           Open{" "}
-          <span className="bg-muted font-mono px-2 inline-flex">
+          <span className="bg-muted inline-flex px-2 font-mono">
             brave://flags
           </span>{" "}
           in the browser.
@@ -73,7 +73,7 @@ export default function ScreenDropZone({ onFileDrop }: Props) {
           .then((handler: FileSystemFileHandle) => {
             onFileDrop(undefined, handler);
           });
-      } catch (error) {
+      } catch (_error) {
         const file = e.dataTransfer.files[0];
         if (!file) return;
         onFileDrop(file);

@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
 import { LucideLoader } from "lucide-react";
-import { PropsWithChildren, ReactElement } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
+import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
@@ -42,6 +42,7 @@ export function ToolbarButton({
 }) {
   const buttonContent = (
     <button
+      type="button"
       className={cn(
         "flex gap-2",
         buttonVariants({ variant: "ghost", size: "sm" }),

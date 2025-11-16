@@ -1,3 +1,6 @@
+import { Edit3, EyeOff, LucideMoreHorizontal } from "lucide-react";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/orbit/button";
 import { Toggle } from "@/components/orbit/toggle";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -9,14 +12,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import HighlightText from "@/components/ui/highlight-text";
-import {
+import type {
   DatabaseTableColumn,
   DatabaseTableSchema,
 } from "@/drivers/base-driver";
 import { cn } from "@/lib/utils";
-import { Edit3, EyeOff, LucideMoreHorizontal } from "lucide-react";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
 import DataCatalogTableColumnModal from "./data-catalog-table-column-modal";
 import { useDataCatalogContext } from "./data-model-tab";
 

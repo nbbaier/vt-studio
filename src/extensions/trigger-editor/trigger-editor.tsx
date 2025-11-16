@@ -1,3 +1,5 @@
+import { produce } from "immer";
+import { useMemo } from "react";
 import SchemaNameSelect from "@/components/gui/schema-editor/schema-name-select";
 import SqlEditor from "@/components/gui/sql-editor";
 import TableCombobox from "@/components/gui/table-combobox/TableCombobox";
@@ -11,13 +13,11 @@ import {
 } from "@/components/ui/select";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import {
+import type {
   DatabaseTriggerSchema,
   TriggerOperation,
   TriggerWhen,
 } from "@/drivers/base-driver";
-import { produce } from "immer";
-import { useMemo } from "react";
 
 export interface TriggerEditorProps {
   onChange: (value: DatabaseTriggerSchema) => void;

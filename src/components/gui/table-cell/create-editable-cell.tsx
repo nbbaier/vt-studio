@@ -1,10 +1,10 @@
-import { DatabaseValue } from "@/drivers/base-driver";
-import { ColumnType } from "@outerbase/sdk-transform";
+import type { DatabaseValue } from "@/drivers/base-driver";
+import type { ColumnType } from "@outerbase/sdk-transform";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFullEditor } from "../providers/full-editor-provider";
-import { OptimizeTableHeaderWithIndexProps } from "../table-optimized";
-import OptimizeTableState from "../table-optimized/optimize-table-state";
-import { TableHeaderMetadata } from "../table-result/type";
+import type { OptimizeTableHeaderWithIndexProps } from "../table-optimized";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
+import type { TableHeaderMetadata } from "../table-result/type";
 import GenericCell from "./generic-cell";
 
 export interface TableEditableCell<T = unknown> {
@@ -20,7 +20,7 @@ export interface TableEditableCell<T = unknown> {
 }
 
 interface TabeEditableCellProps<T = unknown> {
-  toString: (v: DatabaseValue<T>) => DatabaseValue<string>;
+  valueToString: (v: DatabaseValue<T>) => DatabaseValue<string>;
   toValue: (v: DatabaseValue<string>) => DatabaseValue<T>;
   align?: "left" | "right";
 }
@@ -50,12 +50,11 @@ function InputCellEditor({
       inputRef.current.select();
       inputRef.current.focus();
     }
-  }, [inputRef]);
+  }, []);
 
   return (
     <input
       ref={inputRef}
-      autoFocus
       readOnly={readOnly}
       onBlur={() => {
         applyChange(value, shouldExit.current);
@@ -101,7 +100,7 @@ function InputCellEditor({
 }
 
 export default function createEditableCell<T = unknown>({
-  toString,
+  valueToString,
   toValue,
   align,
 }: TabeEditableCellProps<T>): React.FC<TableEditableCell<T>> {
@@ -116,14 +115,16 @@ export default function createEditableCell<T = unknown>({
     header,
   }: TableEditableCell<T>) {
     const [editValue, setEditValue] = useState<DatabaseValue<string>>(
-      toString(value)
+      valueToString(value)
     );
     const { openEditor } = useFullEditor();
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function
     useEffect(() => {
-      setEditValue(toString(value));
+      setEditValue(valueToString(value));
     }, [value]);
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: toValue is a stable closure variable from the factory function
     const applyChange = useCallback(
       (v: DatabaseValue<string>, shouldExitEdit = true) => {
         if (onChange) onChange(toValue(v));
@@ -134,10 +135,11 @@ export default function createEditableCell<T = unknown>({
       [onChange, state]
     );
 
+    // biome-ignore lint/correctness/useExhaustiveDependencies: valueToString is a stable closure variable from the factory function
     const discardChange = useCallback(() => {
-      setEditValue(toString(value));
+      setEditValue(valueToString(value));
       state.exitEditMode();
-    }, [setEditValue, state, value]);
+    }, [state, value]);
 
     const uneditableColumn = header.setting.readonly;
 

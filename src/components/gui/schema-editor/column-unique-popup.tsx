@@ -1,9 +1,9 @@
-import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
-import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { LucideStar } from "lucide-react";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { Button } from "../../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import ConflictClauseOptions from "./column-conflict-clause";
-import { ColumnChangeEvent } from "./schema-editor-column-list";
+import type { ColumnChangeEvent } from "./schema-editor-column-list";
 
 export default function ColumnUniquePopup({
   constraint,
@@ -17,13 +17,13 @@ export default function ColumnUniquePopup({
   return (
     <Popover>
       <PopoverTrigger>
-        <span className="p-1 shadow-sm border rounded block bg-yellow-200 dark:bg-yellow-600">
-          <LucideStar className="w-4 h-4" />
+        <span className="block rounded border bg-yellow-200 p-1 shadow-sm dark:bg-yellow-600">
+          <LucideStar className="h-4 w-4" />
         </span>
       </PopoverTrigger>
       <PopoverContent>
         <div className="flex flex-col gap-2">
-          <div className="font-semibold text-sm">Unique</div>
+          <div className="text-sm font-semibold">Unique</div>
           <ConflictClauseOptions
             value={constraint.uniqueConflict}
             disabled={disabled}

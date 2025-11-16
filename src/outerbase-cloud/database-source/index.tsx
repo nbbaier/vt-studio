@@ -1,11 +1,11 @@
-import { OuterbaseAPIWorkspace } from "@/outerbase-cloud/api-type";
+import type { OuterbaseAPIWorkspace } from "@/outerbase-cloud/api-type";
 import { createOuterbaseDatabaseDriver } from "@/outerbase-cloud/database/utils";
-import {
+import type {
   BaseDriver,
   DatabaseResultSet,
   DatabaseSchemas,
 } from "../../drivers/base-driver";
-import {
+import type {
   BoardSource,
   BoardSourceDriver,
 } from "../../drivers/board-source/base-source";

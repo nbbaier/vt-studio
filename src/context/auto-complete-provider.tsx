@@ -1,12 +1,12 @@
-import { DatabaseTableColumn } from "@/drivers/base-driver";
 import {
-  PropsWithChildren,
   createContext,
+  type PropsWithChildren,
   useCallback,
   useContext,
   useMemo,
   useState,
 } from "react";
+import type { DatabaseTableColumn } from "@/drivers/base-driver";
 
 const AutoCompleteContext = createContext<{
   updateTableList: (tables: string[]) => void;
@@ -43,20 +43,17 @@ export function AutoCompleteProvider({ children }: PropsWithChildren) {
         };
       });
     },
-    [setInternalSchema]
+    []
   );
 
-  const updateTableList = useCallback(
-    (tableName: string[]) => {
-      setInternalSchema(
-        tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
-          acc[name] = [];
-          return acc;
-        }, {})
-      );
-    },
-    [setInternalSchema]
-  );
+  const updateTableList = useCallback((tableName: string[]) => {
+    setInternalSchema(
+      tableName.reduce<Record<string, DatabaseTableColumn[]>>((acc, name) => {
+        acc[name] = [];
+        return acc;
+      }, {})
+    );
+  }, []);
 
   const schema = useMemo(() => {
     return Object.entries(internalSchema).reduce<Record<string, string[]>>(

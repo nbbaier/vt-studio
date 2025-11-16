@@ -2,7 +2,15 @@
   "name": "@outerbase/studio",
   "version": "0.10.2",
   "description": "A modern, browser-based SQLite database GUI purpose-built for Val Town",
-  "keywords": ["valtown", "sqlite", "database", "gui", "studio", "sql-editor", "browser-database"],
+  "keywords": [
+    "valtown",
+    "sqlite",
+    "database",
+    "gui",
+    "studio",
+    "sql-editor",
+    "browser-database"
+  ],
   "private": false,
   "scripts": {
     "dev": "next dev -p 3008",
@@ -11,6 +19,11 @@
     "build": "next build",
     "tsc": "tsc --noEmit --skipLibCheck",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
     "staged": "npm run typecheck && npm run lint && jest",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "format": "prettier --check .",
@@ -102,6 +115,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.3.5",
+    "@playwright/test": "^1.49.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",

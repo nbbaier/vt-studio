@@ -1,12 +1,3 @@
-import OptimizeTable, {
-  OptimizeTableHeaderWithIndexProps,
-} from "@/components/gui/table-optimized";
-import OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
-import { useStudioContext } from "@/context/driver-provider";
-import { ColumnSortOption } from "@/drivers/base-driver";
-import { exportDataAsDelimitedText } from "@/lib/export-helper";
-import { KEY_BINDING } from "@/lib/key-matcher";
-import { cn } from "@/lib/utils";
 import {
   LucideChevronDown,
   LucidePin,
@@ -14,12 +5,17 @@ import {
   LucideSortAsc,
   LucideSortDesc,
 } from "lucide-react";
-import React, {
-  PropsWithChildren,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import type React from "react";
+import { type PropsWithChildren, useCallback, useMemo, useState } from "react";
+import OptimizeTable, {
+  type OptimizeTableHeaderWithIndexProps,
+} from "@/components/gui/table-optimized";
+import type OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
+import { useStudioContext } from "@/context/driver-provider";
+import type { ColumnSortOption } from "@/drivers/base-driver";
+import { exportDataAsDelimitedText } from "@/lib/export-helper";
+import { KEY_BINDING } from "@/lib/key-matcher";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +25,7 @@ import {
 } from "../ui/dropdown-menu";
 import useTableResultContextMenu from "./table-result/context-menu";
 import tableResultCellRenderer from "./table-result/render-cell";
-import { TableHeaderMetadata } from "./table-result/type";
+import type { TableHeaderMetadata } from "./table-result/type";
 
 interface ResultTableProps {
   data: OptimizeTableState<TableHeaderMetadata>;
@@ -69,8 +65,10 @@ function Header({
 
   return (
     <div className={thClass}>
-      <div
+      <th
+        scope="col"
         className={thClass}
+        tabIndex={0}
         onMouseDown={(e) => {
           if (e.button === 2) {
             setOpen(true);
@@ -97,7 +95,7 @@ function Header({
           </div>
         ) : null}
         <div className={textClass}>{header.display.text}</div>
-      </div>
+      </th>
       <div>
         <DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
           <DropdownMenuTrigger asChild>
@@ -145,6 +143,7 @@ export default function ResultTable({
           return (
             <div
               key={item.key}
+              role="none"
               onKeyDown={(e) => e.stopPropagation()}
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}

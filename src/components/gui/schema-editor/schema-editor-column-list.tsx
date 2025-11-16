@@ -1,7 +1,23 @@
+import { DndContext, type DragEndEvent } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { LucidePlus, LucideTrash2 } from "lucide-react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useMemo,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useStudioContext } from "@/context/driver-provider";
-import {
+import type {
   DatabaseTableColumn,
   DatabaseTableColumnChange,
   DatabaseTableColumnConstraint,
@@ -9,17 +25,6 @@ import {
 } from "@/drivers/base-driver";
 import { checkSchemaColumnChange } from "@/lib/sql/sql-generate.schema";
 import { cn } from "@/lib/utils";
-import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { LucidePlus, LucideTrash2 } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -290,7 +295,7 @@ function ColumnItem({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded border p-1 shadow-sm">
+              <button type="button" className="rounded border p-1 shadow-sm">
                 <LucidePlus className="h-4 w-4" />
               </button>
             </DropdownMenuTrigger>
@@ -376,6 +381,7 @@ function ColumnItem({
       )}
       <td className="border px-1">
         <button
+          type="button"
           className="p-1"
           onClick={() => {
             change(null);
