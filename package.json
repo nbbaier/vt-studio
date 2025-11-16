@@ -11,6 +11,11 @@
     "build": "next build",
     "tsc": "tsc --noEmit --skipLibCheck",
     "test": "jest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
     "staged": "npm run typecheck && npm run lint && jest",
     "typecheck": "tsc --noEmit --skipLibCheck",
     "format": "prettier --check .",
@@ -102,6 +107,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.1",
     "@tailwindcss/postcss": "^4.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
