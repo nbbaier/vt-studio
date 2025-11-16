@@ -34,7 +34,10 @@
 		}
 	},
 	"css": {
-		"parser": { "tailwindDirectives": true }
+		"parser": {
+			"tailwindDirectives": true,
+			"cssModules": true
+		}
 	},
 	"assist": {
 		"enabled": true,
