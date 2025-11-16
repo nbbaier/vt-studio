@@ -1,6 +1,6 @@
-import { HttpStatus } from "@/constants/http-status";
 import { headers } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { HttpStatus } from "@/constants/http-status";
 
 export const runtime = "edge";
 

@@ -10,14 +10,14 @@
 // Instead, we want to return the previously loaded module
 
 // TODO: Make this not declare a global if used in the browser
-var initSqlJsPromise = undefined;
+var initSqlJsPromise;
 
-var initSqlJs = function (moduleConfig) {
+var initSqlJs = (moduleConfig) => {
   if (initSqlJsPromise) {
     return initSqlJsPromise;
   }
   // If we're here, we've never called this function before
-  initSqlJsPromise = new Promise(function (resolveModule, reject) {
+  initSqlJsPromise = new Promise((resolveModule, reject) => {
     // We are modularizing this manually because the current modularize setting in Emscripten has some issues:
     // https://github.com/kripken/emscripten/issues/5820
 
@@ -32,16 +32,16 @@ var initSqlJs = function (moduleConfig) {
 
     // EMCC only allows for a single onAbort function (not an array of functions)
     // So if the user defined their own onAbort function, we remember it and call it
-    var originalOnAbortFunction = Module["onAbort"];
-    Module["onAbort"] = function (errorThatCausedAbort) {
+    var originalOnAbortFunction = Module.onAbort;
+    Module.onAbort = (errorThatCausedAbort) => {
       reject(new Error(errorThatCausedAbort));
       if (originalOnAbortFunction) {
         originalOnAbortFunction(errorThatCausedAbort);
       }
     };
 
-    Module["postRun"] = Module["postRun"] || [];
-    Module["postRun"].push(function () {
+    Module.postRun = Module.postRun || [];
+    Module.postRun.push(() => {
       // When Emscripted calls postRun, this promise resolves with the built Module
       resolveModule(Module);
     });
@@ -70,7 +70,7 @@ var initSqlJs = function (moduleConfig) {
     var e;
     e || (e = typeof Module !== "undefined" ? Module : {});
     null;
-    e.onRuntimeInitialized = function () {
+    e.onRuntimeInitialized = () => {
       function a(g, m) {
         switch (typeof m) {
           case "boolean":
@@ -136,10 +136,10 @@ var initSqlJs = function (moduleConfig) {
         this.Za = this.ob = null;
       }
       function f(g) {
-        this.filename = "dbfile_" + ((4294967295 * Math.random()) >>> 0);
+        this.filename = `dbfile_${(4294967295 * Math.random()) >>> 0}`;
         if (null != g) {
           var m = this.filename,
-            p = m ? z("//" + m) : "/";
+            p = m ? z(`//${m}`) : "/";
           m = ha(!0, !0);
           p = ja(p, ((void 0 !== m ? m : 438) & 4095) | 32768, 0);
           if (g) {
@@ -299,10 +299,11 @@ var initSqlJs = function (moduleConfig) {
         g = [];
         for (var p = Ec(this.Qa), r = 0; r < p; r += 1)
           switch (Ic(this.Qa, r)) {
-            case 1:
+            case 1: {
               var u = m.useBigInt ? this.Gb(r) : this.yb(r);
               g.push(u);
               break;
+            }
             case 2:
               g.push(this.yb(r));
               break;
@@ -392,10 +393,9 @@ var initSqlJs = function (moduleConfig) {
         );
       };
       c.prototype.Db = function (g) {
-        var m = this;
-        Object.keys(g).forEach(function (p) {
-          var r = Ac(m.Qa, p);
-          0 !== r && m.ub(g[p], r);
+        Object.keys(g).forEach((p) => {
+          var r = Ac(this.Qa, p);
+          0 !== r && this.ub(g[p], r);
         });
         return !0;
       };
@@ -429,7 +429,7 @@ var initSqlJs = function (moduleConfig) {
           this.db.handleError(tb(this.db.db, this.ib, -1, h, m));
           this.ib = k(m, "i32");
           var p = k(h, "i32");
-          if (0 === p) return this.mb(), { done: !0 };
+          if (0 === p) return (this.mb(), { done: !0 });
           this.Za = new c(p, this.db);
           this.db.eb[p] = this.Za;
           return { value: this.Za, done: !1 };
@@ -480,16 +480,16 @@ var initSqlJs = function (moduleConfig) {
               var E = null;
               u = new c(F, this);
               for (null != m && u.bind(m); u.step(); )
-                null === E &&
+                (null === E &&
                   ((E = { columns: u.getColumnNames(), values: [] }),
                   g.push(E)),
-                  E.values.push(u.get(null, p));
+                  E.values.push(u.get(null, p)));
               u.free();
             }
           }
           return g;
         } catch (M) {
-          throw (u && u.free(), M);
+          throw (u?.free(), M);
         } finally {
           qa(r);
         }
@@ -516,8 +516,8 @@ var initSqlJs = function (moduleConfig) {
       f.prototype.iterateStatements = function (g) {
         return new d(g, this);
       };
-      f.prototype["export"] = function () {
-        Object.values(this.eb).forEach(function (m) {
+      f.prototype.export = function () {
+        Object.values(this.eb).forEach((m) => {
           m.free();
         });
         Object.values(this.Sa).forEach(sa);
@@ -531,13 +531,13 @@ var initSqlJs = function (moduleConfig) {
       };
       f.prototype.close = function () {
         null !== this.db &&
-          (Object.values(this.eb).forEach(function (g) {
+          (Object.values(this.eb).forEach((g) => {
             g.free();
           }),
           Object.values(this.Sa).forEach(sa),
           (this.Sa = {}),
           this.handleError(w(this.db)),
-          ua("/" + this.filename),
+          ua(`/${this.filename}`),
           (this.db = null));
       };
       f.prototype.handleError = function (g) {
@@ -549,9 +549,8 @@ var initSqlJs = function (moduleConfig) {
         return C(this.db);
       };
       f.prototype.create_function = function (g, m) {
-        Object.prototype.hasOwnProperty.call(this.Sa, g) &&
-          (sa(this.Sa[g]), delete this.Sa[g]);
-        var p = va(function (r, u, x) {
+        Object.hasOwn(this.Sa, g) && (sa(this.Sa[g]), delete this.Sa[g]);
+        var p = va((r, u, x) => {
           u = b(u, x);
           try {
             var K = m.apply(null, u);
@@ -566,36 +565,26 @@ var initSqlJs = function (moduleConfig) {
         return this;
       };
       f.prototype.create_aggregate = function (g, m) {
-        var p =
-            m.init ||
-            function () {
-              return null;
-            },
-          r =
-            m.finalize ||
-            function (E) {
-              return E;
-            },
+        var p = m.init || (() => null),
+          r = m.finalize || ((E) => E),
           u = m.step;
-        if (!u) throw "An aggregate function must have a step function in " + g;
+        if (!u) throw `An aggregate function must have a step function in ${g}`;
         var x = {};
-        Object.hasOwnProperty.call(this.Sa, g) &&
-          (sa(this.Sa[g]), delete this.Sa[g]);
-        m = g + "__finalize";
-        Object.hasOwnProperty.call(this.Sa, m) &&
-          (sa(this.Sa[m]), delete this.Sa[m]);
-        var K = va(function (E, M, Ua) {
+        Object.hasOwn(this.Sa, g) && (sa(this.Sa[g]), delete this.Sa[g]);
+        m = `${g}__finalize`;
+        Object.hasOwn(this.Sa, m) && (sa(this.Sa[m]), delete this.Sa[m]);
+        var K = va((E, M, Ua) => {
             var aa = xb(E, 1);
-            Object.hasOwnProperty.call(x, aa) || (x[aa] = p());
+            Object.hasOwn(x, aa) || (x[aa] = p());
             M = b(M, Ua);
             M = [x[aa]].concat(M);
             try {
               x[aa] = u.apply(null, M);
             } catch (Oc) {
-              delete x[aa], Aa(E, Oc, -1);
+              (delete x[aa], Aa(E, Oc, -1));
             }
           }, "viii"),
-          F = va(function (E) {
+          F = va((E) => {
             var M = xb(E, 1);
             try {
               var Ua = r(x[M]);
@@ -616,7 +605,7 @@ var initSqlJs = function (moduleConfig) {
     };
     var wa = {},
       H;
-    for (H in e) e.hasOwnProperty(H) && (wa[H] = e[H]);
+    for (H in e) Object.hasOwn(e, H) && (wa[H] = e[H]);
     var xa = "./this.program",
       ya = "object" === typeof window,
       za = "function" === typeof importScripts,
@@ -631,35 +620,33 @@ var initSqlJs = function (moduleConfig) {
       Fa,
       Ga;
     if (Ba)
-      (I = za ? require("path").dirname(I) + "/" : __dirname + "/"),
-        (Ca = function (a, b) {
-          Fa || (Fa = require("fs"));
-          Ga || (Ga = require("path"));
+      ((I = za ? `${require("node:path").dirname(I)}/` : `${__dirname}/`),
+        (Ca = (a, b) => {
+          Fa || (Fa = require("node:fs"));
+          Ga || (Ga = require("node:path"));
           a = Ga.normalize(a);
           return Fa.readFileSync(a, b ? null : "utf8");
         }),
-        (Ea = function (a) {
+        (Ea = (a) => {
           a = Ca(a, !0);
           a.buffer || (a = new Uint8Array(a));
           a.buffer || J("Assertion failed: undefined");
           return a;
         }),
-        (Da = function (a, b, c) {
-          Fa || (Fa = require("fs"));
-          Ga || (Ga = require("path"));
+        (Da = (a, b, c) => {
+          Fa || (Fa = require("node:fs"));
+          Ga || (Ga = require("node:path"));
           a = Ga.normalize(a);
-          Fa.readFile(a, function (d, f) {
+          Fa.readFile(a, (d, f) => {
             d ? c(d) : b(f.buffer);
           });
         }),
         1 < process.argv.length && (xa = process.argv[1].replace(/\\/g, "/")),
         process.argv.slice(2),
         "undefined" !== typeof module && (module.exports = e),
-        (e.inspect = function () {
-          return "[Emscripten Module object]";
-        });
+        (e.inspect = () => "[Emscripten Module object]"));
     else if (ya || za)
-      za
+      (za
         ? (I = self.location.href)
         : "undefined" !== typeof document &&
           document.currentScript &&
@@ -668,35 +655,35 @@ var initSqlJs = function (moduleConfig) {
           0 !== I.indexOf("blob:")
             ? I.substr(0, I.replace(/[?#].*/, "").lastIndexOf("/") + 1)
             : ""),
-        (Ca = function (a) {
+        (Ca = (a) => {
           var b = new XMLHttpRequest();
           b.open("GET", a, !1);
           b.send(null);
           return b.responseText;
         }),
         za &&
-          (Ea = function (a) {
+          (Ea = (a) => {
             var b = new XMLHttpRequest();
             b.open("GET", a, !1);
             b.responseType = "arraybuffer";
             b.send(null);
             return new Uint8Array(b.response);
           }),
-        (Da = function (a, b, c) {
+        (Da = (a, b, c) => {
           var d = new XMLHttpRequest();
           d.open("GET", a, !0);
           d.responseType = "arraybuffer";
-          d.onload = function () {
-            200 == d.status || (0 == d.status && d.response)
+          d.onload = () => {
+            200 === d.status || (0 === d.status && d.response)
               ? b(d.response)
               : c();
           };
           d.onerror = c;
           d.send(null);
-        });
+        }));
     var Ha = e.print || console.log.bind(console),
       Ia = e.printErr || console.warn.bind(console);
-    for (H in wa) wa.hasOwnProperty(H) && (e[H] = wa[H]);
+    for (H in wa) Object.hasOwn(wa, H) && (e[H] = wa[H]);
     wa = null;
     e.thisProgram && (xa = e.thisProgram);
     var Ja = [],
@@ -726,7 +713,7 @@ var initSqlJs = function (moduleConfig) {
         if (!(q instanceof TypeError)) throw q;
         if ("function" === typeof WebAssembly.Function) {
           f = { i: "i32", j: "i64", f: "f32", d: "f64" };
-          var h = { parameters: [], results: "v" == b[0] ? [] : [f[b[0]]] };
+          var h = { parameters: [], results: "v" === b[0] ? [] : [f[b[0]]] };
           for (d = 1; d < b.length; ++d) h.parameters.push(f[b[d]]);
           b = new WebAssembly.Function(h, a);
         } else {
@@ -736,7 +723,7 @@ var initSqlJs = function (moduleConfig) {
           var l = { i: 127, j: 126, f: 125, d: 124 };
           f.push(b.length);
           for (d = 0; d < b.length; ++d) f.push(l[b[d]]);
-          "v" == h ? f.push(0) : (f = f.concat([1, l[h]]));
+          "v" === h ? f.push(0) : (f = f.concat([1, l[h]]));
           f[1] = f.length - 2;
           b = new Uint8Array(
             [0, 97, 115, 109, 1, 0, 0, 0].concat(
@@ -758,7 +745,7 @@ var initSqlJs = function (moduleConfig) {
     }
     var La;
     e.wasmBinary && (La = e.wasmBinary);
-    var noExitRuntime = e.noExitRuntime || !0;
+    var _noExitRuntime = e.noExitRuntime || !0;
     "object" !== typeof WebAssembly && J("no native wasm support detected");
     function pa(a) {
       var b = "i32";
@@ -796,7 +783,7 @@ var initSqlJs = function (moduleConfig) {
           Oa[a >> 3] = 0;
           break;
         default:
-          J("invalid type for setValue: " + b);
+          J(`invalid type for setValue: ${b}`);
       }
     }
     function k(a, b) {
@@ -818,14 +805,14 @@ var initSqlJs = function (moduleConfig) {
         case "double":
           return Number(Oa[a >> 3]);
         default:
-          J("invalid type for getValue: " + b);
+          J(`invalid type for getValue: ${b}`);
       }
       return null;
     }
     var Pa,
       Qa = !1;
     function Ra(a) {
-      var b = e["_" + a];
+      var b = e[`_${a}`];
       b ||
         J(
           "Assertion failed: Cannot call unknown function " +
@@ -835,7 +822,7 @@ var initSqlJs = function (moduleConfig) {
     }
     function Sa(a, b, c, d) {
       var f = {
-        string: function (v) {
+        string: (v) => {
           var C = 0;
           if (null !== v && void 0 !== v && 0 !== v) {
             var G = (v.length << 2) + 1;
@@ -844,7 +831,7 @@ var initSqlJs = function (moduleConfig) {
           }
           return C;
         },
-        array: function (v) {
+        array: (v) => {
           var C = B(v.length);
           n.set(v, C);
           return C;
@@ -859,7 +846,7 @@ var initSqlJs = function (moduleConfig) {
           w ? (0 === l && (l = oa()), (h[q] = w(d[q]))) : (h[q] = d[q]);
         }
       c = a.apply(null, h);
-      return (c = (function (v) {
+      return (c = ((v) => {
         0 !== l && qa(l);
         return "string" === b ? D(v) : "boolean" === b ? !!v : v;
       })(c));
@@ -867,7 +854,7 @@ var initSqlJs = function (moduleConfig) {
     var ca = 0,
       Ta = 1;
     function ba(a, b) {
-      b = b == Ta ? B(a.length) : fa(a.length);
+      b = b === Ta ? B(a.length) : fa(a.length);
       a.subarray || a.slice ? y.set(a, b) : y.set(new Uint8Array(a), b);
       return b;
     }
@@ -881,11 +868,11 @@ var initSqlJs = function (moduleConfig) {
         var f = a[b++];
         if (f & 128) {
           var h = a[b++] & 63;
-          if (192 == (f & 224)) d += String.fromCharCode(((f & 31) << 6) | h);
+          if (192 === (f & 224)) d += String.fromCharCode(((f & 31) << 6) | h);
           else {
             var l = a[b++] & 63;
             f =
-              224 == (f & 240)
+              224 === (f & 240)
                 ? ((f & 15) << 12) | (h << 6) | l
                 : ((f & 7) << 18) | (h << 12) | (l << 6) | (a[b++] & 63);
             65536 > f
@@ -987,11 +974,11 @@ var initSqlJs = function (moduleConfig) {
     e.preloadedAudios = {};
     function J(a) {
       if (e.onAbort) e.onAbort(a);
-      a = "Aborted(" + a + ")";
+      a = `Aborted(${a})`;
       Ia(a);
       Qa = !0;
       throw new WebAssembly.RuntimeError(
-        a + ". Build with -s ASSERTIONS=1 for more info."
+        `${a}. Build with -s ASSERTIONS=1 for more info.`
       );
     }
     function gb() {
@@ -1006,7 +993,7 @@ var initSqlJs = function (moduleConfig) {
     function ib() {
       var a = Q;
       try {
-        if (a == Q && La) return new Uint8Array(La);
+        if (a === Q && La) return new Uint8Array(La);
         if (Ea) return Ea(a);
         throw "both async and sync fetching of the wasm failed";
       } catch (b) {
@@ -1017,33 +1004,29 @@ var initSqlJs = function (moduleConfig) {
       if (!La && (ya || za)) {
         if ("function" === typeof fetch && !Q.startsWith("file://"))
           return fetch(Q, { credentials: "same-origin" })
-            .then(function (a) {
-              if (!a.ok) throw "failed to load wasm binary file at '" + Q + "'";
+            .then((a) => {
+              if (!a.ok) throw `failed to load wasm binary file at '${Q}'`;
               return a.arrayBuffer();
             })
-            .catch(function () {
-              return ib();
-            });
+            .catch(() => ib());
         if (Da)
-          return new Promise(function (a, b) {
+          return new Promise((a, b) => {
             Da(
               Q,
-              function (c) {
+              (c) => {
                 a(new Uint8Array(c));
               },
               b
             );
           });
       }
-      return Promise.resolve().then(function () {
-        return ib();
-      });
+      return Promise.resolve().then(() => ib());
     }
     var P, O;
     function kb(a) {
       for (; 0 < a.length; ) {
         var b = a.shift();
-        if ("function" == typeof b) b(e);
+        if ("function" === typeof b) b(e);
         else {
           var c = b.Qb;
           "number" === typeof c
@@ -1055,9 +1038,7 @@ var initSqlJs = function (moduleConfig) {
       }
     }
     function lb(a) {
-      return a.replace(/\b_Z[\w\d_]+/g, function (b) {
-        return b === b ? b : b + " [" + b + "]";
-      });
+      return a.replace(/\b_Z[\w\d_]+/g, (b) => (b === b ? b : `${b} [${b}]`));
     }
     function mb() {
       function a(l) {
@@ -1070,7 +1051,7 @@ var initSqlJs = function (moduleConfig) {
       var f = d.getTimezoneOffset(),
         h = Math.max(b, f);
       N[nb() >> 2] = 60 * h;
-      N[ob() >> 2] = Number(b != f);
+      N[ob() >> 2] = Number(b !== f);
       c = a(c);
       d = a(d);
       c = Xa(c);
@@ -1096,9 +1077,7 @@ var initSqlJs = function (moduleConfig) {
       var b = "/" === a.charAt(0),
         c = "/" === a.substr(-1);
       (a = yb(
-        a.split("/").filter(function (d) {
-          return !!d;
-        }),
+        a.split("/").filter((d) => !!d),
         !b
       ).join("/")) ||
         b ||
@@ -1107,7 +1086,7 @@ var initSqlJs = function (moduleConfig) {
       return (b ? "/" : "") + a;
     }
     function zb(a) {
-      var b = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/
+      var b = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^/]+?|)(\.[^./]*|))(?:[/]*)$/
         .exec(a)
         .slice(1);
       a = b[0];
@@ -1129,19 +1108,17 @@ var initSqlJs = function (moduleConfig) {
         "function" === typeof crypto.getRandomValues
       ) {
         var a = new Uint8Array(1);
-        return function () {
+        return () => {
           crypto.getRandomValues(a);
           return a[0];
         };
       }
       if (Ba)
         try {
-          var b = require("crypto");
-          return function () {
-            return b.randomBytes(1)[0];
-          };
-        } catch (c) {}
-      return function () {
+          var b = require("node:crypto");
+          return () => b.randomBytes(1)[0];
+        } catch (_c) {}
+      return () => {
         J("randomDevice");
       };
     }
@@ -1151,13 +1128,11 @@ var initSqlJs = function (moduleConfig) {
         if ("string" !== typeof b)
           throw new TypeError("Arguments to path.resolve must be strings");
         if (!b) return "";
-        a = b + "/" + a;
+        a = `${b}/${a}`;
         b = "/" === b.charAt(0);
       }
       a = yb(
-        a.split("/").filter(function (d) {
-          return !!d;
-        }),
+        a.split("/").filter((d) => !!d),
         !b
       ).join("/");
       return (b ? "/" : "") + a || ".";
@@ -1168,24 +1143,24 @@ var initSqlJs = function (moduleConfig) {
       Fb(a, Gb);
     }
     var Gb = {
-        open: function (a) {
+        open: (a) => {
           var b = Db[a.node.rdev];
           if (!b) throw new R(43);
           a.tty = b;
           a.seekable = !1;
         },
-        close: function (a) {
+        close: (a) => {
           a.tty.bb.flush(a.tty);
         },
-        flush: function (a) {
+        flush: (a) => {
           a.tty.bb.flush(a.tty);
         },
-        read: function (a, b, c, d) {
+        read: (a, b, c, d) => {
           if (!a.tty || !a.tty.bb.zb) throw new R(60);
           for (var f = 0, h = 0; h < d; h++) {
             try {
               var l = a.tty.bb.zb(a.tty);
-            } catch (q) {
+            } catch (_q) {
               throw new R(29);
             }
             if (void 0 === l && 0 === f) throw new R(6);
@@ -1196,11 +1171,11 @@ var initSqlJs = function (moduleConfig) {
           f && (a.node.timestamp = Date.now());
           return f;
         },
-        write: function (a, b, c, d) {
+        write: (a, b, c, d) => {
           if (!a.tty || !a.tty.bb.pb) throw new R(60);
           try {
             for (var f = 0; f < d; f++) a.tty.bb.pb(a.tty, b[c + f]);
-          } catch (h) {
+          } catch (_h) {
             throw new R(29);
           }
           d && (a.node.timestamp = Date.now());
@@ -1208,7 +1183,7 @@ var initSqlJs = function (moduleConfig) {
         },
       },
       Hb = {
-        zb: function (a) {
+        zb: (a) => {
           if (!a.input.length) {
             var b = null;
             if (Ba) {
@@ -1222,33 +1197,34 @@ var initSqlJs = function (moduleConfig) {
               }
               0 < d ? (b = c.slice(0, d).toString("utf-8")) : (b = null);
             } else
-              "undefined" != typeof window && "function" == typeof window.prompt
+              "undefined" !== typeof window &&
+              "function" === typeof window.prompt
                 ? ((b = window.prompt("Input: ")), null !== b && (b += "\n"))
-                : "function" == typeof readline &&
+                : "function" === typeof readline &&
                   ((b = readline()), null !== b && (b += "\n"));
             if (!b) return null;
             a.input = na(b, !0);
           }
           return a.input.shift();
         },
-        pb: function (a, b) {
+        pb: (a, b) => {
           null === b || 10 === b
             ? (Ha(Wa(a.output, 0)), (a.output = []))
-            : 0 != b && a.output.push(b);
+            : 0 !== b && a.output.push(b);
         },
-        flush: function (a) {
+        flush: (a) => {
           a.output &&
             0 < a.output.length &&
             (Ha(Wa(a.output, 0)), (a.output = []));
         },
       },
       Ib = {
-        pb: function (a, b) {
+        pb: (a, b) => {
           null === b || 10 === b
             ? (Ia(Wa(a.output, 0)), (a.output = []))
-            : 0 != b && a.output.push(b);
+            : 0 !== b && a.output.push(b);
         },
-        flush: function (a) {
+        flush: (a) => {
           a.output &&
             0 < a.output.length &&
             (Ia(Wa(a.output, 0)), (a.output = []));
@@ -1263,10 +1239,8 @@ var initSqlJs = function (moduleConfig) {
     }
     var S = {
         Va: null,
-        Wa: function () {
-          return S.createNode(null, "/", 16895, 0);
-        },
-        createNode: function (a, b, c, d) {
+        Wa: () => S.createNode(null, "/", 16895, 0),
+        createNode: (a, b, c, d) => {
           if (24576 === (c & 61440) || 4096 === (c & 61440)) throw new R(63);
           S.Va ||
             (S.Va = {
@@ -1317,25 +1291,24 @@ var initSqlJs = function (moduleConfig) {
           a && ((a.Na[b] = c), (a.timestamp = c.timestamp));
           return c;
         },
-        Rb: function (a) {
-          return a.Na
+        Rb: (a) =>
+          a.Na
             ? a.Na.subarray
               ? a.Na.subarray(0, a.Ra)
               : new Uint8Array(a.Na)
-            : new Uint8Array(0);
-        },
-        wb: function (a, b) {
+            : new Uint8Array(0),
+        wb: (a, b) => {
           var c = a.Na ? a.Na.length : 0;
           c >= b ||
             ((b = Math.max(b, (c * (1048576 > c ? 2 : 1.125)) >>> 0)),
-            0 != c && (b = Math.max(b, 256)),
+            0 !== c && (b = Math.max(b, 256)),
             (c = a.Na),
             (a.Na = new Uint8Array(b)),
             0 < a.Ra && a.Na.set(c.subarray(0, a.Ra), 0));
         },
-        Nb: function (a, b) {
-          if (a.Ra != b)
-            if (0 == b) (a.Na = null), (a.Ra = 0);
+        Nb: (a, b) => {
+          if (a.Ra !== b)
+            if (0 === b) ((a.Na = null), (a.Ra = 0));
             else {
               var c = a.Na;
               a.Na = new Uint8Array(b);
@@ -1344,7 +1317,7 @@ var initSqlJs = function (moduleConfig) {
             }
         },
         La: {
-          Ua: function (a) {
+          Ua: (a) => {
             var b = {};
             b.dev = 8192 === (a.mode & 61440) ? a.id : 1;
             b.ino = a.id;
@@ -1367,23 +1340,21 @@ var initSqlJs = function (moduleConfig) {
             b.blocks = Math.ceil(b.size / b.Fb);
             return b;
           },
-          Ta: function (a, b) {
+          Ta: (a, b) => {
             void 0 !== b.mode && (a.mode = b.mode);
             void 0 !== b.timestamp && (a.timestamp = b.timestamp);
             void 0 !== b.size && S.Nb(a, b.size);
           },
-          lookup: function () {
+          lookup: () => {
             throw Nb[44];
           },
-          fb: function (a, b, c, d) {
-            return S.createNode(a, b, c, d);
-          },
-          rename: function (a, b, c) {
+          fb: (a, b, c, d) => S.createNode(a, b, c, d),
+          rename: (a, b, c) => {
             if (T(a.mode)) {
               try {
                 var d = Ob(b, c);
-              } catch (h) {}
-              if (d) for (var f in d.Na) throw new R(55);
+              } catch (_h) {}
+              if (d) for (var _f in d.Na) throw new R(55);
             }
             delete a.parent.Na[a.name];
             a.parent.timestamp = Date.now();
@@ -1392,35 +1363,35 @@ var initSqlJs = function (moduleConfig) {
             b.timestamp = a.parent.timestamp;
             a.parent = b;
           },
-          unlink: function (a, b) {
+          unlink: (a, b) => {
             delete a.Na[b];
             a.timestamp = Date.now();
           },
-          rmdir: function (a, b) {
+          rmdir: (a, b) => {
             var c = Ob(a, b),
-              d;
-            for (d in c.Na) throw new R(55);
+              _d;
+            for (_d in c.Na) throw new R(55);
             delete a.Na[b];
             a.timestamp = Date.now();
           },
-          readdir: function (a) {
+          readdir: (a) => {
             var b = [".", ".."],
               c;
-            for (c in a.Na) a.Na.hasOwnProperty(c) && b.push(c);
+            for (c in a.Na) Object.hasOwn(a.Na, c) && b.push(c);
             return b;
           },
-          symlink: function (a, b, c) {
+          symlink: (a, b, c) => {
             a = S.createNode(a, b, 41471, 0);
             a.link = c;
             return a;
           },
-          readlink: function (a) {
+          readlink: (a) => {
             if (40960 !== (a.mode & 61440)) throw new R(28);
             return a.link;
           },
         },
         Ma: {
-          read: function (a, b, c, d, f) {
+          read: (a, b, c, d, f) => {
             var h = a.node.Na;
             if (f >= a.node.Ra) return 0;
             a = Math.min(a.node.Ra - f, d);
@@ -1428,16 +1399,16 @@ var initSqlJs = function (moduleConfig) {
             else for (d = 0; d < a; d++) b[c + d] = h[f + d];
             return a;
           },
-          write: function (a, b, c, d, f, h) {
+          write: (a, b, c, d, f, h) => {
             b.buffer === n.buffer && (h = !1);
             if (!d) return 0;
             a = a.node;
             a.timestamp = Date.now();
             if (b.subarray && (!a.Na || a.Na.subarray)) {
-              if (h) return (a.Na = b.subarray(c, c + d)), (a.Ra = d);
+              if (h) return ((a.Na = b.subarray(c, c + d)), (a.Ra = d));
               if (0 === a.Ra && 0 === f)
-                return (a.Na = b.slice(c, c + d)), (a.Ra = d);
-              if (f + d <= a.Ra) return a.Na.set(b.subarray(c, c + d), f), d;
+                return ((a.Na = b.slice(c, c + d)), (a.Ra = d));
+              if (f + d <= a.Ra) return (a.Na.set(b.subarray(c, c + d), f), d);
             }
             S.wb(a, f + d);
             if (a.Na.subarray && b.subarray) a.Na.set(b.subarray(c, c + d), f);
@@ -1445,18 +1416,18 @@ var initSqlJs = function (moduleConfig) {
             a.Ra = Math.max(a.Ra, f + d);
             return d;
           },
-          Ya: function (a, b, c) {
+          Ya: (a, b, c) => {
             1 === c
               ? (b += a.position)
               : 2 === c && 32768 === (a.node.mode & 61440) && (b += a.node.Ra);
             if (0 > b) throw new R(28);
             return b;
           },
-          rb: function (a, b, c) {
+          rb: (a, b, c) => {
             S.wb(a.node, b + c);
             a.node.Ra = Math.max(a.node.Ra, b + c);
           },
-          gb: function (a, b, c, d, f, h) {
+          gb: (a, b, c, d, _f, h) => {
             if (0 !== b) throw new R(28);
             if (32768 !== (a.node.mode & 61440)) throw new R(43);
             a = a.node.Na;
@@ -1469,10 +1440,10 @@ var initSqlJs = function (moduleConfig) {
               c = Jb(c);
               if (!c) throw new R(48);
               n.set(a, c);
-            } else (d = !1), (c = a.byteOffset);
+            } else ((d = !1), (c = a.byteOffset));
             return { Mb: c, jb: d };
           },
-          hb: function (a, b, c, d, f) {
+          hb: (a, b, c, d, f) => {
             if (32768 !== (a.node.mode & 61440)) throw new R(43);
             if (f & 2) return 0;
             S.Ma.write(a, b, 0, d, c, !1);
@@ -1497,9 +1468,7 @@ var initSqlJs = function (moduleConfig) {
       for (d in c) void 0 === b[d] && (b[d] = c[d]);
       if (8 < b.qb) throw new R(32);
       a = yb(
-        a.split("/").filter(function (l) {
-          return !!l;
-        }),
+        a.split("/").filter((l) => !!l),
         !1
       );
       var f = Pb;
@@ -1508,7 +1477,7 @@ var initSqlJs = function (moduleConfig) {
         var h = d === a.length - 1;
         if (h && b.parent) break;
         f = Ob(f, a[d]);
-        c = z(c + "/" + a[d]);
+        c = z(`${c}/${a[d]}`);
         f.$a && (!h || (h && b.xb)) && (f = f.$a.root);
         if (!h || b.Xa)
           for (h = 0; 40960 === (f.mode & 61440); )
@@ -1527,9 +1496,9 @@ var initSqlJs = function (moduleConfig) {
         if (a === a.parent)
           return (
             (a = a.Wa.Ab),
-            b ? ("/" !== a[a.length - 1] ? a + "/" + b : a + b) : a
+            b ? ("/" !== a[a.length - 1] ? `${a}/${b}` : a + b) : a
           );
-        b = b ? a.name + "/" + b : a.name;
+        b = b ? `${a.name}/${b}` : a.name;
         a = a.parent;
       }
     }
@@ -1587,8 +1556,8 @@ var initSqlJs = function (moduleConfig) {
     }
     function ac(a, b) {
       try {
-        return Ob(a, b), 20;
-      } catch (c) {}
+        return (Ob(a, b), 20);
+      } catch (_c) {}
       return Xb(a, "wx");
     }
     function bc(a, b, c) {
@@ -1610,7 +1579,7 @@ var initSqlJs = function (moduleConfig) {
       throw new R(33);
     }
     function dc(a, b) {
-      ec || ((ec = function () {}), (ec.prototype = {}));
+      ec || ((ec = () => {}), (ec.prototype = {}));
       var c = new ec(),
         d;
       for (d in a) c[d] = a[d];
@@ -1620,11 +1589,11 @@ var initSqlJs = function (moduleConfig) {
       return (U[b] = a);
     }
     var Lb = {
-      open: function (a) {
+      open: (a) => {
         a.Ma = Qb[a.node.rdev].Ma;
-        a.Ma.open && a.Ma.open(a);
+        a.Ma.open?.(a);
       },
-      Ya: function () {
+      Ya: () => {
         throw new R(70);
       },
     };
@@ -1646,7 +1615,7 @@ var initSqlJs = function (moduleConfig) {
       a = a.Wa(b);
       a.Wa = b;
       b.root = a;
-      c ? (Pb = a) : f && ((f.$a = b), f.Wa && f.Wa.Kb.push(b));
+      c ? (Pb = a) : f && ((f.$a = b), f.Wa?.Kb.push(b));
     }
     function ja(a, b, c) {
       var d = W(a, { parent: !0 }).node;
@@ -1728,7 +1697,7 @@ var initSqlJs = function (moduleConfig) {
       if ("string" === typeof b) {
         var f = Zb[b];
         if ("undefined" === typeof f)
-          throw Error("Unknown file open mode: " + b);
+          throw Error(`Unknown file open mode: ${b}`);
         b = f;
       }
       c = b & 64 ? (("undefined" === typeof c ? 438 : c) & 4095) | 32768 : 0;
@@ -1737,13 +1706,13 @@ var initSqlJs = function (moduleConfig) {
         a = z(a);
         try {
           h = W(a, { Xa: !(b & 131072) }).node;
-        } catch (l) {}
+        } catch (_l) {}
       }
       f = !1;
       if (b & 64)
         if (h) {
           if (b & 128) throw new R(20);
-        } else (h = ja(a, c, 0)), (f = !0);
+        } else ((h = ja(a, c, 0)), (f = !0));
       if (!h) throw new R(44);
       8192 === (h.mode & 61440) && (b &= -513);
       if (b & 65536 && !T(h.mode)) throw new R(54);
@@ -1776,7 +1745,7 @@ var initSqlJs = function (moduleConfig) {
         },
         d
       );
-      d.Ma.open && d.Ma.open(d);
+      d.Ma.open?.(d);
       !e.logReadFiles || b & 1 || (mc || (mc = {}), a in mc || (mc[a] = 1));
       return d;
     }
@@ -1784,9 +1753,7 @@ var initSqlJs = function (moduleConfig) {
       if (null === a.fd) throw new R(8);
       a.nb && (a.nb = null);
       try {
-        a.Ma.close && a.Ma.close(a);
-      } catch (b) {
-        throw b;
+        a.Ma.close?.(a);
       } finally {
         U[a.fd] = null;
       }
@@ -1795,7 +1762,7 @@ var initSqlJs = function (moduleConfig) {
     function Nc(a, b, c) {
       if (null === a.fd) throw new R(8);
       if (!a.seekable || !a.Ma.Ya) throw new R(70);
-      if (0 != c && 1 != c && 2 != c) throw new R(28);
+      if (0 !== c && 1 !== c && 2 !== c) throw new R(28);
       a.position = a.Ma.Ya(a, b, c);
       a.Pb = [];
     }
@@ -1832,7 +1799,7 @@ var initSqlJs = function (moduleConfig) {
       b.flags = b.flags || 0;
       b.encoding = b.encoding || "binary";
       if ("utf8" !== b.encoding && "binary" !== b.encoding)
-        throw Error('Invalid encoding type "' + b.encoding + '"');
+        throw Error(`Invalid encoding type "${b.encoding}"`);
       var c,
         d = A(a, b.flags);
       a = ic(a).size;
@@ -1856,7 +1823,7 @@ var initSqlJs = function (moduleConfig) {
         }),
         (R.prototype = Error()),
         (R.prototype.constructor = R),
-        [44].forEach(function (a) {
+        [44].forEach((a) => {
           Nb[a] = new R(a);
           Nb[a].stack = "<generic error, no stack>";
         }));
@@ -1869,22 +1836,22 @@ var initSqlJs = function (moduleConfig) {
       return c;
     }
     function Sc(a, b, c) {
-      a = z("/dev/" + a);
+      a = z(`/dev/${a}`);
       var d = ha(!!b, !!c);
       Tc || (Tc = 64);
       var f = (Tc++ << 8) | 0;
       Fb(f, {
-        open: function (h) {
+        open: (h) => {
           h.seekable = !1;
         },
-        close: function () {
-          c && c.buffer && c.buffer.length && c(10);
+        close: () => {
+          c?.buffer?.length && c(10);
         },
-        read: function (h, l, q, w) {
+        read: (h, l, q, w) => {
           for (var v = 0, C = 0; C < w; C++) {
             try {
               var G = b();
-            } catch (ia) {
+            } catch (_ia) {
               throw new R(29);
             }
             if (void 0 === G && 0 === v) throw new R(6);
@@ -1895,11 +1862,11 @@ var initSqlJs = function (moduleConfig) {
           v && (h.node.timestamp = Date.now());
           return v;
         },
-        write: function (h, l, q, w) {
+        write: (h, l, q, w) => {
           for (var v = 0; v < w; v++)
             try {
               c(l[q + v]);
-            } catch (C) {
+            } catch (_C) {
               throw new R(29);
             }
           w && (h.node.timestamp = Date.now());
@@ -1917,7 +1884,7 @@ var initSqlJs = function (moduleConfig) {
       try {
         var d = a(b);
       } catch (f) {
-        if (f && f.node && z(b) !== z(Ub(f.node))) return -54;
+        if (f?.node && z(b) !== z(Ub(f.node))) return -54;
         throw f;
       }
       N[c >> 2] = d.dev;
@@ -1973,13 +1940,11 @@ var initSqlJs = function (moduleConfig) {
     }
     var Yc;
     Yc = Ba
-      ? function () {
+      ? () => {
           var a = process.hrtime();
           return 1e3 * a[0] + a[1] / 1e6;
         }
-      : function () {
-          return performance.now();
-        };
+      : () => performance.now();
     var Zc = {};
     function $c() {
       if (!ad) {
@@ -1989,19 +1954,18 @@ var initSqlJs = function (moduleConfig) {
             PATH: "/",
             PWD: "/",
             HOME: "/home/web_user",
-            LANG:
-              (
-                ("object" === typeof navigator &&
-                  navigator.languages &&
-                  navigator.languages[0]) ||
-                "C"
-              ).replace("-", "_") + ".UTF-8",
+            LANG: `${(
+              ("object" === typeof navigator &&
+                navigator.languages &&
+                navigator.languages[0]) ||
+              "C"
+            ).replace("-", "_")}.UTF-8`,
             _: xa || "./this.program",
           },
           b;
         for (b in Zc) void 0 === Zc[b] ? delete a[b] : (a[b] = Zc[b]);
         var c = [];
-        for (b in a) c.push(b + "=" + a[b]);
+        for (b in a) c.push(`${b}=${a[b]}`);
         ad = c;
       }
       return ad;
@@ -2043,15 +2007,11 @@ var initSqlJs = function (moduleConfig) {
     X("/tmp");
     X("/home");
     X("/home/web_user");
-    (function () {
+    (() => {
       X("/dev");
       Fb(259, {
-        read: function () {
-          return 0;
-        },
-        write: function (b, c, d, f) {
-          return f;
-        },
+        read: () => 0,
+        write: (_b, _c, _d, f) => f,
       });
       gc("/dev/null", 259);
       Eb(1280, Hb);
@@ -2064,25 +2024,23 @@ var initSqlJs = function (moduleConfig) {
       X("/dev/shm");
       X("/dev/shm/tmp");
     })();
-    (function () {
+    (() => {
       X("/proc");
       var a = X("/proc/self");
       X("/proc/self/fd");
       fc(
         {
-          Wa: function () {
+          Wa: () => {
             var b = Mb(a, "fd", 16895, 73);
             b.La = {
-              lookup: function (c, d) {
+              lookup: (c, d) => {
                 var f = U[+d];
                 if (!f) throw new R(8);
                 c = {
                   parent: null,
                   Wa: { Ab: "fake" },
                   La: {
-                    readlink: function () {
-                      return f.path;
-                    },
+                    readlink: () => f.path,
                   },
                 };
                 return (c.parent = c);
@@ -2101,7 +2059,7 @@ var initSqlJs = function (moduleConfig) {
       return c;
     }
     var cd = {
-      a: function (a, b, c, d) {
+      a: (a, b, c, d) => {
         J(
           "Assertion failed: " +
             D(a) +
@@ -2109,7 +2067,7 @@ var initSqlJs = function (moduleConfig) {
             [b ? D(b) : "unknown filename", c, d ? D(d) : "unknown function"]
         );
       },
-      p: function (a, b) {
+      p: (a, b) => {
         rb || ((rb = !0), mb());
         a = new Date(1e3 * N[a >> 2]);
         N[b >> 2] = a.getSeconds();
@@ -2124,13 +2082,13 @@ var initSqlJs = function (moduleConfig) {
         N[(b + 36) >> 2] = -(60 * a.getTimezoneOffset());
         var d = new Date(a.getFullYear(), 6, 1).getTimezoneOffset();
         c = c.getTimezoneOffset();
-        a = (d != c && a.getTimezoneOffset() == Math.min(c, d)) | 0;
+        a = (d !== c && a.getTimezoneOffset() === Math.min(c, d)) | 0;
         N[(b + 32) >> 2] = a;
         a = N[(qb() + (a ? 4 : 0)) >> 2];
         N[(b + 40) >> 2] = a;
         return b;
       },
-      j: function (a, b) {
+      j: (a, b) => {
         try {
           a = D(a);
           if (b & -8) var c = -28;
@@ -2150,23 +2108,23 @@ var initSqlJs = function (moduleConfig) {
           return -f.Pa;
         }
       },
-      u: function (a, b) {
+      u: (a, b) => {
         try {
-          return (a = D(a)), ka(a, b), 0;
+          return ((a = D(a)), ka(a, b), 0);
         } catch (c) {
           if ("undefined" === typeof Y || !(c instanceof R)) throw c;
           return -c.Pa;
         }
       },
-      F: function (a) {
+      F: (a) => {
         try {
-          return (a = D(a)), kc(a), 0;
+          return ((a = D(a)), kc(a), 0);
         } catch (b) {
           if ("undefined" === typeof Y || !(b instanceof R)) throw b;
           return -b.Pa;
         }
       },
-      v: function (a, b) {
+      v: (a, b) => {
         try {
           var c = U[a];
           if (!c) throw new R(8);
@@ -2177,7 +2135,7 @@ var initSqlJs = function (moduleConfig) {
           return -d.Pa;
         }
       },
-      G: function (a) {
+      G: (a) => {
         try {
           var b = U[a];
           if (!b) throw new R(8);
@@ -2188,23 +2146,24 @@ var initSqlJs = function (moduleConfig) {
           return -c.Pa;
         }
       },
-      b: function (a, b, c) {
+      b: (a, b, c) => {
         Wc = c;
         try {
           var d = Z(a);
           switch (b) {
-            case 0:
+            case 0: {
               var f = Xc();
               return 0 > f ? -28 : A(d.path, d.flags, 0, f).fd;
+            }
             case 1:
             case 2:
               return 0;
             case 3:
               return d.flags;
             case 4:
-              return (f = Xc()), (d.flags |= f), 0;
+              return ((f = Xc()), (d.flags |= f), 0);
             case 5:
-              return (f = Xc()), (Ma[(f + 0) >> 1] = 2), 0;
+              return ((f = Xc()), (Ma[(f + 0) >> 1] = 2), 0);
             case 6:
             case 7:
               return 0;
@@ -2212,7 +2171,7 @@ var initSqlJs = function (moduleConfig) {
             case 8:
               return -28;
             case 9:
-              return (N[bd() >> 2] = 28), -1;
+              return ((N[bd() >> 2] = 28), -1);
             default:
               return -28;
           }
@@ -2221,7 +2180,7 @@ var initSqlJs = function (moduleConfig) {
           return -h.Pa;
         }
       },
-      B: function (a, b) {
+      B: (a, b) => {
         try {
           var c = Z(a);
           return Vc(ic, c.path, b);
@@ -2230,7 +2189,7 @@ var initSqlJs = function (moduleConfig) {
           return -d.Pa;
         }
       },
-      x: function (a, b, c, d) {
+      x: (a, b, c, d) => {
         try {
           b = D(b);
           var f = d & 256;
@@ -2244,10 +2203,10 @@ var initSqlJs = function (moduleConfig) {
               if (!q) throw new R(8);
               l = q.path;
             }
-            if (0 == h.length) {
+            if (0 === h.length) {
               if (!d) throw new R(44);
               b = l;
-            } else b = z(l + "/" + h);
+            } else b = z(`${l}/${h}`);
           }
           return Vc(f ? jc : ic, b, c);
         } catch (w) {
@@ -2255,7 +2214,7 @@ var initSqlJs = function (moduleConfig) {
           return -w.Pa;
         }
       },
-      k: function (a, b) {
+      k: (a, b) => {
         try {
           var c = U[a];
           if (!c) throw new R(8);
@@ -2267,7 +2226,7 @@ var initSqlJs = function (moduleConfig) {
           return -d.Pa;
         }
       },
-      i: function (a, b) {
+      i: (a, b) => {
         try {
           if (0 === b) return -28;
           if (b < ea("/") + 1) return -68;
@@ -2278,18 +2237,16 @@ var initSqlJs = function (moduleConfig) {
           return -c.Pa;
         }
       },
-      E: function () {
-        return 0;
-      },
-      z: function (a, b) {
+      E: () => 0,
+      z: (a, b) => {
         try {
-          return (a = D(a)), Vc(jc, a, b);
+          return ((a = D(a)), Vc(jc, a, b));
         } catch (c) {
           if ("undefined" === typeof Y || !(c instanceof R)) throw c;
           return -c.Pa;
         }
       },
-      w: function (a, b) {
+      w: (a, b) => {
         try {
           return (
             (a = D(a)),
@@ -2303,7 +2260,7 @@ var initSqlJs = function (moduleConfig) {
           return -c.Pa;
         }
       },
-      t: function (a, b, c, d, f, h) {
+      t: (a, b, c, d, f, h) => {
         try {
           a: {
             h <<= 12;
@@ -2350,7 +2307,7 @@ var initSqlJs = function (moduleConfig) {
           return -ia.Pa;
         }
       },
-      s: function (a, b) {
+      s: (a, b) => {
         try {
           var c = Uc[a];
           if (0 !== b && c) {
@@ -2360,7 +2317,7 @@ var initSqlJs = function (moduleConfig) {
                 var f = c.flags,
                   h = c.offset,
                   l = y.slice(a, a + b);
-                d && d.Ma.hb && d.Ma.hb(d, l, h, b, f);
+                d?.Ma.hb?.(d, l, h, b, f);
               }
               Uc[a] = null;
               c.jb && da(c.Jb);
@@ -2373,7 +2330,7 @@ var initSqlJs = function (moduleConfig) {
           return -w.Pa;
         }
       },
-      r: function (a, b, c) {
+      r: (a, b, c) => {
         Wc = c;
         try {
           var d = D(a),
@@ -2384,7 +2341,7 @@ var initSqlJs = function (moduleConfig) {
           return -h.Pa;
         }
       },
-      H: function (a, b, c) {
+      H: (a, b, c) => {
         try {
           a = D(a);
           if (0 >= c) var d = -28;
@@ -2402,7 +2359,7 @@ var initSqlJs = function (moduleConfig) {
           return -q.Pa;
         }
       },
-      C: function (a) {
+      C: (a) => {
         try {
           a = D(a);
           var b = W(a, { parent: !0 }).node,
@@ -2420,27 +2377,25 @@ var initSqlJs = function (moduleConfig) {
           return -h.Pa;
         }
       },
-      A: function (a, b) {
+      A: (a, b) => {
         try {
-          return (a = D(a)), Vc(ic, a, b);
+          return ((a = D(a)), Vc(ic, a, b));
         } catch (c) {
           if ("undefined" === typeof Y || !(c instanceof R)) throw c;
           return -c.Pa;
         }
       },
-      f: function (a) {
+      f: (a) => {
         try {
-          return (a = D(a)), ua(a), 0;
+          return ((a = D(a)), ua(a), 0);
         } catch (b) {
           if ("undefined" === typeof Y || !(b instanceof R)) throw b;
           return -b.Pa;
         }
       },
-      q: function () {
-        return 2147483648;
-      },
+      q: () => 2147483648,
       d: Yc,
-      c: function (a) {
+      c: (a) => {
         var b = y.length;
         a >>>= 0;
         if (2147483648 < a) return !1;
@@ -2455,16 +2410,16 @@ var initSqlJs = function (moduleConfig) {
               Za();
               var f = 1;
               break a;
-            } catch (h) {}
+            } catch (_h) {}
             f = void 0;
           }
           if (f) return !0;
         }
         return !1;
       },
-      n: function (a, b) {
+      n: (a, b) => {
         var c = 0;
-        $c().forEach(function (d, f) {
+        $c().forEach((d, f) => {
           var h = b + c;
           f = N[(a + 4 * f) >> 2] = h;
           for (h = 0; h < d.length; ++h) n[f++ >> 0] = d.charCodeAt(h);
@@ -2473,17 +2428,17 @@ var initSqlJs = function (moduleConfig) {
         });
         return 0;
       },
-      o: function (a, b) {
+      o: (a, b) => {
         var c = $c();
         N[a >> 2] = c.length;
         var d = 0;
-        c.forEach(function (f) {
+        c.forEach((f) => {
           d += f.length + 1;
         });
         N[b >> 2] = d;
         return 0;
       },
-      e: function (a) {
+      e: (a) => {
         try {
           var b = Z(a);
           ma(b);
@@ -2493,7 +2448,7 @@ var initSqlJs = function (moduleConfig) {
           return c.Pa;
         }
       },
-      m: function (a, b) {
+      m: (a, b) => {
         try {
           var c = Z(a);
           n[b >> 0] = c.tty
@@ -2509,7 +2464,7 @@ var initSqlJs = function (moduleConfig) {
           return d.Pa;
         }
       },
-      g: function (a, b, c, d) {
+      g: (a, b, c, d) => {
         try {
           a: {
             for (var f = Z(a), h = (a = 0); h < c; h++) {
@@ -2531,7 +2486,7 @@ var initSqlJs = function (moduleConfig) {
           return v.Pa;
         }
       },
-      l: function (a, b, c, d, f) {
+      l: (a, b, c, d, f) => {
         try {
           var h = Z(a);
           a = 4294967296 * c + (b >>> 0);
@@ -2555,16 +2510,16 @@ var initSqlJs = function (moduleConfig) {
           return l.Pa;
         }
       },
-      h: function (a) {
+      h: (a) => {
         try {
           var b = Z(a);
-          return b.Ma && b.Ma.fsync ? -b.Ma.fsync(b) : 0;
+          return b.Ma?.fsync ? -b.Ma.fsync(b) : 0;
         } catch (c) {
           if ("undefined" === typeof Y || !(c instanceof R)) throw c;
           return c.Pa;
         }
       },
-      D: function (a, b, c, d) {
+      D: (a, b, c, d) => {
         try {
           a: {
             for (var f = Z(a), h = (a = 0); h < c; h++) {
@@ -2590,18 +2545,18 @@ var initSqlJs = function (moduleConfig) {
           return w.Pa;
         }
       },
-      I: function (a) {
+      I: (a) => {
         var b = Date.now();
         N[a >> 2] = (b / 1e3) | 0;
         N[(a + 4) >> 2] = ((b % 1e3) * 1e3) | 0;
         return 0;
       },
-      J: function (a) {
+      J: (a) => {
         var b = (Date.now() / 1e3) | 0;
         a && (N[a >> 2] = b);
         return b;
       },
-      y: function (a, b) {
+      y: (a, b) => {
         if (b) {
           var c = b + 8;
           b = 1e3 * N[c >> 2];
@@ -2629,9 +2584,9 @@ var initSqlJs = function (moduleConfig) {
               }
               f = f.stack.toString();
             }
-            e.extraStackTrace && (f += "\n" + e.extraStackTrace());
+            e.extraStackTrace && (f += `\n${e.extraStackTrace()}`);
             f = lb(f);
-            throw h + " : " + f;
+            throw `${h} : ${f}`;
           }
           f = h.Pa;
           N[bd() >> 2] = f;
@@ -2640,7 +2595,7 @@ var initSqlJs = function (moduleConfig) {
         return f;
       },
     };
-    (function () {
+    (() => {
       function a(f) {
         e.asm = f.exports;
         Pa = e.asm.K;
@@ -2648,8 +2603,8 @@ var initSqlJs = function (moduleConfig) {
         L = e.asm.Ca;
         ab.unshift(e.asm.L);
         db--;
-        e.monitorRunDependencies && e.monitorRunDependencies(db);
-        0 == db &&
+        e.monitorRunDependencies?.(db);
+        0 === db &&
           (null !== eb && (clearInterval(eb), (eb = null)),
           fb && ((f = fb), (fb = null), f()));
       }
@@ -2658,46 +2613,39 @@ var initSqlJs = function (moduleConfig) {
       }
       function c(f) {
         return jb()
-          .then(function (h) {
-            return WebAssembly.instantiate(h, d);
-          })
-          .then(function (h) {
-            return h;
-          })
-          .then(f, function (h) {
-            Ia("failed to asynchronously prepare wasm: " + h);
+          .then((h) => WebAssembly.instantiate(h, d))
+          .then((h) => h)
+          .then(f, (h) => {
+            Ia(`failed to asynchronously prepare wasm: ${h}`);
             J(h);
           });
       }
       var d = { a: cd };
       db++;
-      e.monitorRunDependencies && e.monitorRunDependencies(db);
+      e.monitorRunDependencies?.(db);
       if (e.instantiateWasm)
         try {
           return e.instantiateWasm(d, a);
         } catch (f) {
           return (
-            Ia("Module.instantiateWasm callback failed with error: " + f), !1
+            Ia(`Module.instantiateWasm callback failed with error: ${f}`),
+            !1
           );
         }
-      (function () {
-        return La ||
-          "function" !== typeof WebAssembly.instantiateStreaming ||
-          gb() ||
-          Q.startsWith("file://") ||
-          "function" !== typeof fetch
+      (() =>
+        La ||
+        "function" !== typeof WebAssembly.instantiateStreaming ||
+        gb() ||
+        Q.startsWith("file://") ||
+        "function" !== typeof fetch
           ? c(b)
-          : fetch(Q, { credentials: "same-origin" }).then(function (f) {
-              return WebAssembly.instantiateStreaming(f, d).then(
-                b,
-                function (h) {
-                  Ia("wasm streaming compile failed: " + h);
-                  Ia("falling back to ArrayBuffer instantiation");
-                  return c(b);
-                }
-              );
-            });
-      })();
+          : fetch(Q, { credentials: "same-origin" }).then((f) =>
+              WebAssembly.instantiateStreaming(f, d).then(b, (h) => {
+                Ia(`wasm streaming compile failed: ${h}`);
+                Ia("falling back to ArrayBuffer instantiation");
+                return c(b);
+              })
+            ))();
       return {};
     })();
     e.___wasm_call_ctors = function () {
@@ -2862,11 +2810,9 @@ var initSqlJs = function (moduleConfig) {
       Kb = (e._memalign = function () {
         return (Kb = e._memalign = e.asm.Ka).apply(null, arguments);
       });
-    e.cwrap = function (a, b, c, d) {
+    e.cwrap = (a, b, c, d) => {
       c = c || [];
-      var f = c.every(function (h) {
-        return "number" === h;
-      });
+      var f = c.every((h) => "number" === h);
       return "string" !== b && f && !d
         ? Ra(a)
         : function () {
@@ -2912,7 +2858,7 @@ var initSqlJs = function (moduleConfig) {
           if (e.onRuntimeInitialized) e.onRuntimeInitialized();
           if (e.postRun)
             for (
-              "function" == typeof e.postRun && (e.postRun = [e.postRun]);
+              "function" === typeof e.postRun && (e.postRun = [e.postRun]);
               e.postRun.length;
 
             ) {
@@ -2925,7 +2871,7 @@ var initSqlJs = function (moduleConfig) {
       if (!(0 < db)) {
         if (e.preRun)
           for (
-            "function" == typeof e.preRun && (e.preRun = [e.preRun]);
+            "function" === typeof e.preRun && (e.preRun = [e.preRun]);
             e.preRun.length;
 
           )
@@ -2934,8 +2880,8 @@ var initSqlJs = function (moduleConfig) {
         0 < db ||
           (e.setStatus
             ? (e.setStatus("Running..."),
-              setTimeout(function () {
-                setTimeout(function () {
+              setTimeout(() => {
+                setTimeout(() => {
                   e.setStatus("");
                 }, 1);
                 a();
@@ -2946,7 +2892,7 @@ var initSqlJs = function (moduleConfig) {
     e.run = fd;
     if (e.preInit)
       for (
-        "function" == typeof e.preInit && (e.preInit = [e.preInit]);
+        "function" === typeof e.preInit && (e.preInit = [e.preInit]);
         0 < e.preInit.length;
 
       )
@@ -2966,10 +2912,8 @@ if (typeof exports === "object" && typeof module === "object") {
   module.exports = initSqlJs;
   // This will allow the module to be used in ES6 or CommonJS
   module.exports.default = initSqlJs;
-} else if (typeof define === "function" && define["amd"]) {
-  define([], function () {
-    return initSqlJs;
-  });
+} else if (typeof define === "function" && define.amd) {
+  define([], () => initSqlJs);
 } else if (typeof exports === "object") {
-  exports["Module"] = initSqlJs;
+  exports.Module = initSqlJs;
 }

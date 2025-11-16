@@ -1,21 +1,21 @@
+import type { Icon } from "@phosphor-icons/react";
+import { LucideChevronDown, LucideChevronRight } from "lucide-react";
+import React, {
+  type Dispatch,
+  Fragment,
+  type MutableRefObject,
+  type SetStateAction,
+  useRef,
+  useState,
+} from "react";
 import { ContextMenuList } from "@/components/gui/context-menu-handler";
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { OpenContextMenuList } from "@/core/channel-builtin";
+import type { OpenContextMenuList } from "@/core/channel-builtin";
 import { cn } from "@/lib/utils";
-import { Icon } from "@phosphor-icons/react";
-import { LucideChevronDown, LucideChevronRight } from "lucide-react";
-import React, {
-  Dispatch,
-  Fragment,
-  MutableRefObject,
-  SetStateAction,
-  useRef,
-  useState,
-} from "react";
 import HighlightText from "../ui/highlight-text";
 
 export interface ListViewItem<T = unknown> {
@@ -73,13 +73,17 @@ function CollapsedButton({
   onClick: () => void;
 }) {
   return hasCollapsed ? (
-    <div onClick={onClick}>
+    <button
+      type="button"
+      onClick={onClick}
+      className="border-0 bg-transparent p-0"
+    >
       {collapsed ? (
         <LucideChevronDown className={cn("h-4 w-4")} />
       ) : (
         <LucideChevronRight className={cn("h-4 w-4")} />
       )}
-    </div>
+    </button>
   ) : (
     <div className="w-4 shrink-0"></div>
   );
@@ -146,7 +150,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
 
           return (
             <React.Fragment key={item.key}>
-              <div
+              <li
                 key={item.key}
                 onContextMenu={() => {
                   stopParentPropagation.current = true;
@@ -219,14 +223,13 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                       <div
                         className="h-[20px] rounded-sm border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
                         style={{
-                          width:
-                            Math.max(
-                              Math.ceil(
-                                (item.progressBarValue / item.progressBarMax) *
-                                  100
-                              ),
-                              5
-                            ) + "%",
+                          width: `${Math.max(
+                            Math.ceil(
+                              (item.progressBarValue / item.progressBarMax) *
+                                100
+                            ),
+                            5
+                          )}%`,
                         }}
                       ></div>
                       <span className="absolute right-0">
@@ -235,7 +238,7 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
                     </div>
                   )}
                 </div>
-              </div>
+              </li>
               {isCollapsed &&
                 renderList({
                   ...rest,
@@ -264,9 +267,11 @@ export function ListView<T = unknown>(props: ListViewProps<T>) {
   return (
     <ContextMenu modal={false} onOpenChange={setContextOpen}>
       <ContextMenuTrigger asChild>
-        <div
-          tabIndex={0}
-          className={cn(full ? "grow overflow-auto" : "", "select-none")}
+        <ul
+          className={cn(
+            full ? "grow overflow-auto" : "",
+            "m-0 list-none p-0 select-none"
+          )}
           onContextMenu={(e) => {
             if (stopParentPropagation.current) {
               stopParentPropagation.current = false;
@@ -297,7 +302,7 @@ export function ListView<T = unknown>(props: ListViewProps<T>) {
               setContextMenuKey,
             })}
           </div>
-        </div>
+        </ul>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuList menu={contextMenu} />

@@ -1,5 +1,5 @@
+import type { PropsWithChildren } from "react";
 import { cn } from "@/lib/utils";
-import { PropsWithChildren } from "react";
 
 export function ButtonGroup({
   children,
@@ -26,6 +26,7 @@ export function ButtonGroupItem({
 }: PropsWithChildren<ButtonGroupItemProps>) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={cn(
         `flex h-7 cursor-pointer items-center rounded-sm px-2 text-sm text-neutral-600 transition-all hover:bg-neutral-200 dark:text-neutral-400 hover:dark:bg-neutral-800`,

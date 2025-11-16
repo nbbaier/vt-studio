@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { SketchPicker } from "react-color";
-import { ThemeColors, THEMES } from "./chart-type";
+import { THEMES, type ThemeColors } from "./chart-type";
 
 const presetColors = [
   "#D0021B",
@@ -53,9 +53,10 @@ export default function SimpleColorPicker({
         <div className="border-l-accent flex flex-col gap-1 border-l-2 p-3">
           {Object.keys(THEMES).map((key) => {
             return (
-              <div
+              <button
                 key={key}
-                className="flex cursor-pointer items-center gap-1 text-xs"
+                type="button"
+                className="flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 text-left text-xs"
                 onClick={() => {
                   if (key) {
                     onThemeChange(key as ThemeColors);
@@ -69,7 +70,7 @@ export default function SimpleColorPicker({
                   }}
                 />
                 <p>{key}</p>
-              </div>
+              </button>
             );
           })}
         </div>

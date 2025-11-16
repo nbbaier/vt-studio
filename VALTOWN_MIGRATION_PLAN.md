@@ -14,20 +14,21 @@
 
 **Current Status**: Phase 6 Automated Testing Complete - Ready for Manual Testing & Deployment
 
-| Phase | Status |
-|-------|--------|
-| ✅ Phase 1: Audit & Document | Complete |
-| ✅ Phase 2: Remove Drivers & Update Types | Complete |
-| ✅ Phase 3: Simplify UI | Complete |
-| ✅ Phase 4: Simplify Architecture | Complete |
-| ✅ Phase 5: Update Documentation | Complete |
-| ✅ Phase 6: Testing (Automated) | Complete |
-| ✅ Phase 7: Studio-First UI Implementation | Complete |
-| 📋 Phase 8: Manual Testing & Deployment | In Progress |
+| Phase                                      | Status      |
+| ------------------------------------------ | ----------- |
+| ✅ Phase 1: Audit & Document               | Complete    |
+| ✅ Phase 2: Remove Drivers & Update Types  | Complete    |
+| ✅ Phase 3: Simplify UI                    | Complete    |
+| ✅ Phase 4: Simplify Architecture          | Complete    |
+| ✅ Phase 5: Update Documentation           | Complete    |
+| ✅ Phase 6: Testing (Automated)            | Complete    |
+| ✅ Phase 7: Studio-First UI Implementation | Complete    |
+| 📋 Phase 8: Manual Testing & Deployment    | In Progress |
 
 **Overall**: ~97% complete
 
 **Phase 6 Completed** (Automated Testing):
+
 - ✅ All unit tests pass (93 tests in 9 suites)
 - ✅ TypeScript compilation passes (no errors)
 - ✅ Production build successful (root route: 682 kB First Load JS)
@@ -36,6 +37,7 @@
 - ✅ Manual testing checklist created (MANUAL_TESTING_CHECKLIST.md)
 
 **Phase 7 Completed** (Studio-First UI):
+
 - Implemented Studio-First approach (Option 1 from UI Simplification Proposal)
 - Created simplified token storage system (`lib/valtown-token-storage.ts`)
 - Created `ValtownStudioWrapper` component with inline token configuration
@@ -47,6 +49,7 @@
 - Updated website metadata and descriptions
 
 **Phase 8 - Next Actions**:
+
 - Perform manual testing using MANUAL_TESTING_CHECKLIST.md
 - Verify token persistence and driver initialization
 - Test disconnect/reconnect functionality
@@ -63,6 +66,7 @@ See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task trackin
 **Duration**: 0.5 day
 
 ### Tasks:
+
 1. **Document Val Town driver implementation**
    - Review `/src/drivers/database/valtown.ts` (40 lines)
    - Document API endpoints and authentication
@@ -78,6 +82,7 @@ See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task trackin
    - Document which base classes are used
 
 ### Deliverables:
+
 - Val Town functionality test report
 - Dependency map
 
@@ -90,6 +95,7 @@ See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task trackin
 ### Files to DELETE:
 
 #### SQLite-based drivers:
+
 - `/src/drivers/database/turso.tsx` - Turso/LibSQL driver
 - `/src/drivers/database/rqlite.ts` - rqlite driver
 - `/src/drivers/database/cloudflare-d1.ts` - Cloudflare D1 driver
@@ -98,10 +104,12 @@ See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task trackin
 - `/src/drivers/database/cloudflare-wae.ts` - Cloudflare Worker Analytics
 
 #### Relational drivers:
+
 - `/src/drivers/postgres/` - Entire PostgreSQL directory
 - `/src/drivers/mysql/` - Entire MySQL directory
 
 #### Connection templates:
+
 - `/src/components/connection-config-editor/template/turso.tsx`
 - `/src/components/connection-config-editor/template/rqlite.tsx`
 - `/src/components/connection-config-editor/template/cloudflare-d1.tsx`
@@ -113,6 +121,7 @@ See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task trackin
 - `/src/components/connection-config-editor/template/durable-object.tsx`
 
 #### Documentation:
+
 - `/src/app/(public)/docs/connect-turso/`
 - `/src/app/(public)/docs/connect-postgres/`
 - `/src/app/(public)/docs/connect-mysql/`
@@ -124,7 +133,9 @@ See [MIGRATION_CHECKLIST.md](./MIGRATION_CHECKLIST.md) for detailed task trackin
 ### Files to MODIFY:
 
 #### 1. `/src/drivers/helpers.ts`
+
 **Before:**
+
 ```typescript
 export function createLocalDriver(conn: SavedConnectionRawLocalStorage) {
   if (conn.driver === "rqlite") {
@@ -141,6 +152,7 @@ export function createLocalDriver(conn: SavedConnectionRawLocalStorage) {
 ```
 
 **After:**
+
 ```typescript
 export function createLocalDriver(conn: SavedConnectionRawLocalStorage) {
   if (conn.driver === "valtown") {
@@ -151,7 +163,9 @@ export function createLocalDriver(conn: SavedConnectionRawLocalStorage) {
 ```
 
 #### 2. Remove imports from `/src/drivers/helpers.ts`
+
 Remove all imports except:
+
 ```typescript
 import { SavedConnectionRawLocalStorage } from "@/app/(theme)/connect/saved-connection-storage";
 import { ValtownQueryable } from "./database/valtown";
@@ -166,6 +180,7 @@ import { SqliteLikeBaseDriver } from "./sqlite-base-driver";
 ```
 
 Also remove from `overrides`:
+
 ```json
 "@libsql/client": "^0.5.3"
 ```
@@ -175,6 +190,7 @@ Also remove from `overrides`:
 #### 3. `/src/app/(theme)/connect/saved-connection-storage.ts`
 
 **Before:**
+
 ```typescript
 export type SupportedDriver =
   | "turso"
@@ -187,6 +203,7 @@ export type SupportedDriver =
 ```
 
 **After:**
+
 ```typescript
 export type SupportedDriver = "valtown";
 ```
@@ -194,11 +211,13 @@ export type SupportedDriver = "valtown";
 #### 4. `/src/drivers/base-driver.ts`
 
 **Before:**
+
 ```typescript
 export type SupportedDialect = "sqlite" | "mysql" | "postgres" | "dolt";
 ```
 
 **After:**
+
 ```typescript
 export type SupportedDialect = "sqlite"; // Val Town uses SQLite dialect
 ```
@@ -206,10 +225,12 @@ export type SupportedDialect = "sqlite"; // Val Town uses SQLite dialect
 #### 5. Global type cleanup
 
 Run global search for:
+
 - `"turso"`, `"postgres"`, `"mysql"`, `"rqlite"`, etc. in type definitions
 - Update or remove as needed
 
 ### Validation:
+
 - Run `npm install` after package.json changes
 - Ensure no import errors remain
 - Run TypeScript compiler: `npm run tsc`
@@ -227,6 +248,7 @@ Run global search for:
 #### 1. `/src/app/(outerbase)/new-resource-list.tsx`
 
 **Before:**
+
 ```typescript
 export function getCreateResourceTypeList(workspaceId?: string): NewResourceType[] {
   return [
@@ -241,8 +263,11 @@ export function getCreateResourceTypeList(workspaceId?: string): NewResourceType
 ```
 
 **After:**
+
 ```typescript
-export function getCreateResourceTypeList(workspaceId?: string): NewResourceType[] {
+export function getCreateResourceTypeList(
+  workspaceId?: string
+): NewResourceType[] {
   return [
     {
       name: "val.town",
@@ -258,6 +283,7 @@ export function getCreateResourceTypeList(workspaceId?: string): NewResourceType
 Find `ConnectionTemplateDictionary` and remove all entries except `valtown`:
 
 **After:**
+
 ```typescript
 export const ConnectionTemplateDictionary = {
   valtown: ValtownConnectionTemplate,
@@ -267,17 +293,20 @@ export const ConnectionTemplateDictionary = {
 #### 3. Remove unused icons
 
 Check `/src/components/resource-card/icon.tsx` and `/src/components/icons/outerbase-icon.tsx`:
+
 - Keep: `ValTownIcon`, `SQLiteIcon` (might be used generically)
 - Optional removal: `TursoIcon`, `CloudflareIcon`, `StarbaseIcon`, `RQLiteIcon`, `PostgreIcon`, `MySQLIcon`
 
 ### UI Flow Changes:
 
 #### Simplify connection creation flow
+
 - Users should go directly to Val Town connection form
 - Remove database type selection step
 - Consider simplifying route from `/local/new-base/valtown` to `/local/new-base` or `/local/connect`
 
 ### Validation:
+
 - Navigate to connection creation
 - Verify only Val Town is shown
 - Test creating a new Val Town connection
@@ -289,6 +318,7 @@ Check `/src/components/resource-card/icon.tsx` and `/src/components/icons/outerb
 **Duration**: 0.5 day
 
 ### Keep These Abstractions (for maintainability):
+
 - `QueryableBaseDriver` interface - Clean abstraction
 - `BaseDriver` abstract class - Provides common functionality
 - `SqliteLikeBaseDriver` - Val Town inherits from this
@@ -297,7 +327,9 @@ Check `/src/components/resource-card/icon.tsx` and `/src/components/icons/outerb
 ### Simplifications:
 
 #### 1. Update `/src/drivers/base-driver.ts`
+
 Keep the file but add comment:
+
 ```typescript
 /**
  * Base driver abstractions.
@@ -307,9 +339,11 @@ Keep the file but add comment:
 ```
 
 #### 2. Update `/src/drivers/sqlite-base-driver.ts`
+
 Add comment about Val Town being the primary implementation
 
 #### 3. Clean up unused driver flag options
+
 Review `DriverFlags` interface and remove any flags that were specific to removed databases
 
 ### Optional: Create simplified factory
@@ -338,6 +372,7 @@ export function createValtownDriver(token: string) {
 ```
 
 ### Validation:
+
 - Existing Val Town connections still work
 - Code is well-documented
 - Architecture remains clean
@@ -355,6 +390,7 @@ export function createValtownDriver(token: string) {
 #### 1. Update `/README.md`
 
 **Key changes:**
+
 - Update description: "A database GUI for Val Town SQLite"
 - Remove references to other databases
 - Simplify "Getting Started" to focus on Val Town
@@ -364,6 +400,7 @@ export function createValtownDriver(token: string) {
 #### 2. Update main documentation
 
 Keep only:
+
 - `/src/app/(public)/docs/connect-valtown/page.mdx`
 
 Update index/navigation to remove other database docs.
@@ -385,10 +422,12 @@ Remove example configs for other databases.
 ### Branding Considerations:
 
 **Option 1 - Keep "Outerbase Studio"**
+
 - Add subtitle: "for Val Town"
 - Update marketing copy
 
 **Option 2 - Rebrand to "Val Town Studio"**
+
 - Requires more extensive changes
 - Better clarity for users
 - May need coordination with Val Town team
@@ -396,6 +435,7 @@ Remove example configs for other databases.
 **Recommendation**: Keep "Outerbase Studio" for now, clearly indicate Val Town support.
 
 ### Validation:
+
 - Review all user-facing documentation
 - Check for broken links
 - Verify examples work
@@ -409,11 +449,13 @@ Remove example configs for other databases.
 ### Testing Checklist:
 
 #### Unit Tests:
+
 - [ ] Val Town driver tests pass
 - [ ] Factory function tests updated
 - [ ] Type tests pass
 
 #### Integration Tests:
+
 - [ ] Create new Val Town connection
 - [ ] Connect to existing Val Town database
 - [ ] Query execution
@@ -425,12 +467,14 @@ Remove example configs for other databases.
 - [ ] Export functionality
 
 #### UI Tests:
+
 - [ ] Connection creation flow
 - [ ] Connection list shows only Val Town
 - [ ] Error messages are clear
 - [ ] No references to removed databases in UI
 
 #### Build Tests:
+
 - [ ] `npm run build` succeeds
 - [ ] `npm run tsc` succeeds (no type errors)
 - [ ] `npm run lint` succeeds
@@ -438,6 +482,7 @@ Remove example configs for other databases.
 - [ ] Bundle size reduced (check with `npm run build`)
 
 ### Performance Validation:
+
 - [ ] App startup time
 - [ ] Connection creation speed
 - [ ] Query execution speed
@@ -445,6 +490,7 @@ Remove example configs for other databases.
 - [ ] Check bundle size reduction
 
 ### Documentation Validation:
+
 - [ ] README is accurate
 - [ ] All links work
 - [ ] Examples are correct
@@ -461,6 +507,7 @@ Remove example configs for other databases.
 ### Overview
 
 Implemented Option 1 from the UI Simplification Proposal (see `VALTOWN_UI_SIMPLIFICATION_PROPOSAL.md`):
+
 - Remove connections page entirely
 - Studio IS the app - users land directly in the query editor
 - Token configuration happens inline when no connection exists
@@ -470,38 +517,46 @@ Implemented Option 1 from the UI Simplification Proposal (see `VALTOWN_UI_SIMPLI
 ### New Architecture
 
 #### 1. Simplified Token Storage
+
 Created `/src/lib/valtown-token-storage.ts`:
+
 ```typescript
 export interface ValtownTokenData {
   token: string;
   name?: string;
 }
 
-export function getValtownToken(): ValtownTokenData | null
-export function setValtownToken(data: ValtownTokenData): void
-export function removeValtownToken(): void
-export function hasValtownToken(): boolean
+export function getValtownToken(): ValtownTokenData | null;
+export function setValtownToken(data: ValtownTokenData): void;
+export function removeValtownToken(): void;
+export function hasValtownToken(): boolean;
 ```
 
 **Storage**: Uses `localStorage` with keys:
+
 - `valtown_token` - The API token
 - `valtown_connection_name` - Optional connection name
 
 #### 2. Studio Wrapper Component
+
 Created `/src/components/valtown-studio-wrapper.tsx`:
+
 - Checks for stored token on mount
 - Shows token configuration UI if no token exists
 - Creates driver and renders Studio if token exists
 - Handles disconnect via `onBack` callback
 
 **Token Configuration UI includes**:
+
 - Connection name input (optional)
 - Token textarea
 - Instructions with link to val.town/settings/api
 - Clean, centered layout
 
 #### 3. Root Route Update
+
 Updated `/src/app/page.tsx`:
+
 ```typescript
 export default function HomePage() {
   return (
@@ -513,6 +568,7 @@ export default function HomePage() {
 ```
 
 **User Flow:**
+
 1. User visits `/` (root)
 2. If token exists → Studio loads immediately (0 clicks)
 3. If no token → Token configuration UI appears
@@ -522,16 +578,19 @@ export default function HomePage() {
 ### Files Changed
 
 #### Created:
+
 - `/src/lib/valtown-token-storage.ts` - Token storage utilities
 - `/src/components/valtown-studio-wrapper.tsx` - Main wrapper component
 - `/src/app/page.tsx` - New root route
 
 #### Moved:
+
 - `/src/app/(outerbase)/` → `/src/app/_outerbase_old/` (deactivated)
 - `/src/app/(theme)/` → `/src/app/_theme_old/` (deactivated)
 - `/src/app/(theme)/connect/saved-connection-storage.ts` → `/src/lib/saved-connection-storage.ts`
 
 #### Modified:
+
 - `/src/components/gui/sidebar-tab.tsx` - Updated branding and disconnect button
 - `/src/const.ts` - Changed website name to "Val Town Studio"
 - `/src/indexdb.ts` - Updated import path for saved-connection-storage
@@ -541,6 +600,7 @@ export default function HomePage() {
 ### Branding Updates
 
 Changed throughout the codebase:
+
 - **App Name**: "Outerbase Studio" → "Val Town Studio"
 - **Tagline**: Updated to "A modern SQLite GUI for Val Town"
 - **Sidebar Menu**: "Back to bases" → "Disconnect"
@@ -549,6 +609,7 @@ Changed throughout the codebase:
 ### Removed UI Elements
 
 **Eliminated completely:**
+
 - Workspace navigation sidebar
 - Connection list/grid pages
 - "New Resource" dropdowns with driver selection
@@ -560,11 +621,13 @@ Changed throughout the codebase:
 ### User Experience Improvements
 
 **Before (Complex):**
+
 - 5-6 clicks to execute first query
 - 4 different pages to navigate
 - Connection management, workspace selection, driver choice
 
 **After (Simplified):**
+
 - 0 clicks if token saved
 - 1 field + 1 click if new user
 - Single page (Studio)
@@ -573,12 +636,14 @@ Changed throughout the codebase:
 ### Token Management
 
 **Single-token model:**
+
 - One Val Town token active at a time
 - Stored in localStorage (future: could support multiple saved tokens)
 - Disconnect clears token and returns to configuration UI
 - Token persists across sessions
 
 **Future enhancement possibilities:**
+
 - Add token list in settings dropdown
 - "Switch Account" functionality
 - Token validation/health check
@@ -586,11 +651,13 @@ Changed throughout the codebase:
 ### Backward Compatibility
 
 **Migration for existing users:**
+
 - Old connection data remains in IndexedDB (unused but not deleted)
 - New users start fresh with simplified flow
 - No breaking changes to driver layer or Studio component
 
 **Old routes:**
+
 - Moved to `_old` directories (not deleted)
 - Can be restored if needed
 - Preserved for reference during testing
@@ -616,6 +683,7 @@ Changed throughout the codebase:
 ### Documentation
 
 Created comprehensive proposal document:
+
 - `VALTOWN_UI_SIMPLIFICATION_PROPOSAL.md` - Full analysis and alternatives
   - Option 1 (Studio-First) - IMPLEMENTED ✅
   - Option 2 (Minimal Connection Page) - Alternative approach
@@ -633,6 +701,7 @@ If issues arise, here's how to rollback:
 3. **Tagged release**: Tag last multi-database version
 
 ### Quick rollback steps:
+
 ```bash
 git checkout main
 git revert <migration-commit-range>
@@ -671,6 +740,7 @@ After successful migration, consider:
 ## Key Files Reference
 
 ### Keep and Modify:
+
 - `/src/drivers/database/valtown.ts` - Core driver (KEEP)
 - `/src/drivers/helpers.ts` - Factory function (SIMPLIFY)
 - `/src/drivers/base-driver.ts` - Base abstractions (KEEP, ADD COMMENTS)
@@ -679,6 +749,7 @@ After successful migration, consider:
 - `/src/app/(public)/docs/connect-valtown/page.mdx` - Documentation (KEEP)
 
 ### Delete:
+
 - All other drivers in `/src/drivers/database/` (except valtown.ts)
 - `/src/drivers/postgres/` directory
 - `/src/drivers/mysql/` directory
@@ -686,6 +757,7 @@ After successful migration, consider:
 - All other database documentation
 
 ### Modify Extensively:
+
 - `/src/app/(outerbase)/new-resource-list.tsx` - Show only Val Town
 - `/src/app/(theme)/connect/saved-connection-storage.ts` - Update types
 - `/package.json` - Remove dependencies
@@ -695,14 +767,14 @@ After successful migration, consider:
 
 ## Timeline Summary
 
-| Phase | Duration | Cumulative |
-|-------|----------|------------|
-| 1. Audit & Document | 0.5 day | 0.5 day |
-| 2. Remove Drivers & Update Types | 1.5 days | 2 days |
-| 3. Simplify UI | 1 day | 3 days |
-| 4. Simplify Architecture | 0.5 day | 3.5 days |
-| 5. Documentation | 0.5 day | 4 days |
-| 6. Testing | 1 day | **5 days** |
+| Phase                            | Duration | Cumulative |
+| -------------------------------- | -------- | ---------- |
+| 1. Audit & Document              | 0.5 day  | 0.5 day    |
+| 2. Remove Drivers & Update Types | 1.5 days | 2 days     |
+| 3. Simplify UI                   | 1 day    | 3 days     |
+| 4. Simplify Architecture         | 0.5 day  | 3.5 days   |
+| 5. Documentation                 | 0.5 day  | 4 days     |
+| 6. Testing                       | 1 day    | **5 days** |
 
 **Total Estimated Time**: 4-5 days with buffer
 
@@ -720,6 +792,7 @@ After successful migration, consider:
 ## Next Steps
 
 To begin execution:
+
 1. Create a feature branch: `git checkout -b feat/valtown-only-migration`
 2. Start with Phase 1 (Audit & Document)
 3. Commit after each phase

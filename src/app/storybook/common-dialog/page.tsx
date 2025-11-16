@@ -1,16 +1,16 @@
 "use client";
+import { TrashIcon } from "lucide-react";
 import {
   CommonDialogProvider,
   useCommonDialog,
 } from "@/components/common-dialog";
 import { Button } from "@/components/ui/button";
-import { TrashIcon } from "lucide-react";
 
 function StorybookBody() {
   const { showDialog } = useCommonDialog();
 
   return (
-    <div className="p-4 flex flex-row gap-2">
+    <div className="flex flex-row gap-2 p-4">
       <Button
         onClick={() => {
           showDialog({

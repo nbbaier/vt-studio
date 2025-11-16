@@ -1,9 +1,9 @@
 "use client";
 
-import AgentDriverList from "@/drivers/agent/list";
-import { cn } from "@/lib/utils";
 import { Check, X } from "@phosphor-icons/react";
 import { useCallback, useMemo, useRef, useState } from "react";
+import type AgentDriverList from "@/drivers/agent/list";
+import { cn } from "@/lib/utils";
 import { CloudflareIcon } from "../icons/outerbase-icon";
 import { Button } from "../orbit/button";
 import {
@@ -64,7 +64,7 @@ export function CodeMirrorPromptWidget({
       );
 
       setHeight(Math.max(minHeight, fakeTextareaRef.current.scrollHeight));
-      textareaRef.current.style.height = newHeight + "px";
+      textareaRef.current.style.height = `${newHeight}px`;
     }
   };
 
@@ -143,7 +143,7 @@ export function CodeMirrorPromptWidget({
       <div className="flex">
         <div
           className="relative flex-1 overflow-hidden"
-          style={{ height: height + "px" }}
+          style={{ height: `${height}px` }}
         >
           <textarea
             ref={fakeTextareaRef}
@@ -153,7 +153,6 @@ export function CodeMirrorPromptWidget({
           <textarea
             ref={textareaRef}
             placeholder="Editing instruction"
-            autoFocus
             className={cn(
               textareaClassName,
               "text-foreground top-0 bottom-0 overflow-hidden"
@@ -176,7 +175,11 @@ export function CodeMirrorPromptWidget({
           />
         </div>
         <div>
-          <button className="cursor-pointer p-2" onClick={onClose}>
+          <button
+            type="button"
+            className="cursor-pointer p-2"
+            onClick={onClose}
+          >
             <X weight="bold" />
           </button>
         </div>

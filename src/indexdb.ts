@@ -1,6 +1,6 @@
-import Dexie, { EntityTable } from "dexie";
-import { SavedConnectionRawLocalStorage } from "./lib/saved-connection-storage";
-import { DashboardProps } from "./components/board";
+import Dexie, { type EntityTable } from "dexie";
+import type { DashboardProps } from "./components/board";
+import type { SavedConnectionRawLocalStorage } from "./lib/saved-connection-storage";
 
 export interface LocalDashboardData extends DashboardProps {
   id: string;

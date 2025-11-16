@@ -192,11 +192,11 @@
   margin-inline: auto;
   padding-inline: 2rem;
 
-  @media (width >=--theme(--breakpoint-sm)) {
+  @media (width >= --theme(--breakpoint-sm)) {
     max-width: none;
   }
 
-  @media (width >=1400px) {
+  @media (width >= 1400px) {
     max-width: 1400px;
   }
 }
@@ -524,7 +524,7 @@
 }
 
 .cm-focused {
-  outline: none !important;
+  outline: none;
 }
 
 .dark .cm-table-name {
@@ -887,7 +887,6 @@
 
 .window-tab-scrollbar {
   overflow: hidden;
-  overflow: block;
 }
 
 .window-tab-scrollbar:hover {

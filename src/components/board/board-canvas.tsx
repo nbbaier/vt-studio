@@ -1,5 +1,4 @@
 "use client";
-import { cn } from "@/lib/utils";
 import {
   EditIcon,
   EllipsisVertical,
@@ -12,7 +11,7 @@ import {
 } from "lucide-react";
 import { useCallback } from "react";
 import RGL, { WidthProvider } from "react-grid-layout";
-import { DashboardProps } from ".";
+import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import {
   DropdownMenu,
@@ -20,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import type { DashboardProps } from ".";
 import BoardChart from "./board-chart";
 import { deleteChartDialog } from "./board-delete-dialog";
 import { useBoardContext } from "./board-provider";
@@ -145,6 +145,7 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
               {sizes.map((x, index) => {
                 return (
                   <button
+                    type="button"
                     className={cn(
                       buttonVariants({ variant: "secondary", size: "icon" }),
                       "cancelSelectorName h-6 w-6 p-0"
@@ -163,6 +164,7 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
             </div>
             <div className="absolute top-2 left-2 z-40 hidden group-hover:block">
               <button
+                type="button"
                 className={cn(
                   buttonVariants({ variant: "default", size: "icon" }),
                   "cancelSelectorName h-6 w-6 cursor-pointer rounded-full"
@@ -178,6 +180,7 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
             <DropdownMenu key={_.i}>
               <DropdownMenuTrigger asChild>
                 <button
+                  type="button"
                   className={buttonVariants({ size: "icon", variant: "ghost" })}
                 >
                   <EllipsisVertical className="h-4 w-4" />

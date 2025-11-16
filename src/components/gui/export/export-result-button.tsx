@@ -1,4 +1,5 @@
 // import { Button, buttonVariants } from "../../ui/button";
+
 import { Button } from "@/components/orbit/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -12,9 +13,8 @@ import {
 import { getFormatHandlers } from "@/lib/export-helper";
 import { useCallback, useEffect, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
-import OptimizeTableState, {
-  TableSelectionRange,
-} from "../table-optimized/optimize-table-state";
+import type OptimizeTableState from "../table-optimized/optimize-table-state";
+import type { TableSelectionRange } from "../table-optimized/optimize-table-state";
 
 export type ExportTarget = "clipboard" | "file";
 export type ExportFormat = "csv" | "delimited" | "json" | "sql" | "xlsx";
@@ -81,13 +81,13 @@ export default function ExportResultButton({
         return null;
     }
   }, []);
-  const saveSettingToStorage = (settings: ExportSettings) => {
+  const saveSettingToStorage = useCallback((settings: ExportSettings) => {
     settings.formatTemplate = {
       ...settings.formatTemplate,
       ...(settings.options ? { [settings.format]: settings.options } : {}),
     };
     localStorage.setItem("export_settings", JSON.stringify(settings));
-  };
+  }, []);
 
   const getSettingFromStorage = useCallback(() => {
     const settings = localStorage.getItem("export_settings");
@@ -137,7 +137,7 @@ export default function ExportResultButton({
       data,
       exportSetting.target,
       exportSelection,
-      exportSetting.options!,
+      exportSetting.options ?? getDefaultOption(exportSetting.format) ?? null,
       selectedRangeIndex
     );
 
@@ -163,6 +163,7 @@ export default function ExportResultButton({
     data,
     exportSelection,
     selectedRangeIndex,
+    getDefaultOption,
   ]);
 
   useEffect(() => {
@@ -188,7 +189,7 @@ export default function ExportResultButton({
 
   useEffect(() => {
     saveSettingToStorage(exportSetting);
-  }, [exportSelection, exportSetting]);
+  }, [exportSetting, saveSettingToStorage]);
 
   const SelectedRange = ({
     ranges,
@@ -393,7 +394,7 @@ export default function ExportResultButton({
                             : "0"
                         }
                         onChange={(value) => {
-                          setSelectedRangeIndex(parseInt(value));
+                          setSelectedRangeIndex(parseInt(value, 10));
                         }}
                       />
                     )}
@@ -425,7 +426,7 @@ export default function ExportResultButton({
                   </div>
                   <div className="flex items-center space-x-4">
                     <span className="w-[120px] text-sm">Line terminator:</span>
-                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
+                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
                       <input
                         disabled={exportSetting.format !== "delimited"}
                         type="text"
@@ -446,7 +447,7 @@ export default function ExportResultButton({
 
                   <div className="flex items-center space-x-4">
                     <span className="w-[120px] text-sm">Encloser:</span>
-                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
+                    <div className="flex h-[28px] w-[120px] items-center rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline-1 outline-neutral-200 focus:outline-neutral-400/70 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600">
                       <input
                         disabled={exportSetting.format !== "delimited"}
                         type="text"

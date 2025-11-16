@@ -1,14 +1,17 @@
-import ConnectingDialog from "@/components/gui/connection-dialog";
-import { DatabaseSchemaItem, DatabaseSchemas } from "@/drivers/base-driver";
 import {
-  PropsWithChildren,
   createContext,
+  type PropsWithChildren,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
+import ConnectingDialog from "@/components/gui/connection-dialog";
+import type {
+  DatabaseSchemaItem,
+  DatabaseSchemas,
+} from "@/drivers/base-driver";
 import { useAutoComplete } from "./auto-complete-provider";
 import { useStudioContext } from "./driver-provider";
 
@@ -110,14 +113,14 @@ export function SchemaProvider({ children }: Readonly<PropsWithChildren>) {
           setLoading(false);
         });
     },
-    [databaseDriver, setError]
+    [databaseDriver]
   );
 
   useEffect(() => {
     if (schema[currentSchemaName]) {
       setCurrentSchema(schema[currentSchemaName]);
     }
-  }, [currentSchemaName, schema, setCurrentSchema]);
+  }, [currentSchemaName, schema]);
 
   /**
    * Triggered when re-fetching the database schema.

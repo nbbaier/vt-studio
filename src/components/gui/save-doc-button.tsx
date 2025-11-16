@@ -1,11 +1,11 @@
+import { LucideFolderGit, LucideLoader } from "lucide-react";
+import { useCallback, useState } from "react";
 import { useStudioContext } from "@/context/driver-provider";
-import {
+import type {
   SavedDocData,
   SavedDocInput,
   SavedDocNamespace,
 } from "@/drivers/saved-doc/saved-doc-driver";
-import { LucideFolderGit, LucideLoader } from "lucide-react";
-import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,

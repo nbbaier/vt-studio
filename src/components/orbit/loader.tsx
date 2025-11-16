@@ -13,6 +13,7 @@ export const Loader = ({ className, size = 24 }: LoaderProps) => (
     className={className}
     style={{ height: size ?? undefined, width: size ?? undefined }}
   >
+    <title>Loading</title>
     <circle
       cx="12"
       cy="12"

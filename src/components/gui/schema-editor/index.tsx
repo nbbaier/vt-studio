@@ -1,10 +1,15 @@
+import { LucideCode, LucideCopy, LucidePlus, LucideSave } from "lucide-react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useMemo,
+} from "react";
+import { toast } from "sonner";
 import { useStudioContext } from "@/context/driver-provider";
-import { DatabaseTableSchemaChange } from "@/drivers/base-driver";
+import type { DatabaseTableSchemaChange } from "@/drivers/base-driver";
 import { generateId } from "@/lib/generate-id";
 import { checkSchemaChange } from "@/lib/sql/sql-generate.schema";
-import { LucideCode, LucideCopy, LucidePlus, LucideSave } from "lucide-react";
-import { Dispatch, SetStateAction, useCallback, useMemo } from "react";
-import { toast } from "sonner";
 import { Button, buttonVariants } from "../../ui/button";
 import { Input } from "../../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
@@ -101,7 +106,12 @@ export default function SchemaEditor({
             <Separator orientation="vertical" />
           </div>
 
-          <Button variant="ghost" onClick={onAddColumn} size={"sm"} aria-label="Add new column">
+          <Button
+            variant="ghost"
+            onClick={onAddColumn}
+            size={"sm"}
+            aria-label="Add new column"
+          >
             <LucidePlus className="mr-1 h-4 w-4" />
             Add Column
           </Button>

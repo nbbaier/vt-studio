@@ -1,11 +1,3 @@
-import { useSchema } from "@/context/schema-provider";
-import {
-  DatabaseTableColumnConstraint,
-  DatabaseTableConstraintChange,
-  DatabaseTableSchemaChange,
-} from "@/drivers/base-driver";
-import { generateId } from "@/lib/generate-id";
-import { cn } from "@/lib/utils";
 import {
   LucideArrowUpRight,
   LucideCheck,
@@ -15,12 +7,20 @@ import {
   LucideTrash2,
 } from "lucide-react";
 import {
-  Dispatch,
-  PropsWithChildren,
-  SetStateAction,
+  type Dispatch,
+  type PropsWithChildren,
+  type SetStateAction,
   useCallback,
   useMemo,
 } from "react";
+import { useSchema } from "@/context/schema-provider";
+import type {
+  DatabaseTableColumnConstraint,
+  DatabaseTableConstraintChange,
+  DatabaseTableSchemaChange,
+} from "@/drivers/base-driver";
+import { generateId } from "@/lib/generate-id";
+import { cn } from "@/lib/utils";
 import { Button } from "../../ui/button";
 import {
   DropdownMenu,
@@ -281,7 +281,7 @@ function RemovableConstraintItem({
     <tr className="text-sm">
       {children}
       <td className="border">
-        <button className="p-1" onClick={onRemoveClicked}>
+        <button type="button" className="p-1" onClick={onRemoveClicked}>
           <LucideTrash2 className="h-4 w-4 text-red-500" />
         </button>
       </td>

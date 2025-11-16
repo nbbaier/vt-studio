@@ -1,4 +1,7 @@
-import { ListView, ListViewItem } from "@/components/listview";
+import { Binoculars, Folder, Plus } from "@phosphor-icons/react";
+import { LucideTrash } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ListView, type ListViewItem } from "@/components/listview";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,17 +11,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TAB_PREFIX_SAVED_QUERY } from "@/const";
 import { useStudioContext } from "@/context/driver-provider";
-import { OpenContextMenuList } from "@/core/channel-builtin";
+import type { OpenContextMenuList } from "@/core/channel-builtin";
 import { scc } from "@/core/command";
-import {
+import type {
   SavedDocData,
   SavedDocGroupByNamespace,
   SavedDocNamespace,
 } from "@/drivers/saved-doc/saved-doc-driver";
 import { cn } from "@/lib/utils";
-import { Binoculars, Folder, Plus } from "@phosphor-icons/react";
-import { LucideTrash } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 import CreateNamespaceDialog from "./create-namespace-button";
 import RemoveDocDialog from "./remove-doc-dialog";
 import RemoveNamespaceDialog from "./remove-namespace-dialog";
@@ -162,6 +162,7 @@ export default function SavedDocTab() {
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button
+                type="button"
                 className={cn(
                   buttonVariants({
                     size: "icon",

@@ -1,12 +1,12 @@
 import {
-  PropsWithChildren,
+  type PropsWithChildren,
   useCallback,
   useEffect,
   useMemo,
   useState,
 } from "react";
-import { Checkbox } from "./ui/checkbox";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "./ui/checkbox";
 
 interface SelectableTableProps<T> {
   items: T[];
@@ -51,38 +51,40 @@ export function SelectableTable<T>({
 
     if (showOnlySelected) {
       return (
-        <span
-          className="cursor-pointer text-blue-600 underline"
+        <button
+          type="button"
+          className="cursor-pointer border-0 bg-transparent p-0 text-blue-600 underline"
           onClick={() => setShowOnlySelected(false)}
         >
           Show all items
-        </span>
+        </button>
       );
     }
 
     return (
-      <span
-        className="cursor-pointer text-blue-600 underline"
+      <button
+        type="button"
+        className="cursor-pointer border-0 bg-transparent p-0 text-blue-600 underline"
         onClick={() => {
           setShowOnlySelected(true);
         }}
       >
         Show only the selected items
-      </span>
+      </button>
     );
   }, [selectedItems, showOnlySelected]);
 
   return (
     <table className="w-full border-separate border-spacing-0 text-sm">
       <thead className="sticky top-0">
-        <tr className="h-[35px] bg-secondary text-xs">
+        <tr className="bg-secondary h-[35px] text-xs">
           {!disabledSelection && (
-            <th className="border-b border-r px-2 text-left"></th>
+            <th className="border-r border-b px-2 text-left"></th>
           )}
           {headers.map((header) => {
             return (
               <th
-                className="border-b border-r px-2 text-left"
+                className="border-r border-b px-2 text-left"
                 style={{ width: header.width }}
                 key={header.key}
               >
@@ -93,8 +95,8 @@ export function SelectableTable<T>({
         </tr>
 
         {!disabledSelection && (
-          <tr className="h-[40px] bg-background">
-            <th className="w-[40px] items-center justify-center border-b border-r">
+          <tr className="bg-background h-[40px]">
+            <th className="w-[40px] items-center justify-center border-r border-b">
               <Checkbox
                 checked={allSelected}
                 onCheckedChange={toggleAllChecked}
@@ -149,12 +151,12 @@ export function SelectableTable<T>({
                   : undefined
               }
               className={cn(
-                "h-[40px] cursor-pointer hover:bg-accent",
+                "hover:bg-accent h-[40px] cursor-pointer",
                 isSelected ? "text-primary" : "text-gray-400 dark:text-gray-600"
               )}
             >
               {!disabledSelection && (
-                <td className="flex h-[40px] items-center justify-center border-b border-r">
+                <td className="flex h-[40px] items-center justify-center border-r border-b">
                   <Checkbox checked={isSelected} />
                 </td>
               )}

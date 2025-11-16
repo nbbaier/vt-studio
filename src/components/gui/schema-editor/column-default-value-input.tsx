@@ -1,3 +1,5 @@
+import { ChevronsUpDown } from "lucide-react";
+import { type ChangeEvent, useCallback, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
@@ -5,9 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
-import { ChevronsUpDown } from "lucide-react";
-import { ChangeEvent, useCallback, useMemo } from "react";
+import type { DatabaseTableColumnConstraint } from "@/drivers/base-driver";
 import { Input } from "../../ui/input";
 
 export default function ColumnDefaultValueInput({

@@ -1,11 +1,11 @@
-import { BaseHandle } from "@/components/base-handle";
 import { Position } from "@xyflow/react";
-import { ExplainNodeProps } from "../build-query-explanation-flow";
+import { BaseHandle } from "@/components/base-handle";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { ExplainNodeProps } from "../build-query-explanation-flow";
 
 export function OperationBlock(props: ExplainNodeProps) {
   const borderColor = props.data.using_filesort
@@ -22,20 +22,20 @@ export function OperationBlock(props: ExplainNodeProps) {
             type="source"
             position={Position.Right}
             id={props.id}
-            className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+            className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
           />
           <BaseHandle
             type="target"
             position={Position.Left}
             id={props.id}
-            className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+            className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
           />
-          <div className="flex flex-row justify-between items-center text-[8pt]">
+          <div className="flex flex-row items-center justify-between text-[8pt]">
             <small>{subLabel}</small>
           </div>
           <div className="flex flex-row items-center">
             <div
-              className={`max-w-[200px] w-[100px] text-center  p-2 bg-gray-300 text-gray-900 ${borderColor} text-[9pt] border-2 rounded-md py-4`}
+              className={`w-[100px] max-w-[200px] bg-gray-300 p-2 text-center text-gray-900 ${borderColor} rounded-md border-2 py-4 text-[9pt]`}
             >
               <div>
                 <small>{label}</small>

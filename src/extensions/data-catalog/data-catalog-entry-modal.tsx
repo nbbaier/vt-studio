@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import { ToolbarFiller } from "@/components/gui/toolbar";
 import { Button } from "@/components/orbit/button";
 import { Input } from "@/components/orbit/input";
@@ -9,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useCallback, useState } from "react";
-import DataCatalogDriver, { DataCatalogTermDefinition } from "./driver";
+import type DataCatalogDriver from "./driver";
+import type { DataCatalogTermDefinition } from "./driver";
 
 interface Props {
   driver?: DataCatalogDriver;

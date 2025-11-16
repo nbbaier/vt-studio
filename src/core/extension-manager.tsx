@@ -1,10 +1,13 @@
-import { OptimizeTableHeaderProps } from "@/components/gui/table-optimized";
-import OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
-import { TableHeaderMetadata } from "@/components/gui/table-result/type";
-import { DatabaseSchemaItem, DatabaseSchemas } from "@/drivers/base-driver";
-import { ReactElement } from "react";
-import { IStudioExtension } from "./extension-base";
-import { BeforeQueryPipeline } from "./query-pipeline";
+import type { ReactElement } from "react";
+import type { OptimizeTableHeaderProps } from "@/components/gui/table-optimized";
+import type OptimizeTableState from "@/components/gui/table-optimized/optimize-table-state";
+import type { TableHeaderMetadata } from "@/components/gui/table-result/type";
+import type {
+  DatabaseSchemaItem,
+  DatabaseSchemas,
+} from "@/drivers/base-driver";
+import type { IStudioExtension } from "./extension-base";
+import type { BeforeQueryPipeline } from "./query-pipeline";
 
 interface RegisterSidebarOption {
   key: string;
@@ -53,7 +56,9 @@ export class StudioExtensionContext {
     {};
 
   constructor(protected extensions: IStudioExtension[]) {
-    this.extensions.forEach((ext) => ext.init(this));
+    this.extensions.forEach((ext) => {
+      ext.init(this);
+    });
   }
 
   registerBeforeQuery(handler: BeforeQueryHandler) {
@@ -103,7 +108,9 @@ export class StudioExtensionContext {
 }
 export class StudioExtensionManager extends StudioExtensionContext {
   cleanup() {
-    this.extensions.forEach((ext) => ext.cleanup());
+    this.extensions.forEach((ext) => {
+      ext.cleanup();
+    });
   }
 
   getSidebars() {

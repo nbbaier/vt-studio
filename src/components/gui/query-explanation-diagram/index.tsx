@@ -1,23 +1,23 @@
 import {
-  Edge,
-  Node,
-  Position,
+  type Edge,
+  type Node,
+  type Position,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
+import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
 import {
   buildQueryExplanationFlow,
-  ExplanationMysql,
+  type ExplanationMysql,
 } from "./build-query-explanation-flow";
-import { QueryBlock } from "./node-type/query-block";
 import { NestedLoop } from "./node-type/nested-loop";
-import { TableBlock } from "./node-type/table-block";
 import { OperationBlock } from "./node-type/operation-block";
+import { QueryBlock } from "./node-type/query-block";
+import { TableBlock } from "./node-type/table-block";
 import { UnionBlock } from "./node-type/union-block";
-import { useTheme } from "next-themes";
 
 interface LayoutFlowProps {
   items: ExplanationMysql;

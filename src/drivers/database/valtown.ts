@@ -1,4 +1,4 @@
-import {
+import type {
   DatabaseHeader,
   DatabaseResultSet,
   DatabaseRow,
@@ -87,7 +87,7 @@ export class ValtownQueryable implements QueryableBaseDriver {
     const r = await fetch(`https://api.val.town/v1/sqlite/batch`, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + this.token,
+        Authorization: `Bearer ${this.token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -123,7 +123,7 @@ export class ValtownQueryable implements QueryableBaseDriver {
     const r = await fetch(`https://api.val.town/v1/sqlite/execute`, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + this.token,
+        Authorization: `Bearer ${this.token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ statement: stmt }),

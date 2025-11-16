@@ -1,5 +1,3 @@
-import AgentDriverList from "@/drivers/agent/list";
-import { generateId } from "@/lib/generate-id";
 import { unifiedMergeView } from "@codemirror/merge";
 import {
   Compartment,
@@ -13,11 +11,13 @@ import {
   EditorView,
   keymap,
   showTooltip,
-  Tooltip,
+  type Tooltip,
   ViewPlugin,
   WidgetType,
 } from "@codemirror/view";
 import { createRoot } from "react-dom/client";
+import type AgentDriverList from "@/drivers/agent/list";
+import { generateId } from "@/lib/generate-id";
 import { resolveToNearestStatement } from "../gui/sql-editor/statement-highlight";
 import "./prompt-plugin.css";
 import { CodeMirrorPromptWidget } from "./prompt-widget";
@@ -530,7 +530,7 @@ export class CodeMirrorPromptPlugin {
         create() {
           return Decoration.none;
         },
-        update: (v, tr) => {
+        update: (_v, tr) => {
           const cursorPosition = tr.state.selection.main.from;
           const line = tr.state.doc.lineAt(cursorPosition);
           const lineText = line.text;

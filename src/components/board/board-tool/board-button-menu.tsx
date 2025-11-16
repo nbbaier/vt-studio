@@ -1,3 +1,5 @@
+import { ChevronDown, RefreshCcw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { CircularProgressBar } from "@/components/circular-progress-bar";
 import { Button } from "@/components/orbit/button";
 import { buttonVariants } from "@/components/ui/button";
@@ -9,8 +11,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { convertTimeToMilliseconds } from "@/lib/convertNumber";
 import { cn } from "@/lib/utils";
-import { ChevronDown, RefreshCcw } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useBoardContext } from "../board-provider";
 
 interface Props {
@@ -29,7 +29,7 @@ function useAutoRefresh(interval: number) {
   useEffect(() => {
     setIsReset(true);
     setTimeLeft(0);
-  }, [interval]);
+  }, []);
 
   useEffect(() => {
     if (interval > 0 && isReset) {
@@ -55,7 +55,7 @@ function useAutoRefresh(interval: number) {
 
       return () => clearInterval(run);
     }
-  }, [interval, isActive, timeLeft]);
+  }, [isActive, timeLeft]);
 
   return timeLeft;
 }
@@ -86,9 +86,10 @@ export function BoardButtonMenu(props: Props) {
   return (
     <div className="flex gap-2">
       <button
+        type="button"
         className={buttonVariants({ size: "sm", variant: "ghost" })}
         onClick={() => {
-          props.onRefresh && props.onRefresh();
+          props.onRefresh?.();
         }}
       >
         <div className="flex items-center gap-2">
@@ -101,6 +102,7 @@ export function BoardButtonMenu(props: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            type="button"
             className={cn(
               buttonVariants({ size: "sm", variant: "ghost" }),
               "gap-2"

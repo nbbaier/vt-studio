@@ -1,11 +1,11 @@
 "use client";
+import { StackMinus, TreeStructure } from "@phosphor-icons/react";
 import { scc } from "@/core/command";
 import ListButtonItem from "../list-button-item";
-import { StackMinus, TreeStructure } from "@phosphor-icons/react";
 
 export default function SettingSidebar() {
   return (
-    <div className="flex flex-col grow p-2">
+    <div className="flex grow flex-col p-2">
       <ListButtonItem
         text="Relational Diagram"
         onClick={() => {

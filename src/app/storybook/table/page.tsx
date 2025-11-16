@@ -1,11 +1,11 @@
 "use client";
 
+import { useCallback, useMemo } from "react";
 import OptimizeTable, {
-  OptimizeTableCellRenderProps,
-  OptimizeTableHeaderWithIndexProps,
+  type OptimizeTableCellRenderProps,
+  type OptimizeTableHeaderWithIndexProps,
 } from "@/components/gui/table-optimized";
 import { createSimpleTableState } from "@/components/gui/table-optimized/helper";
-import { useCallback, useMemo } from "react";
 
 export default function TableStorybookPage() {
   const state = useMemo(() => {

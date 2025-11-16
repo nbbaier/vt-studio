@@ -1,6 +1,6 @@
+import Link, { type LinkProps } from "next/link";
 import { Loader } from "@/components/orbit/loader";
 import { cn } from "@/lib/utils";
-import Link, { LinkProps } from "next/link";
 
 export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   as?: React.ElementType;

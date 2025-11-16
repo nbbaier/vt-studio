@@ -4,33 +4,37 @@ import {
   completionStatus,
   startCompletion,
 } from "@codemirror/autocomplete";
+import { defaultKeymap, insertTab } from "@codemirror/commands";
 import {
   MySQL as MySQLDialect,
   PostgreSQL as PostgresDialect,
+  type SQLNamespace,
   sql,
-  SQLNamespace,
 } from "@codemirror/lang-sql";
-import { indentUnit, LanguageSupport } from "@codemirror/language";
+import { indentUnit, type LanguageSupport } from "@codemirror/language";
+import { keymap } from "@codemirror/view";
 import CodeMirror, {
   EditorView,
-  Extension,
-  ReactCodeMirrorRef,
+  type Extension,
+  type ReactCodeMirrorRef,
 } from "@uiw/react-codemirror";
-import { forwardRef, KeyboardEventHandler, useEffect, useMemo } from "react";
-
+import {
+  forwardRef,
+  type KeyboardEventHandler,
+  useEffect,
+  useMemo,
+} from "react";
+import { toast } from "sonner";
 import {
   CodeMirrorPromptPlugin,
-  PromptCallback,
+  type PromptCallback,
 } from "@/components/editor/prompt-plugin";
 import { createVariableHighlightPlugin } from "@/components/editor/sql-editor/variable-highlight-plugin";
-import AgentDriverList from "@/drivers/agent/list";
-import { SupportedDialect } from "@/drivers/base-driver";
+import type AgentDriverList from "@/drivers/agent/list";
+import type { SupportedDialect } from "@/drivers/base-driver";
 import sqliteFunctionList from "@/drivers/sqlite/function-tooltip.json";
 import { sqliteDialect } from "@/drivers/sqlite/sqlite-dialect";
 import { KEY_BINDING } from "@/lib/key-matcher";
-import { defaultKeymap, insertTab } from "@codemirror/commands";
-import { keymap } from "@codemirror/view";
-import { toast } from "sonner";
 import { functionTooltip } from "./function-tooltips";
 import createSQLTableNameHighlightPlugin from "./sql-tablename-highlight";
 import SqlStatementHighlightPlugin from "./statement-highlight";
@@ -166,8 +170,8 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
     }, [fontSize, onFontSizeChanged]);
 
     const extensions = useMemo(() => {
-      let sqlDialect: LanguageSupport | undefined = undefined;
-      let tooltipExtension: Extension | undefined = undefined;
+      let sqlDialect: LanguageSupport | undefined;
+      let tooltipExtension: Extension | undefined;
 
       if (dialect === "sqlite") {
         sqlDialect = sql({

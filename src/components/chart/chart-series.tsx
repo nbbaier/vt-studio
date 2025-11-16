@@ -1,9 +1,9 @@
 import { produce } from "immer";
 import { useTheme } from "next-themes";
-import { Dispatch, SetStateAction } from "react";
+import type { Dispatch, SetStateAction } from "react";
 import { ButtonGroupItem } from "../button-group";
 import { ChartSeriesCombobox } from "./chart-series-combobox";
-import { ChartValue, ThemeColors, THEMES } from "./chart-type";
+import { type ChartValue, THEMES, type ThemeColors } from "./chart-type";
 import { generateGradientColors } from "./echart-options-builder";
 
 interface ChartSeriesProps {
@@ -67,7 +67,7 @@ export default function ChartSeries({
               }
               selected={key ?? ""}
               placeholder="Select axis key..."
-              onChange={function (v: string): void {
+              onChange={(v: string): void => {
                 onChange((prev) => {
                   return produce(prev, (draft) => {
                     if (!draft.params.options.yAxisKeys) return;
@@ -89,7 +89,7 @@ export default function ChartSeries({
                   });
                 });
               }}
-              onChangeColor={function (color: string): void {
+              onChangeColor={(color: string): void => {
                 onChange((prev) => {
                   return produce(prev, (draft) => {
                     draft.params.options.yAxisKeyColors = {
@@ -100,7 +100,7 @@ export default function ChartSeries({
                   });
                 });
               }}
-              onThemeChange={function (theme: ThemeColors): void {
+              onThemeChange={(theme: ThemeColors): void => {
                 onChange((prev) => {
                   const appTheme: "light" | "dark" = (forcedTheme ||
                     resolvedTheme) as "light" | "dark";

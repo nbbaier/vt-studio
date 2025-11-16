@@ -1,7 +1,7 @@
 "use client";
-import ColumnTypeSelector from "@/components/gui/schema-editor/column-type-selector";
-import { ColumnTypeSuggestionGroup } from "@/drivers/base-driver";
 import { useState } from "react";
+import ColumnTypeSelector from "@/components/gui/schema-editor/column-type-selector";
+import type { ColumnTypeSuggestionGroup } from "@/drivers/base-driver";
 
 // Val Town-only migration: Using SQLite data types instead of MySQL
 const SQLITE_DATA_TYPE_SUGGESTIONS: ColumnTypeSuggestionGroup[] = [

@@ -1,8 +1,8 @@
+import { LucideFile, LucideFolderClosed } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { localDb } from "@/indexdb";
 import { generateId } from "@/lib/generate-id";
 import { cn } from "@/lib/utils";
-import { LucideFile, LucideFolderClosed } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 import { useCommonDialog } from "./common-dialog";
 import { unsupportFileHandlerDialogContent } from "./screen-dropzone";
 import { Button, buttonVariants } from "./ui/button";
@@ -94,7 +94,8 @@ export default function FileHandlerPicker({
 
   if (handler) {
     return (
-      <div
+      <button
+        type="button"
         onClick={onChangeFile}
         className={cn(
           buttonVariants({ variant: "outline" }),
@@ -103,7 +104,7 @@ export default function FileHandlerPicker({
       >
         <LucideFile className="mr-2 h-4 w-4" />
         {handler.name}
-      </div>
+      </button>
     );
   }
 

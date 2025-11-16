@@ -45,7 +45,7 @@ async function CodeBlockInner({ children, className }: CodeBlockProps) {
     },
   });
 
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+  // biome-ignore lint/security/noDangerouslySetInnerHtml: we are using a trusted source
   return <div dangerouslySetInnerHTML={{ __html: highlightedCode }} />;
 }
 

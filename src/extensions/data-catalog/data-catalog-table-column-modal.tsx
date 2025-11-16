@@ -1,3 +1,7 @@
+import { MagicWand } from "@phosphor-icons/react";
+import { produce } from "immer";
+import { LucideLoader } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Button } from "@/components/orbit/button";
 import {
   DialogDescription,
@@ -8,12 +12,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useStudioContext } from "@/context/driver-provider";
-import { MagicWand } from "@phosphor-icons/react";
-import { produce } from "immer";
-import { LucideLoader } from "lucide-react";
-import { useCallback, useState } from "react";
 import { useDataCatalogContext } from "./data-model-tab";
-import { DataCatalogColumnInput } from "./driver";
+import type { DataCatalogColumnInput } from "./driver";
 
 interface DataCatalogTableColumnModalProps {
   schemaName: string;

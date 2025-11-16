@@ -1,7 +1,7 @@
-import { useSchema } from "@/context/schema-provider";
-import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, LucideRefreshCw } from "lucide-react";
 import { useState } from "react";
+import { useSchema } from "@/context/schema-provider";
+import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "../../ui/button";
 import {
   Command,

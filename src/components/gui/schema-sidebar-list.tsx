@@ -1,14 +1,14 @@
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { OpenContextMenuList } from "@/core/channel-builtin";
+import type { OpenContextMenuList } from "@/core/channel-builtin";
 import { scc } from "@/core/command";
-import { DatabaseSchemaItem } from "@/drivers/base-driver";
+import type { DatabaseSchemaItem } from "@/drivers/base-driver";
 import { triggerEditorExtensionTab } from "@/extensions/trigger-editor";
-import { ExportFormat, exportTableData } from "@/lib/export-helper";
-import { Icon, Table } from "@phosphor-icons/react";
+import { type ExportFormat, exportTableData } from "@/lib/export-helper";
+import { type Icon, Table } from "@phosphor-icons/react";
 import { LucideCog, LucideDatabase, LucideView } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ListView, ListViewItem } from "../listview";
+import { ListView, type ListViewItem } from "../listview";
 import { CloudflareIcon } from "../resource-card/icon";
 import SchemaCreateDialog from "./schema-editor/schema-create";
 
@@ -23,12 +23,12 @@ function formatTableSize(byteCount?: number) {
 
   if (!byteCount) return undefined;
   if (byteInMb * 999 < byteCount)
-    return (byteCount / byteInGb).toFixed(1) + " GB";
+    return `${(byteCount / byteInGb).toFixed(1)} GB`;
   if (byteInMb * 100 < byteCount)
-    return (byteCount / byteInMb).toFixed(0) + " MB";
+    return `${(byteCount / byteInMb).toFixed(0)} MB`;
   if (byteInKb * 100 < byteCount)
-    return (byteCount / byteInMb).toFixed(1) + " MB";
-  if (byteInKb < byteCount) return Math.floor(byteCount / byteInKb) + " KB";
+    return `${(byteCount / byteInMb).toFixed(1)} MB`;
+  if (byteInKb < byteCount) return `${Math.floor(byteCount / byteInKb)} KB`;
   return "1 KB";
 }
 
@@ -57,7 +57,7 @@ function prepareListViewItem(
       data: s,
       icon: icon,
       iconColor: iconClassName,
-      key: s.schemaName + "." + s.name,
+      key: `${s.schemaName}.${s.name}`,
       name: s.name,
       progressBarMax: maxTableSize,
       progressBarValue: s.tableSchema?.stats?.sizeInByte,
@@ -109,17 +109,15 @@ function groupByFtsTable(items: ListViewItem<DatabaseSchemaItem>[]) {
         .map((suffix) => hash[item.data.name + suffix])
         .filter(Boolean);
 
-      ftsSuffix.forEach((suffix) => excludes.add(item.data.name + suffix));
+      ftsSuffix.forEach((suffix) => {
+        excludes.add(item.data.name + suffix);
+      });
 
       item.badgeContent = "fts5";
     }
   }
 
   return items.filter((item) => !excludes.has(item.data.name));
-}
-
-function sortTable(items: ListViewItem<DatabaseSchemaItem>[]) {
-  return items.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 function flattenSchemaGroup(
@@ -166,7 +164,7 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
 
   useEffect(() => {
     setSelected("");
-  }, [setSelected, search]);
+  }, []);
 
   const exportFormats = useMemo(() => {
     return [
@@ -340,4 +338,14 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
       />
     </>
   );
+}
+
+function sortTable(arg0: ListViewItem<DatabaseSchemaItem>[]) {
+  const sorted = [...arg0].sort((a, b) => a.name.localeCompare(b.name));
+  for (const item of sorted) {
+    if (item.children && Array.isArray(item.children)) {
+      item.children = sortTable(item.children);
+    }
+  }
+  return sorted;
 }

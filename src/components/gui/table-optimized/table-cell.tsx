@@ -1,10 +1,10 @@
+import { type ReactElement, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { ReactElement, useMemo } from "react";
-import {
+import type {
   OptimizeTableCellRenderProps,
   OptimizeTableHeaderWithIndexProps,
 } from ".";
-import OptimizeTableState from "./optimize-table-state";
+import type OptimizeTableState from "./optimize-table-state";
 
 export default function OptimizeTableCell<HeaderMetadata = unknown>({
   state,
@@ -31,7 +31,7 @@ export default function OptimizeTableCell<HeaderMetadata = unknown>({
 
   const additionalStyles = useMemo(() => {
     if (!isSticky) return undefined;
-    return { zIndex: 15, left: state.gutterColumnWidth + "px" };
+    return { zIndex: 15, left: `${state.gutterColumnWidth}px` };
   }, [state.gutterColumnWidth, isSticky]);
 
   let cellBackgroundColor = "bg-background";

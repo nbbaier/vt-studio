@@ -15,12 +15,16 @@
  * to be used interchangeably.
  */
 
+import { ColumnType } from "@outerbase/sdk-transform";
 import {
   convertSqliteType,
   escapeIdentity,
   escapeSqlValue,
 } from "@/drivers/sqlite/sql-helper";
-import {
+
+import { parseCreateTableScript } from "@/drivers/sqlite/sql-parse-table";
+import { parseCreateTriggerScript } from "@/drivers/sqlite/sql-parse-trigger";
+import type {
   ColumnTypeSelector,
   DatabaseResultSet,
   DatabaseSchemaItem,
@@ -35,10 +39,6 @@ import {
   QueryableBaseDriver,
   SelectFromTableOptions,
 } from "./base-driver";
-
-import { parseCreateTableScript } from "@/drivers/sqlite/sql-parse-table";
-import { parseCreateTriggerScript } from "@/drivers/sqlite/sql-parse-trigger";
-import { ColumnType } from "@outerbase/sdk-transform";
 import CommonSQLImplement from "./common-sql-imp";
 import { parseCreateViewScript } from "./sqlite/sql-parse-view";
 import generateSqlSchemaChange from "./sqlite/sqlite-generate-schema";
@@ -273,8 +273,8 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
           };
         }
 
-        throw new Error("Unexpected error finding table " + tableName);
-      } catch (e) {
+        throw new Error(`Unexpected error finding table ${tableName}`);
+      } catch (_e) {
         throw new Error("Unexpected error while parsing");
       }
     } catch {
@@ -328,9 +328,9 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
       .join(", ");
 
     // If there is rowid, it is likely, we need to query that row back
-    const hasRowId = !!key["rowid"];
+    const hasRowId = !!key.rowid;
 
-    const sql = `SELECT ${hasRowId ? "rowid, " : ""}* FROM ${this.escapeId(schemaName)}.${this.escapeId(tableName)} ${wherePart ? "WHERE " + wherePart : ""} LIMIT 1 OFFSET 0`;
+    const sql = `SELECT ${hasRowId ? "rowid, " : ""}* FROM ${this.escapeId(schemaName)}.${this.escapeId(tableName)} ${wherePart ? `WHERE ${wherePart}` : ""} LIMIT 1 OFFSET 0`;
     return this.query(sql);
   }
 

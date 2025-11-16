@@ -1,10 +1,10 @@
+import { useMemo, useState } from "react";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ColumnTypeSuggestionGroup } from "@/drivers/base-driver";
-import { useMemo, useState } from "react";
+import type { ColumnTypeSuggestionGroup } from "@/drivers/base-driver";
 
 function ColumnTypeList({
   items,
@@ -15,7 +15,7 @@ function ColumnTypeList({
 }) {
   return items.map((group) => (
     <div key={group.name}>
-      <div className="text-sm font-bold py-1 px-4 bg-accent mb-1">
+      <div className="bg-accent mb-1 px-4 py-1 text-sm font-bold">
         {group.name}
       </div>
       <div className="flex flex-col">
@@ -40,8 +40,9 @@ function ColumnTypeList({
           }
 
           return (
-            <div
+            <button
               key={type.name}
+              type="button"
               className={itemClassName}
               onPointerDown={(e) => {
                 e.preventDefault();
@@ -57,7 +58,7 @@ function ColumnTypeList({
               }}
             >
               {content}
-            </div>
+            </button>
           );
         })}
       </div>
@@ -95,27 +96,25 @@ export default function ColumnTypeSelector({
 
   const filteredSuggestions = suggestions
     .map((group) => {
-      {
-        return {
-          ...group,
-          suggestions: group.suggestions
-            .filter((type) => {
-              return (
-                type.name.toLowerCase().startsWith(parsedType.toLowerCase()) &&
-                type.name !== "uuid"
-              );
-            })
-            .map((x) => {
-              if (["enum", "set"].includes(x.name)) {
-                return {
-                  ...x,
-                  parameters: [{ name: "", default: "'Y','N'" }],
-                };
-              }
-              return x;
-            }),
-        };
-      }
+      return {
+        ...group,
+        suggestions: group.suggestions
+          .filter((type) => {
+            return (
+              type.name.toLowerCase().startsWith(parsedType.toLowerCase()) &&
+              type.name !== "uuid"
+            );
+          })
+          .map((x) => {
+            if (["enum", "set"].includes(x.name)) {
+              return {
+                ...x,
+                parameters: [{ name: "", default: "'Y','N'" }],
+              };
+            }
+            return x;
+          }),
+      };
     })
     .filter((group) => group.suggestions.length > 0);
 
@@ -149,13 +148,13 @@ export default function ColumnTypeSelector({
         </div>
 
         {typeof typeSuggestion.description === "string" && (
-          <div className="text-sm my-1 font-sans">
+          <div className="my-1 font-sans text-sm">
             {typeSuggestion.description}
           </div>
         )}
         {typeof typeSuggestion.description === "function" && (
           <div
-            className="text-sm my-1 font-sans"
+            className="my-1 font-sans text-sm"
             dangerouslySetInnerHTML={{
               __html: typeSuggestion.description(parsedType, parsedParameters),
             }}
@@ -163,7 +162,7 @@ export default function ColumnTypeSelector({
         )}
 
         {typeSuggestion.parameters && (
-          <ul className="flex flex-col gap-1 my-2 text-sm">
+          <ul className="my-2 flex flex-col gap-1 text-sm">
             {typeSuggestion.parameters.map((p) => (
               <li key={p.name}>
                 <strong className="font-semibold">{p.name}</strong>
@@ -179,7 +178,7 @@ export default function ColumnTypeSelector({
   return (
     <div className="relative">
       <input
-        className="p-2 text-sm outline-hidden w-[150px] bg-inherit"
+        className="w-[150px] bg-inherit p-2 text-sm outline-hidden"
         onFocus={() => setShowSuggestion(true)}
         onBlur={() => {
           setShowSuggestion(false);
@@ -193,7 +192,7 @@ export default function ColumnTypeSelector({
         <Popover open={showSuggestion} modal={false}>
           <PopoverTrigger />
           <PopoverContent
-            className="w-[300px] max-h-[300px] p-0 overflow-y-auto mt-2 font-mono"
+            className="mt-2 max-h-[300px] w-[300px] overflow-y-auto p-0 font-mono"
             onOpenAutoFocus={(e) => e.preventDefault()}
           >
             {suggestionDom}

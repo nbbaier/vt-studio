@@ -1,15 +1,15 @@
+import { MagnifyingGlass } from "@phosphor-icons/react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import SchemaNameSelect from "@/components/gui/schema-editor/schema-name-select";
 import { Toolbar, ToolbarFiller } from "@/components/gui/toolbar";
 import { Input } from "@/components/orbit/input";
 import { Toggle } from "@/components/orbit/toggle";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseTableSchema } from "@/drivers/base-driver";
-import { MagnifyingGlass } from "@phosphor-icons/react";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import DataCatalogExtension from ".";
+import type { DatabaseTableSchema } from "@/drivers/base-driver";
+import type DataCatalogExtension from ".";
 import DataCatalogTableAccordion from "./data-catalog-table-accordion";
-import DataCatalogDriver from "./driver";
+import type DataCatalogDriver from "./driver";
 
 const DataCatalogContext = createContext<{
   driver: DataCatalogDriver;
@@ -45,7 +45,12 @@ export default function DataCatalogModelTab() {
       .map((table) => table.tableSchema)
       .filter(Boolean) as DatabaseTableSchema[];
 
-    result.sort((a, b) => a.tableName!.localeCompare(b.tableName!));
+    result.sort((a, b) => {
+      if (!a.tableName && !b.tableName) return 0;
+      if (!a.tableName) return 1;
+      if (!b.tableName) return -1;
+      return a.tableName.localeCompare(b.tableName);
+    });
 
     return result;
   }, [selectedSchema, schemaList]);
@@ -54,7 +59,7 @@ export default function DataCatalogModelTab() {
     return driver.listen(() => {
       setRevision((prev) => prev + 1);
     });
-  }, [driver, setRevision]);
+  }, [driver]);
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden">
@@ -65,14 +70,17 @@ export default function DataCatalogModelTab() {
               value={selectedSchema}
               onChange={setSelectedSchema}
             />
-            <div className="ml-2 flex items-center gap-2">
+            <label
+              htmlFor="definition-only"
+              className="ml-2 flex cursor-pointer items-center gap-2"
+            >
               <Toggle
                 toggled={hasDefinitionOnly}
                 size="sm"
                 onChange={setHasDefinitionOnly}
               />
-              <label className="text-base">Definition only?</label>
-            </div>
+              <span className="text-base">Definition only?</span>
+            </label>
             <ToolbarFiller />
             <div>
               <Input
@@ -86,9 +94,9 @@ export default function DataCatalogModelTab() {
         </div>
 
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4">
-          {schemas.map((table, index) => (
+          {schemas.map((table) => (
             <DataCatalogTableAccordion
-              key={index}
+              key={table.tableName}
               table={table}
               driver={driver}
               hasDefinitionOnly={hasDefinitionOnly}

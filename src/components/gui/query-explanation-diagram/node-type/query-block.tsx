@@ -1,11 +1,14 @@
+import { Position } from "@xyflow/react";
+import { BaseHandle } from "@/components/base-handle";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Position } from "@xyflow/react";
-import { BaseHandle } from "@/components/base-handle";
-import { ExplainNodeProps, formatCost } from "../build-query-explanation-flow";
+import {
+  type ExplainNodeProps,
+  formatCost,
+} from "../build-query-explanation-flow";
 
 export function QueryBlock(props: ExplainNodeProps) {
   return (
@@ -16,15 +19,15 @@ export function QueryBlock(props: ExplainNodeProps) {
             type="target"
             position={Position.Left}
             id={props.id}
-            className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+            className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
           />
           <BaseHandle
             type="source"
             position={Position.Right}
             id={props.id}
-            className="opacity-0 group-hover:opacity-100 w-[10px]! h-[10px]!"
+            className="h-[10px]! w-[10px]! opacity-0 group-hover:opacity-100"
           />
-          <div className="flex flex-row justify-between items-center text-[8pt]">
+          <div className="flex flex-row items-center justify-between text-[8pt]">
             <div
               className={`${props.data.cost_info.query_cost === 0 ? "hidden" : ""}`}
             >
@@ -34,7 +37,7 @@ export function QueryBlock(props: ExplainNodeProps) {
             </div>
           </div>
           <div className="flex flex-row items-center">
-            <div className="max-w-[200px] p-2 bg-gray-300 text-gray-900 border-gray-900 text-[9pt] border-b rounded-md py-4">
+            <div className="max-w-[200px] rounded-md border-b border-gray-900 bg-gray-300 p-2 py-4 text-[9pt] text-gray-900">
               <div>
                 <small>
                   {props.id.split("-")?.[0] || null}{" "}

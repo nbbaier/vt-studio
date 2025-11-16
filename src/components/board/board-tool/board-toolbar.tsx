@@ -1,6 +1,6 @@
 import { useCallback } from "react";
-import { DashboardProps } from "..";
 import { buttonVariants } from "../../ui/button";
+import type { DashboardProps } from "..";
 import { BoardButtonMenu } from "./board-button-menu";
 import { BoardTitleMenu } from "./board-title-menu";
 
@@ -26,6 +26,7 @@ export function BoardToolbar(props: Props) {
     <div className="flex items-center justify-between border border-x-0 px-1 py-2">
       <div className="w-1/3">
         <button
+          type="button"
           className={buttonVariants({ size: "sm", variant: "ghost" })}
           onClick={toggleShow}
         >

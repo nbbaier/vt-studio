@@ -1,9 +1,9 @@
-import { useStudioContext } from "@/context/driver-provider";
-import type { DatabaseTableSchema } from "@/drivers/base-driver";
-import { cn } from "@/lib/utils";
 import { Popover, PopoverTrigger } from "@radix-ui/react-popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useStudioContext } from "@/context/driver-provider";
+import type { DatabaseTableSchema } from "@/drivers/base-driver";
+import { cn } from "@/lib/utils";
 import { buttonVariants } from "../../ui/button";
 import {
   Command,

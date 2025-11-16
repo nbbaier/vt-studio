@@ -1,4 +1,15 @@
-import { PromptSelectedFragment } from "@/components/editor/prompt-plugin";
+import { tokenizeSql } from "@outerbase/sdk-transform";
+import { CaretDown } from "@phosphor-icons/react";
+import type { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import {
+  LucideGrid,
+  LucideMessageSquareWarning,
+  LucidePlay,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
+import { format } from "sql-formatter";
+import type { PromptSelectedFragment } from "@/components/editor/prompt-plugin";
 import SqlEditor from "@/components/gui/sql-editor";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -21,30 +32,19 @@ import {
 import { TAB_PREFIX_SAVED_QUERY } from "@/const";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import {
+import type {
   SavedDocData,
   SavedDocInput,
 } from "@/drivers/saved-doc/saved-doc-driver";
 import { escapeSqlValue, extractInputValue } from "@/drivers/sqlite/sql-helper";
 import { KEY_BINDING } from "@/lib/key-matcher";
 import {
+  type MultipleQueryProgress,
+  type MultipleQueryResult,
   multipleQuery,
-  MultipleQueryProgress,
-  MultipleQueryResult,
 } from "@/lib/sql/multiple-query";
 import { sendAnalyticEvents } from "@/lib/tracking";
 import { cn } from "@/lib/utils";
-import { tokenizeSql } from "@outerbase/sdk-transform";
-import { CaretDown } from "@phosphor-icons/react";
-import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
-import {
-  LucideGrid,
-  LucideMessageSquareWarning,
-  LucidePlay,
-} from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
-import { format } from "sql-formatter";
 import { isExplainQueryPlan } from "../query-explanation";
 import QueryProgressLog from "../query-progress-log";
 import SaveDocButton from "../save-doc-button";
@@ -54,7 +54,10 @@ import {
 } from "../sql-editor/statement-highlight";
 import ExplainResultTab from "../tabs-result/explain-result-tab";
 import QueryResult from "../tabs-result/query-result-tab";
-import WindowTabs, { useTabsContext, WindowTabItemProps } from "../windows-tab";
+import WindowTabs, {
+  useTabsContext,
+  type WindowTabItemProps,
+} from "../windows-tab";
 import { QueryPlaceholder } from "./query-placeholder";
 
 interface QueryWindowProps {
@@ -146,7 +149,7 @@ export default function QueryWindow({
         explained &&
         statement.toLowerCase().indexOf("explain query plan") !== 0
       ) {
-        statement = "explain query plan " + statement;
+        statement = `explain query plan ${statement}`;
       }
 
       if (statement) {
@@ -262,8 +265,8 @@ export default function QueryWindow({
       ) {
         queryTabs.push({
           component: <ExplainResultTab data={queryResult.result} />,
-          key: "explain_" + queryResult.order,
-          identifier: "explain_" + queryResult.order,
+          key: `explain_${queryResult.order}`,
+          identifier: `explain_${queryResult.order}`,
           title: "Explain (Visual)",
           icon: LucideMessageSquareWarning,
         });
@@ -271,10 +274,10 @@ export default function QueryWindow({
 
       queryTabs.push({
         component: <QueryResult result={queryResult} key={queryResult.order} />,
-        key: "query_" + queryResult.order,
-        identifier: "query_" + queryResult.order,
+        key: `query_${queryResult.order}`,
+        identifier: `query_${queryResult.order}`,
         title:
-          `${getSingleTableName(queryResult.sql) ?? "Query " + (queryResult.order + 1)}` +
+          `${getSingleTableName(queryResult.sql) ?? `Query ${queryResult.order + 1}`}` +
           ` (${queryResult.result.rows.length}x${queryResult.result.headers.length})`,
         icon: LucideGrid,
       });
@@ -375,13 +378,16 @@ export default function QueryWindow({
                   Determine the correct modifier key for the platform.
                   This is safe in browser environments.
                 */}
-                {typeof navigator !== "undefined" && (
+                {typeof navigator !== "undefined" &&
                   (() => {
-                    const modifierKey = navigator.platform && navigator.platform.includes("Mac") ? "Cmd" : "Ctrl";
+                    const modifierKey = navigator.platform?.includes("Mac")
+                      ? "Cmd"
+                      : "Ctrl";
                     return (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button
+                            type="button"
                             onClick={() => onRunClicked()}
                             className={cn(
                               buttonVariants({ size: "sm" }),
@@ -394,15 +400,18 @@ export default function QueryWindow({
                           </button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          Run query <kbd className="ml-1 rounded border px-1 text-xs">{modifierKey}+Enter</kbd>
+                          Run query{" "}
+                          <kbd className="ml-1 rounded border px-1 text-xs">
+                            {modifierKey}+Enter
+                          </kbd>
                         </TooltipContent>
                       </Tooltip>
                     );
-                  })()
-                )}
+                  })()}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
+                      type="button"
                       className={cn(
                         buttonVariants({ size: "sm" }),
                         "rounded-l-none border-l"
@@ -529,7 +538,7 @@ export function getSingleTableName(query: string): string | null {
 
     // No table found
     return null;
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

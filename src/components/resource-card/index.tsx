@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import {
   Circle,
   Database,
@@ -6,7 +5,8 @@ import {
   Triangle,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { PropsWithChildren, useState } from "react";
+import { type PropsWithChildren, useState } from "react";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -124,6 +124,7 @@ export default function ResourceCard({
         <DropdownMenu modal={false} onOpenChange={setOpen}>
           <DropdownMenuTrigger asChild>
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();

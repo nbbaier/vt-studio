@@ -1,3 +1,5 @@
+import { Check, Spinner, Table, Trash, XCircle } from "@phosphor-icons/react";
+import { type ReactElement, useCallback, useEffect, useState } from "react";
 import { SelectableTable } from "@/components/selectable-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,9 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
-import { DatabaseSchemaItem } from "@/drivers/base-driver";
-import { Check, Spinner, Table, Trash, XCircle } from "@phosphor-icons/react";
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import type { DatabaseSchemaItem } from "@/drivers/base-driver";
 import { Toolbar, ToolbarButton } from "../toolbar";
 
 function ConfirmDialog({
