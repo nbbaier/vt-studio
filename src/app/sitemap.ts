@@ -8,30 +8,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			changeFrequency: "daily",
 			priority: 1,
 		},
-		{
-			url: "https://libsqlstudio.com/playground",
-			lastModified: new Date(),
-			changeFrequency: "daily",
-			priority: 1,
-		},
-		{
-			url: "https://libsqlstudio.com/playground/client",
-			lastModified: new Date(),
-			changeFrequency: "daily",
-			priority: 1,
-		},
 
 		// -------------------------
 		// Documentation
 		// -------------------------
 		{
 			url: "https://libsqlstudio.com/docs",
-			lastModified: new Date(),
-			changeFrequency: "daily",
-			priority: 0.5,
-		},
-		{
-			url: "https://libsqlstudio.com/docs/connect-turso",
 			lastModified: new Date(),
 			changeFrequency: "daily",
 			priority: 0.5,
