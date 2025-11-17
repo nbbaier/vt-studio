@@ -24,6 +24,7 @@ import {
 
 import { parseCreateTableScript } from "@/drivers/sqlite/sql-parse-table";
 import { parseCreateTriggerScript } from "@/drivers/sqlite/sql-parse-trigger";
+import { isSystemTable } from "@/lib/system-tables";
 import type {
 	ColumnTypeSelector,
 	DatabaseResultSet,
@@ -126,6 +127,11 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 		}>;
 
 		for (const row of rows) {
+			// Skip system tables (prefixed with _vt_studio_)
+			if (row.type === "table" && isSystemTable(row.name)) {
+				continue;
+			}
+
 			if (row.type === "table") {
 				try {
 					tmp.push({
@@ -138,6 +144,10 @@ export class SqliteLikeBaseDriver extends CommonSQLImplement {
 					tmp.push({ type: "table", name: row.name, schemaName });
 				}
 			} else if (row.type === "trigger") {
+				// Skip triggers on system tables
+				if (isSystemTable(row.tbl_name)) {
+					continue;
+				}
 				tmp.push({
 					type: "trigger",
 					name: row.name,

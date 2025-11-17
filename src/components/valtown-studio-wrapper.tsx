@@ -8,6 +8,7 @@ import { createSQLiteExtensions } from "@/core/standard-extension";
 import { createValtownDriver } from "@/drivers/helpers";
 import IndexdbSavedDoc from "@/drivers/saved-doc/indexdb-saved-doc";
 import { useAvailableAIAgents } from "@/lib/ai-agent-storage";
+import { initializeSystemTables } from "@/lib/system-tables";
 import {
 	getValtownToken,
 	removeValtownToken,
@@ -165,6 +166,15 @@ export default function ValtownStudioWrapper() {
 		if (!tokenData?.token) return null;
 		return createValtownDriver(tokenData.token);
 	}, [tokenData?.token]);
+
+	// Initialize system tables when driver is created
+	useEffect(() => {
+		if (!driver) return;
+
+		initializeSystemTables(driver).catch((error) => {
+			console.error("Failed to initialize system tables:", error);
+		});
+	}, [driver]);
 
 	// Create extensions (SQLite only)
 	const extensions = useMemo(() => {
