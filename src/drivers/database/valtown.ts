@@ -5,25 +5,16 @@ import type {
 	QueryableBaseDriver,
 } from "@/drivers/base-driver";
 import { convertSqliteType } from "@/drivers/sqlite/sql-helper";
+import ValTown from "@valtown/sdk";
+import type { ResultSet } from "@valtown/sdk/resources/shared";
 
-// Val Town API types
+// Val Town statement types (for compatibility with existing code)
 export type InStatement =
 	| string
 	| {
 			sql: string;
 			args: unknown[];
 	  };
-
-export interface ResultSet {
-	columns: string[];
-	columnTypes: string[];
-	rows: unknown[][];
-	rowsAffected: number;
-	lastInsertRowid?: bigint | number;
-	rowsRead?: number;
-	rowsWritten?: number;
-	queryDurationMS?: number;
-}
 
 function transformRawResult(raw: ResultSet): DatabaseResultSet {
 	const headerSet = new Set();
@@ -66,83 +57,62 @@ function transformRawResult(raw: ResultSet): DatabaseResultSet {
 		stat: {
 			rowsAffected: raw.rowsAffected,
 
-			// This is unique for stateless driver
-			rowsRead: raw.rowsRead ?? null,
-			rowsWritten: raw.rowsWritten ?? null,
-			queryDurationMs: raw.queryDurationMS ?? null,
+			// These fields may not be present in all responses
+			// but are maintained for compatibility with existing interfaces
+			rowsRead: (raw as any).rowsRead ?? null,
+			rowsWritten: (raw as any).rowsWritten ?? null,
+			queryDurationMs: (raw as any).queryDurationMS ?? null,
 		},
 
 		headers,
 		lastInsertRowid:
-			raw.lastInsertRowid === undefined
+			raw.lastInsertRowid === undefined || raw.lastInsertRowid === null
 				? undefined
-				: Number(raw.lastInsertRowid),
+				: typeof raw.lastInsertRowid === "string"
+					? Number(raw.lastInsertRowid)
+					: Number(raw.lastInsertRowid),
 	};
 }
 
 export class ValtownQueryable implements QueryableBaseDriver {
-	constructor(protected token: string) {}
+	private client: ValTown;
+
+	constructor(protected token: string) {
+		this.client = new ValTown({
+			bearerToken: token,
+		});
+	}
 
 	async transaction(stmts: InStatement[]): Promise<DatabaseResultSet[]> {
-		const r = await fetch(`https://api.val.town/v1/sqlite/batch`, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${this.token}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
+		try {
+			const response = await this.client.sqlite.batch({
 				statements: stmts,
 				mode: "write",
-			}),
-		});
+			});
 
-		if (!r.ok) {
-			const errorText = await r.text();
-			throw new Error(
-				`Val Town API error (${r.status}): ${errorText || r.statusText}`,
-			);
+			return response.map(transformRawResult);
+		} catch (error) {
+			// Handle SDK errors
+			if (error instanceof Error) {
+				throw new Error(`Val Town API error: ${error.message}`);
+			}
+			throw error;
 		}
-
-		const json = await r.json();
-
-		// Handle error response format
-		if (json.error) {
-			throw new Error(`Val Town API error: ${json.error}`);
-		}
-
-		if (!Array.isArray(json)) {
-			throw new Error(
-				`Unexpected response format from Val Town API: ${JSON.stringify(json)}`,
-			);
-		}
-
-		return json.map(transformRawResult);
 	}
 
 	async query(stmt: InStatement): Promise<DatabaseResultSet> {
-		const r = await fetch(`https://api.val.town/v1/sqlite/execute`, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${this.token}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({ statement: stmt }),
-		});
+		try {
+			const response = await this.client.sqlite.execute({
+				statement: stmt,
+			});
 
-		if (!r.ok) {
-			const errorText = await r.text();
-			throw new Error(
-				`Val Town API error (${r.status}): ${errorText || r.statusText}`,
-			);
+			return transformRawResult(response);
+		} catch (error) {
+			// Handle SDK errors
+			if (error instanceof Error) {
+				throw new Error(`Val Town API error: ${error.message}`);
+			}
+			throw error;
 		}
-
-		const json = await r.json();
-
-		// Handle error response format
-		if (json.error) {
-			throw new Error(`Val Town API error: ${json.error}`);
-		}
-
-		return transformRawResult(json as ResultSet);
 	}
 }

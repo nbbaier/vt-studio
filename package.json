@@ -37,6 +37,7 @@
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
 	},
 	"dependencies": {
+		"@valtown/sdk": "^3.0.0",
 		"@codemirror/autocomplete": "^6.19.1",
 		"@codemirror/commands": "^6.10.0",
 		"@codemirror/lang-json": "^6.0.2",
