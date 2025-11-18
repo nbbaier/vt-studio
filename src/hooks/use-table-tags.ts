@@ -3,7 +3,7 @@
  */
 
 import { useCallback, useMemo } from "react";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import type { BaseDriver } from "@/drivers/base-driver";
 import { SYSTEM_TABLES } from "@/lib/system-tables";
 
@@ -24,6 +24,7 @@ export interface TableTag {
  * Hook to fetch and manage all tags
  */
 export function useTags(driver: BaseDriver | null) {
+	const { mutate: globalMutate } = useSWRConfig();
 	const { data, error, mutate } = useSWR(
 		driver ? ["tags", driver] : null,
 		async () => {
@@ -43,9 +44,11 @@ export function useTags(driver: BaseDriver | null) {
 				`INSERT INTO ${SYSTEM_TABLES.TAGS} (tag, color, description)
 				 VALUES (${driver.escapeValue(tag)}, ${driver.escapeValue(color ?? null)}, ${driver.escapeValue(description ?? null)})`,
 			);
+			// Invalidate all tag-related caches
 			await mutate();
+			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
 		},
-		[driver, mutate],
+		[driver, mutate, globalMutate],
 	);
 
 	const updateTag = useCallback(
@@ -58,9 +61,11 @@ export function useTags(driver: BaseDriver | null) {
 				     description = ${driver.escapeValue(description ?? null)}
 				 WHERE tag = ${driver.escapeValue(tag)}`,
 			);
+			// Invalidate all tag-related caches
 			await mutate();
+			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
 		},
-		[driver, mutate],
+		[driver, mutate, globalMutate],
 	);
 
 	const deleteTag = useCallback(
@@ -70,9 +75,12 @@ export function useTags(driver: BaseDriver | null) {
 			await driver.query(
 				`DELETE FROM ${SYSTEM_TABLES.TAGS} WHERE tag = ${driver.escapeValue(tag)}`,
 			);
+			// Invalidate all tag-related caches
 			await mutate();
+			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
+			await globalMutate((key) => Array.isArray(key) && key[0] === "table-tags");
 		},
-		[driver, mutate],
+		[driver, mutate, globalMutate],
 	);
 
 	return {
@@ -90,6 +98,7 @@ export function useTags(driver: BaseDriver | null) {
  * Hook to fetch and manage tags for a specific table
  */
 export function useTableTags(driver: BaseDriver | null, tableName?: string) {
+	const { mutate: globalMutate } = useSWRConfig();
 	const { data, error, mutate } = useSWR(
 		driver && tableName ? ["table-tags", driver, tableName] : null,
 		async () => {
@@ -114,9 +123,11 @@ export function useTableTags(driver: BaseDriver | null, tableName?: string) {
 				`INSERT OR IGNORE INTO ${SYSTEM_TABLES.TABLE_TAGS} (table_name, tag)
 				 VALUES (${driver.escapeValue(tableName)}, ${driver.escapeValue(tag)})`,
 			);
+			// Invalidate both specific table tags and all table tags
 			await mutate();
+			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
 		},
-		[driver, tableName, mutate],
+		[driver, tableName, mutate, globalMutate],
 	);
 
 	const removeTagFromTable = useCallback(
@@ -128,9 +139,11 @@ export function useTableTags(driver: BaseDriver | null, tableName?: string) {
 				 WHERE table_name = ${driver.escapeValue(tableName)}
 				   AND tag = ${driver.escapeValue(tag)}`,
 			);
+			// Invalidate both specific table tags and all table tags
 			await mutate();
+			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
 		},
-		[driver, tableName, mutate],
+		[driver, tableName, mutate, globalMutate],
 	);
 
 	return {
