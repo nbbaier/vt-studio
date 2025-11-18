@@ -11,7 +11,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
 import {
   buildQueryExplanationFlow,
-  type ExplanationMysql,
+  type ExplanationQueryPlan,
 } from "./build-query-explanation-flow";
 import { NestedLoop } from "./node-type/nested-loop";
 import { OperationBlock } from "./node-type/operation-block";
@@ -20,7 +20,7 @@ import { TableBlock } from "./node-type/table-block";
 import { UnionBlock } from "./node-type/union-block";
 
 interface LayoutFlowProps {
-  items: ExplanationMysql;
+  items: ExplanationQueryPlan;
 }
 
 function QueryExplanationFlow(props: LayoutFlowProps) {
@@ -44,7 +44,7 @@ function QueryExplanationFlow(props: LayoutFlowProps) {
   useEffect(() => {
     if (loading) {
       const build = buildQueryExplanationFlow(
-        props.items as unknown as ExplanationMysql,
+        props.items as unknown as ExplanationQueryPlan,
       );
       setNodes(
         build.nodes.map((node: Node) => ({

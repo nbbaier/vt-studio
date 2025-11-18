@@ -5,7 +5,7 @@ import type {
   SupportedDialect,
 } from "@/drivers/base-driver";
 import QueryExplanationDiagram from "./query-explanation-diagram";
-import { convertSQLiteRowToMySQL } from "./query-explanation-diagram/build-query-explanation-flow";
+import { convertSQLiteRowToQueryPlan } from "./query-explanation-diagram/build-query-explanation-flow";
 
 interface QueryExplanationProps {
   data: DatabaseResultSet;
@@ -103,7 +103,7 @@ export function QueryExplanation(props: QueryExplanationProps) {
   }
 
   // Transform SQLite EXPLAIN QUERY PLAN output into flow diagram format
-  const value = convertSQLiteRowToMySQL(
+  const value = convertSQLiteRowToQueryPlan(
     props.data.rows as unknown as ExplanationRow[],
   );
 

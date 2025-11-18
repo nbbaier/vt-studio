@@ -13,7 +13,7 @@ async function Topbar() {
       <div className="container mx-auto flex">
         <Link href="/">
           <h1 className="py-2 text-lg text-white">
-            Outerbase <strong>Studio</strong>
+            Val Town <strong>Studio</strong>
           </h1>
         </Link>
         <div className="ml-3 flex grow items-center">
@@ -34,11 +34,11 @@ async function Topbar() {
         <div className="flex items-center pt-1 pr-4">
           <a
             className="github-button"
-            href="https://github.com/invisal/libsql-studio"
+            href="https://github.com/nbbaier/vt-studio"
             data-color-scheme="no-preference: dark; light: light; dark: dark;"
             data-size="large"
             data-show-count="true"
-            aria-label="Star invisal/libsql-studio on GitHub"
+            aria-label="Star nbbaier/vt-studio on GitHub"
           >
             Star
           </a>
@@ -54,9 +54,9 @@ function Footer() {
       <div className="mb-8 grid grid-cols-2 lg:grid-cols-4">
         <div className="mb-8">
           <h1 className="text-lg text-white">
-            Outerbase <strong>Studio</strong>
+            Val Town <strong>Studio</strong>
           </h1>
-          <p>© 2024 Outerbase Inc.</p>
+          <p>© 2024</p>
         </div>
 
         <div className="mb-8">

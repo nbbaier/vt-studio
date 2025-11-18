@@ -8,12 +8,7 @@ import { Select } from "@/components/orbit/select";
 
 const dbs = [
   { value: "SQLite", label: "SQLite" },
-  { value: "MySQL", label: "MySQL" },
-  { value: "Postgres", label: "Postgres" },
-  { value: "LibSQL", label: "LibSQL" },
-  { value: "MongoDB", label: "MongoDB" },
-  { value: "Clickhouse", label: "Clickhouse" },
-  { value: "BigQuery", label: "BigQuery" },
+  { value: "Val Town SQLite", label: "Val Town SQLite" },
 ];
 
 export default function SelectStorybook() {
