@@ -1,9 +1,12 @@
 import type { MetadataRoute } from "next";
 
+// TODO: Update base URL to actual deployment domain
+const BASE_URL = "https://vt-studio.example.com";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: "https://libsqlstudio.com",
+      url: BASE_URL,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
@@ -13,25 +16,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // Documentation
     // -------------------------
     {
-      url: "https://libsqlstudio.com/docs",
+      url: `${BASE_URL}/docs`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.5,
     },
     {
-      url: "https://libsqlstudio.com/docs/connect-valtown",
+      url: `${BASE_URL}/docs/connect-valtown`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.5,
     },
     {
-      url: "https://libsqlstudio.com/docs/temporary-session",
+      url: `${BASE_URL}/docs/temporary-session`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.5,
     },
     {
-      url: "https://libsqlstudio.com/docs/embed-iframe-client",
+      url: `${BASE_URL}/docs/embed-iframe-client`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.5,

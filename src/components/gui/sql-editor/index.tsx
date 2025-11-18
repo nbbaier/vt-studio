@@ -5,12 +5,7 @@ import {
   startCompletion,
 } from "@codemirror/autocomplete";
 import { defaultKeymap, insertTab } from "@codemirror/commands";
-import {
-  MySQL as MySQLDialect,
-  PostgreSQL as PostgresDialect,
-  type SQLNamespace,
-  sql,
-} from "@codemirror/lang-sql";
+import { type SQLNamespace, sql } from "@codemirror/lang-sql";
 import { indentUnit, type LanguageSupport } from "@codemirror/language";
 import { keymap } from "@codemirror/view";
 import CodeMirror, {
@@ -170,26 +165,12 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
     }, [fontSize, onFontSizeChanged]);
 
     const extensions = useMemo(() => {
-      let sqlDialect: LanguageSupport | undefined;
-      let tooltipExtension: Extension | undefined;
-
-      if (dialect === "sqlite") {
-        sqlDialect = sql({
-          dialect: sqliteDialect,
-          schema,
-        });
-        tooltipExtension = functionTooltip(sqliteFunctionList);
-      } else if (dialect === "postgres") {
-        sqlDialect = sql({
-          dialect: PostgresDialect,
-          schema,
-        });
-      } else {
-        sqlDialect = sql({
-          dialect: MySQLDialect,
-          schema,
-        });
-      }
+      // Only SQLite is supported
+      const sqlDialect = sql({
+        dialect: sqliteDialect,
+        schema,
+      });
+      const tooltipExtension = functionTooltip(sqliteFunctionList);
 
       return [
         EditorView.baseTheme({
@@ -223,7 +204,6 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
         promptPlugin ? promptPlugin.getExtensions() : undefined,
       ].filter(Boolean) as Extension[];
     }, [
-      dialect,
       onCursorChange,
       keyExtensions,
       schema,

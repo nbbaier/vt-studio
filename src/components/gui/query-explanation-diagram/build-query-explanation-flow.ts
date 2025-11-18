@@ -8,7 +8,8 @@ import {
 } from "@xyflow/react";
 import type { ExplanationRow } from "../query-explanation";
 
-interface ExplanationMysqlTable {
+// Internal representation of EXPLAIN QUERY PLAN output for visualization
+interface ExplanationTable {
   id: string;
   table_name: string;
   cost_info: {
@@ -19,20 +20,20 @@ interface ExplanationMysqlTable {
   lable?: string | null;
 }
 
-interface ExplanationMysqlGroupOperation {
+interface ExplanationGroupOperation {
   id: string;
   cost_info: {
     query_cost: number;
     prefix_cost: number;
   };
-  nested_loop: { table: ExplanationMysqlTable }[];
-  table: ExplanationMysqlTable;
+  nested_loop: { table: ExplanationTable }[];
+  table: ExplanationTable;
 }
 
-export interface ExplanationMysql {
+export interface ExplanationQueryPlan {
   query_block: {
     union_result?: {
-      query_specifications: { query_block: ExplanationMysql }[];
+      query_specifications: { query_block: ExplanationQueryPlan }[];
     };
     select_id: number;
     id: string;
@@ -46,13 +47,13 @@ export interface ExplanationMysql {
         query_cost: number;
         prefix_cost: number;
       };
-      nested_loop: { table: ExplanationMysqlTable }[];
-      table: ExplanationMysqlTable;
-      grouping_operation?: ExplanationMysqlGroupOperation;
+      nested_loop: { table: ExplanationTable }[];
+      table: ExplanationTable;
+      grouping_operation?: ExplanationGroupOperation;
     };
-    grouping_operation?: ExplanationMysqlGroupOperation;
-    table?: ExplanationMysqlTable;
-    nested_loop?: { table: ExplanationMysqlTable }[];
+    grouping_operation?: ExplanationGroupOperation;
+    table?: ExplanationTable;
+    nested_loop?: { table: ExplanationTable }[];
   };
 }
 
@@ -91,7 +92,8 @@ export function formatCost(cost: number) {
   });
 }
 
-function parseDetailLiteToMysql(detail: string) {
+// Parse SQLite EXPLAIN QUERY PLAN detail string
+function parseSQLiteDetail(detail: string) {
   let table = null;
   let type = null;
   let extra = null;
@@ -112,23 +114,24 @@ function parseDetailLiteToMysql(detail: string) {
   return { table, type, extra, key };
 }
 
-export function convertSQLiteRowToMySQL(
+// Convert SQLite EXPLAIN QUERY PLAN rows to internal query plan format for visualization
+export function convertSQLiteRowToQueryPlan(
   rows: ExplanationRow[],
-): ExplanationMysql {
+): ExplanationQueryPlan {
   const haveUnion = rows.some((row) => row.detail.includes("UNION"));
-  const tables: { table: ExplanationMysqlTable }[] = [];
+  const tables: { table: ExplanationTable }[] = [];
   const cost_info = {
     prefix_cost: 0,
     query_cost: 0,
   };
-  const query_specifications: { query_block: ExplanationMysql }[] = [];
+  const query_specifications: { query_block: ExplanationQueryPlan }[] = [];
 
   if (haveUnion) {
     const main_query_block = rows.find((r) => r.parent === 0);
     const query_blocks = rows.filter((r) => r.parent === main_query_block?.id);
     for (const block of query_blocks) {
       const blockRows = rows.filter((r) => r.parent === block.id);
-      const convert = convertSQLiteRowToMySQL(blockRows);
+      const convert = convertSQLiteRowToQueryPlan(blockRows);
       (query_specifications as unknown[]).push({
         query_block: {
           select_id: Number(block.id || 0),
@@ -143,7 +146,7 @@ export function convertSQLiteRowToMySQL(
   }
 
   for (const row of rows) {
-    const parsedDetail = parseDetailLiteToMysql(row.detail);
+    const parsedDetail = parseSQLiteDetail(row.detail);
     if (parsedDetail.table) {
       const table = {
         table: {
@@ -241,7 +244,7 @@ function getLayoutedExplanationElements(
 }
 
 export function buildQueryExplanationFlow(
-  item: ExplanationMysql,
+  item: ExplanationQueryPlan,
   id?: number,
 ): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = [];
@@ -457,8 +460,8 @@ export function buildQueryExplanationFlow(
     });
     for (const union of union_result.query_specifications) {
       const unionNodeEdge = buildQueryExplanationFlow(
-        union as unknown as ExplanationMysql,
-        (union as unknown as ExplanationMysql).query_block.select_id || 0,
+        union as unknown as ExplanationQueryPlan,
+        (union as unknown as ExplanationQueryPlan).query_block.select_id || 0,
       );
       union_flow.push(unionNodeEdge);
     }
