@@ -1,131 +1,131 @@
 import { useEffect, useRef, useState } from "react";
 import {
-	ContextMenu,
-	ContextMenuCheckboxItem,
-	ContextMenuContent,
-	ContextMenuItem,
-	ContextMenuSeparator,
-	ContextMenuShortcut,
-	ContextMenuSub,
-	ContextMenuSubContent,
-	ContextMenuSubTrigger,
-	ContextMenuTrigger,
+  ContextMenu,
+  ContextMenuCheckboxItem,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import {
-	contextMenuChannel,
-	type OpenContextMenuList,
-	type OpenContextMenuOptions,
+  contextMenuChannel,
+  type OpenContextMenuList,
+  type OpenContextMenuOptions,
 } from "@/core/channel-builtin";
 import { cn } from "@/lib/utils";
 
 export function ContextMenuList({ menu }: { menu: OpenContextMenuList }) {
-	return menu.map((item, menuIndex) => {
-		const itemKey = item.separator
-			? `separator-${menuIndex}`
-			: `${item.title || "item"}-${menuIndex}`;
+  return menu.map((item, menuIndex) => {
+    const itemKey = item.separator
+      ? `separator-${menuIndex}`
+      : `${item.title || "item"}-${menuIndex}`;
 
-		if (item.separator) {
-			return <ContextMenuSeparator key={itemKey} />;
-		}
+    if (item.separator) {
+      return <ContextMenuSeparator key={itemKey} />;
+    }
 
-		if (item.type === "check") {
-			return (
-				<ContextMenuCheckboxItem
-					key={itemKey}
-					checked={item.checked}
-					onClick={item.onClick}
-					disabled={item.disabled}
-				>
-					{item.title}
-				</ContextMenuCheckboxItem>
-			);
-		}
+    if (item.type === "check") {
+      return (
+        <ContextMenuCheckboxItem
+          key={itemKey}
+          checked={item.checked}
+          onClick={item.onClick}
+          disabled={item.disabled}
+        >
+          {item.title}
+        </ContextMenuCheckboxItem>
+      );
+    }
 
-		if (item.sub) {
-			return (
-				<ContextMenuSub key={itemKey}>
-					<ContextMenuSubTrigger inset>{item.title}</ContextMenuSubTrigger>
-					<ContextMenuSubContent
-						className={!item.subWidth ? "w-48" : ""}
-						style={{ width: item.subWidth ? undefined : item.subWidth }}
-					>
-						<ContextMenuList menu={item.sub} />
-					</ContextMenuSubContent>
-				</ContextMenuSub>
-			);
-		}
+    if (item.sub) {
+      return (
+        <ContextMenuSub key={itemKey}>
+          <ContextMenuSubTrigger inset>{item.title}</ContextMenuSubTrigger>
+          <ContextMenuSubContent
+            className={!item.subWidth ? "w-48" : ""}
+            style={{ width: item.subWidth ? undefined : item.subWidth }}
+          >
+            <ContextMenuList menu={item.sub} />
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+      );
+    }
 
-		return (
-			<ContextMenuItem
-				key={itemKey}
-				onClick={item.onClick}
-				disabled={item.disabled}
-				inset={!item.icon}
-			>
-				{item.icon && (
-					<item.icon
-						className={cn(
-							"mr-2 h-4 w-4",
-							item.destructive ? "text-red-500" : undefined,
-						)}
-					/>
-				)}
-				{item.destructive ? (
-					<span className="text-red-500">{item.title}</span>
-				) : (
-					item.title
-				)}
-				{item.shortcut && (
-					<ContextMenuShortcut>{item.shortcut}</ContextMenuShortcut>
-				)}
-			</ContextMenuItem>
-		);
-	});
+    return (
+      <ContextMenuItem
+        key={itemKey}
+        onClick={item.onClick}
+        disabled={item.disabled}
+        inset={!item.icon}
+      >
+        {item.icon && (
+          <item.icon
+            className={cn(
+              "mr-2 h-4 w-4",
+              item.destructive ? "text-red-500" : undefined,
+            )}
+          />
+        )}
+        {item.destructive ? (
+          <span className="text-red-500">{item.title}</span>
+        ) : (
+          item.title
+        )}
+        {item.shortcut && (
+          <ContextMenuShortcut>{item.shortcut}</ContextMenuShortcut>
+        )}
+      </ContextMenuItem>
+    );
+  });
 }
 
 export default function ContextMenuHandler() {
-	const contextRef = useRef<HTMLSpanElement>(null);
-	const [menu, setMenu] = useState<OpenContextMenuOptions>();
+  const contextRef = useRef<HTMLSpanElement>(null);
+  const [menu, setMenu] = useState<OpenContextMenuOptions>();
 
-	useEffect(() => {
-		return contextMenuChannel.listen((data) => {
-			setMenu(data);
-		});
-	}, []);
+  useEffect(() => {
+    return contextMenuChannel.listen((data) => {
+      setMenu(data);
+    });
+  }, []);
 
-	useEffect(() => {
-		if (menu && contextRef.current) {
-			const ev = new MouseEvent("contextmenu", {
-				bubbles: true,
-				cancelable: true,
-				view: window,
-				button: 2,
-				buttons: 2,
-				clientX: menu.x,
-				clientY: menu.y,
-			});
+  useEffect(() => {
+    if (menu && contextRef.current) {
+      const ev = new MouseEvent("contextmenu", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 2,
+        buttons: 2,
+        clientX: menu.x,
+        clientY: menu.y,
+      });
 
-			contextRef.current.dispatchEvent(ev);
-		}
-	}, [menu]);
+      contextRef.current.dispatchEvent(ev);
+    }
+  }, [menu]);
 
-	return (
-		<div style={{ position: "fixed", left: -20, top: -20 }}>
-			{menu ? (
-				<ContextMenu
-					modal={false}
-					onOpenChange={(isOpen) => {
-						if (!isOpen) setMenu(undefined);
-					}}
-				>
-					<ContextMenuTrigger ref={contextRef}>
-						<div></div>
-					</ContextMenuTrigger>
-					<ContextMenuContent className="w-64">
-						<ContextMenuList menu={menu.contextMenu} />
-					</ContextMenuContent>
-				</ContextMenu>
-			) : null}
-		</div>
-	);
+  return (
+    <div style={{ position: "fixed", left: -20, top: -20 }}>
+      {menu ? (
+        <ContextMenu
+          modal={false}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setMenu(undefined);
+          }}
+        >
+          <ContextMenuTrigger ref={contextRef}>
+            <div></div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-64">
+            <ContextMenuList menu={menu.contextMenu} />
+          </ContextMenuContent>
+        </ContextMenu>
+      ) : null}
+    </div>
+  );
 }

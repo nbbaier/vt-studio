@@ -7,345 +7,407 @@ import type { OpenContextMenuList } from "@/core/channel-builtin";
 import { scc } from "@/core/command";
 import type { DatabaseSchemaItem } from "@/drivers/base-driver";
 import { triggerEditorExtensionTab } from "@/extensions/trigger-editor";
+import { useAllTableTags } from "@/hooks/use-table-tags";
 import { type ExportFormat, exportTableData } from "@/lib/export-helper";
 import { ListView, type ListViewItem } from "../listview";
 import { CloudflareIcon } from "../resource-card/icon";
 import SchemaCreateDialog from "./schema-editor/schema-create";
+import { TagBadge } from "./tags/tag-badge";
+import { TagManagerDialog } from "./tags/tag-manager-dialog";
 
 interface SchemaListProps {
-	search: string;
+  search: string;
+  selectedTags?: string[];
 }
 
 function formatTableSize(byteCount?: number) {
-	const byteInKb = 1024;
-	const byteInMb = byteInKb * 1024;
-	const byteInGb = byteInMb * 1024;
+  const byteInKb = 1024;
+  const byteInMb = byteInKb * 1024;
+  const byteInGb = byteInMb * 1024;
 
-	if (!byteCount) return undefined;
-	if (byteInMb * 999 < byteCount)
-		return `${(byteCount / byteInGb).toFixed(1)} GB`;
-	if (byteInMb * 100 < byteCount)
-		return `${(byteCount / byteInMb).toFixed(0)} MB`;
-	if (byteInKb * 100 < byteCount)
-		return `${(byteCount / byteInMb).toFixed(1)} MB`;
-	if (byteInKb < byteCount) return `${Math.floor(byteCount / byteInKb)} KB`;
-	return "1 KB";
+  if (!byteCount) return undefined;
+  if (byteInMb * 999 < byteCount)
+    return `${(byteCount / byteInGb).toFixed(1)} GB`;
+  if (byteInMb * 100 < byteCount)
+    return `${(byteCount / byteInMb).toFixed(0)} MB`;
+  if (byteInKb * 100 < byteCount)
+    return `${(byteCount / byteInMb).toFixed(1)} MB`;
+  if (byteInKb < byteCount) return `${Math.floor(byteCount / byteInKb)} KB`;
+  return "1 KB";
 }
 
 function prepareListViewItem(
-	schema: DatabaseSchemaItem[],
-	maxTableSize: number,
+  schema: DatabaseSchemaItem[],
+  maxTableSize: number,
+  tagsByTable: Record<string, { tag: string; color?: string | null }[]>,
 ): ListViewItem<DatabaseSchemaItem>[] {
-	return schema.map((s) => {
-		let icon = Table;
-		let iconClassName = "";
+  return schema.map((s) => {
+    let icon = Table;
+    let iconClassName = "";
 
-		console.log("ss", s);
+    if (s.type === "trigger") {
+      icon = LucideCog;
+      iconClassName = "text-purple-500";
+    } else if (s.type === "view") {
+      icon = LucideView;
+      iconClassName = "text-green-600 dark:text-green-300";
+    } else if (s.type === "table" && s.name === "_cf_KV") {
+      icon = CloudflareIcon as Icon;
+      iconClassName = "text-orange-500";
+    }
 
-		if (s.type === "trigger") {
-			icon = LucideCog;
-			iconClassName = "text-purple-500";
-		} else if (s.type === "view") {
-			icon = LucideView;
-			iconClassName = "text-green-600 dark:text-green-300";
-		} else if (s.type === "table" && s.name === "_cf_KV") {
-			icon = CloudflareIcon as Icon;
-			iconClassName = "text-orange-500";
-		}
+    // Get tags for this table
+    const tableTags = tagsByTable[s.name] || [];
 
-		return {
-			data: s,
-			icon: icon,
-			iconColor: iconClassName,
-			key: `${s.schemaName}.${s.name}`,
-			name: s.name,
-			progressBarMax: maxTableSize,
-			progressBarValue: s.tableSchema?.stats?.sizeInByte,
-			progressBarLabel: formatTableSize(s.tableSchema?.stats?.sizeInByte),
-		};
-	});
+    // Render tags as individual badges
+    let badgeContent: React.ReactNode | string | undefined;
+    if (s.tableSchema?.fts5) {
+      badgeContent = "fts5";
+    } else if (tableTags.length > 0) {
+      badgeContent = (
+        <>
+          {tableTags.map((t) => (
+            <TagBadge key={t.tag} tag={t.tag} color={t.color} size="sm" />
+          ))}
+        </>
+      );
+    }
+
+    return {
+      data: s,
+      icon: icon,
+      iconColor: iconClassName,
+      key: `${s.schemaName}.${s.name}`,
+      name: s.name,
+      progressBarMax: maxTableSize,
+      progressBarValue: s.tableSchema?.stats?.sizeInByte,
+      progressBarLabel: formatTableSize(s.tableSchema?.stats?.sizeInByte),
+      badgeContent,
+    };
+  });
 }
 
 function groupTriggerByTable(
-	items: ListViewItem<DatabaseSchemaItem>[],
+  items: ListViewItem<DatabaseSchemaItem>[],
 ): ListViewItem<DatabaseSchemaItem>[] {
-	// Find all triggers
-	const triggers = items.filter((item) => item.data.type === "trigger");
-	const triggerByTable = triggers.reduce(
-		(a, b) => {
-			a[b.data.tableName ?? ""] = [...(a[b.data.tableName ?? ""] ?? []), b];
-			return a;
-		},
-		{} as Record<string, ListViewItem<DatabaseSchemaItem>[]>,
-	);
+  // Find all triggers
+  const triggers = items.filter((item) => item.data.type === "trigger");
+  const triggerByTable = triggers.reduce(
+    (a, b) => {
+      a[b.data.tableName ?? ""] = [...(a[b.data.tableName ?? ""] ?? []), b];
+      return a;
+    },
+    {} as Record<string, ListViewItem<DatabaseSchemaItem>[]>,
+  );
 
-	const list = items.filter((item) => item.data.type !== "trigger");
-	for (const item of list) {
-		if (item.data.type === "table" && triggerByTable[item.data.name]) {
-			item.children = [
-				...(item.children ?? []),
-				...(triggerByTable[item.name] ?? []),
-			];
-		}
-	}
+  const list = items.filter((item) => item.data.type !== "trigger");
+  for (const item of list) {
+    if (item.data.type === "table" && triggerByTable[item.data.name]) {
+      item.children = [
+        ...(item.children ?? []),
+        ...(triggerByTable[item.name] ?? []),
+      ];
+    }
+  }
 
-	return list;
+  return list;
 }
 
 function groupByFtsTable(items: ListViewItem<DatabaseSchemaItem>[]) {
-	const hash = items.reduce(
-		(a, b) => {
-			a[b.name] = b;
-			return a;
-		},
-		{} as Record<string, ListViewItem<DatabaseSchemaItem>>,
-	);
-	const ftsSuffix = ["_config", "_content", "_data", "_docsize", "_idx"];
-	const excludes = new Set();
+  const hash = items.reduce(
+    (a, b) => {
+      a[b.name] = b;
+      return a;
+    },
+    {} as Record<string, ListViewItem<DatabaseSchemaItem>>,
+  );
+  const ftsSuffix = ["_config", "_content", "_data", "_docsize", "_idx"];
+  const excludes = new Set();
 
-	for (const item of items) {
-		if (item.data.tableSchema?.fts5) {
-			item.children = ftsSuffix
-				.map((suffix) => hash[item.data.name + suffix])
-				.filter(Boolean);
+  for (const item of items) {
+    if (item.data.tableSchema?.fts5) {
+      item.children = ftsSuffix
+        .map((suffix) => hash[item.data.name + suffix])
+        .filter(Boolean);
 
-			ftsSuffix.forEach((suffix) => {
-				excludes.add(item.data.name + suffix);
-			});
+      ftsSuffix.forEach((suffix) => {
+        excludes.add(item.data.name + suffix);
+      });
 
-			item.badgeContent = "fts5";
-		}
-	}
+      item.badgeContent = "fts5";
+    }
+  }
 
-	return items.filter((item) => !excludes.has(item.data.name));
+  return items.filter((item) => !excludes.has(item.data.name));
 }
 
 function flattenSchemaGroup(
-	schemaGroup: ListViewItem<DatabaseSchemaItem>[],
+  schemaGroup: ListViewItem<DatabaseSchemaItem>[],
 ): ListViewItem<DatabaseSchemaItem>[] {
-	if (schemaGroup.length === 1) return schemaGroup[0].children ?? [];
-	return schemaGroup;
+  if (schemaGroup.length === 1) return schemaGroup[0].children ?? [];
+  return schemaGroup;
 }
 
 // Copy of export-result-button.tsx
 async function downloadExportTable(
-	format: string,
-	handler: Promise<string | Blob>,
+  format: string,
+  handler: Promise<string | Blob>,
 ) {
-	try {
-		if (!format) return;
-		const content = await handler;
-		if (!content) return;
-		// TODO: more mimeTypes support
-		const blob =
-			content instanceof Blob
-				? content
-				: new Blob([content], { type: "text/plain;charset=utf-8" });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = `export.${format === "delimited" ? "csv" : format}`;
-		a.click();
-		URL.revokeObjectURL(url);
-	} catch (error) {
-		console.error(`Failed to download exported ${format} file:`, error);
-	}
+  try {
+    if (!format) return;
+    const content = await handler;
+    if (!content) return;
+    // TODO: more mimeTypes support
+    const blob =
+      content instanceof Blob
+        ? content
+        : new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `export.${format === "delimited" ? "csv" : format}`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error(`Failed to download exported ${format} file:`, error);
+  }
 }
 
-export default function SchemaList({ search }: Readonly<SchemaListProps>) {
-	const { databaseDriver, extensions } = useStudioContext();
-	const [selected, setSelected] = useState("");
-	const { refresh, schema, currentSchemaName } = useSchema();
-	const [editSchema, setEditSchema] = useState<string | null>(null);
+export default function SchemaList({
+  search,
+  selectedTags = [],
+}: Readonly<SchemaListProps>) {
+  const { databaseDriver, extensions } = useStudioContext();
+  const [selected, setSelected] = useState("");
+  const { refresh, schema, currentSchemaName } = useSchema();
+  const [editSchema, setEditSchema] = useState<string | null>(null);
+  const [tagManagerTable, setTagManagerTable] = useState<string | null>(null);
 
-	const [collapsed, setCollapsed] = useState(() => {
-		return new Set<string>();
-	});
+  // Fetch all table tags
+  const { tagsByTable } = useAllTableTags(databaseDriver);
 
-	useEffect(() => {
-		setSelected("");
-	}, []);
+  const [collapsed, setCollapsed] = useState(() => {
+    return new Set<string>();
+  });
 
-	const exportFormats = useMemo(() => {
-		return [
-			{ title: "Export as CSV", format: "csv" },
-			{ title: "Export as Excel", format: "xlsx" },
-			{ title: "Export as JSON", format: "json" },
-			{ title: "Export as SQL INSERT", format: "sql" },
-		];
-	}, []);
+  useEffect(() => {
+    setSelected("");
+  }, []);
 
-	const prepareContextMenu = useCallback(
-		(item?: DatabaseSchemaItem) => {
-			const selectedName = item?.name;
-			const isTable = item?.type === "table";
-			const schemaName = item?.schemaName ?? currentSchemaName;
+  const exportFormats = useMemo(() => {
+    return [
+      { title: "Export as CSV", format: "csv" },
+      { title: "Export as Excel", format: "xlsx" },
+      { title: "Export as JSON", format: "json" },
+      { title: "Export as SQL INSERT", format: "sql" },
+    ];
+  }, []);
 
-			const createMenuSection = {
-				title: "Create",
-				sub: [
-					databaseDriver.getFlags().supportCreateUpdateTable && {
-						title: "Create Table",
-						onClick: () => {
-							scc.tabs.openBuiltinSchema({
-								schemaName: item?.schemaName ?? currentSchemaName,
-							});
-						},
-					},
-					...extensions.getResourceCreateMenu(),
-				].filter(Boolean),
-			};
+  const prepareContextMenu = useCallback(
+    (item?: DatabaseSchemaItem) => {
+      const selectedName = item?.name;
+      const isTable = item?.type === "table";
+      const schemaName = item?.schemaName ?? currentSchemaName;
 
-			const modificationSection = item
-				? [
-						isTable && databaseDriver.getFlags().supportCreateUpdateTable
-							? {
-									title: "Edit Table",
-									onClick: () => {
-										scc.tabs.openBuiltinSchema({
-											schemaName: item?.schemaName ?? currentSchemaName,
-											tableName: item?.name,
-										});
-									},
-								}
-							: undefined,
-						...extensions.getResourceContextMenu(item, "modification"),
-					].filter(Boolean)
-				: [];
+      const createMenuSection = {
+        title: "Create",
+        sub: [
+          databaseDriver.getFlags().supportCreateUpdateTable && {
+            title: "Create Table",
+            onClick: () => {
+              scc.tabs.openBuiltinSchema({
+                schemaName: item?.schemaName ?? currentSchemaName,
+              });
+            },
+          },
+          ...extensions.getResourceCreateMenu(),
+        ].filter(Boolean),
+      };
 
-			const exportSection =
-				isTable && selectedName
-					? {
-							title: "Export Table",
-							sub: exportFormats.map(({ title, format }) => ({
-								title,
-								onClick: async () => {
-									const handler = exportTableData(
-										databaseDriver,
-										schemaName,
-										selectedName,
-										format as ExportFormat,
-										"file",
-									);
-									downloadExportTable(format, handler);
-								},
-							})),
-						}
-					: undefined;
+      const modificationSection = item
+        ? [
+            isTable && databaseDriver.getFlags().supportCreateUpdateTable
+              ? {
+                  title: "Edit Table",
+                  onClick: () => {
+                    scc.tabs.openBuiltinSchema({
+                      schemaName: item?.schemaName ?? currentSchemaName,
+                      tableName: item?.name,
+                    });
+                  },
+                }
+              : undefined,
+            isTable
+              ? {
+                  title: "Manage Tags",
+                  onClick: () => {
+                    setTagManagerTable(item.name);
+                  },
+                }
+              : undefined,
+            ...extensions.getResourceContextMenu(item, "modification"),
+          ].filter(Boolean)
+        : [];
 
-			return [
-				createMenuSection,
-				{
-					title: "Copy Name",
-					disabled: !selectedName,
-					onClick: () => {
-						window.navigator.clipboard.writeText(selectedName ?? "");
-					},
-				},
-				{ separator: true },
+      const exportSection =
+        isTable && selectedName
+          ? {
+              title: "Export Table",
+              sub: exportFormats.map(({ title, format }) => ({
+                title,
+                onClick: async () => {
+                  const handler = exportTableData(
+                    databaseDriver,
+                    schemaName,
+                    selectedName,
+                    format as ExportFormat,
+                    "file",
+                  );
+                  downloadExportTable(format, handler);
+                },
+              })),
+            }
+          : undefined;
 
-				// Export Section
-				exportSection,
-				// Modification Section
-				...modificationSection,
-				modificationSection.length > 0 ? { separator: true } : undefined,
+      return [
+        createMenuSection,
+        {
+          title: "Copy Name",
+          disabled: !selectedName,
+          onClick: () => {
+            window.navigator.clipboard.writeText(selectedName ?? "");
+          },
+        },
+        { separator: true },
 
-				{ title: "Refresh", onClick: () => refresh() },
-			].filter(Boolean) as OpenContextMenuList;
-		},
-		[refresh, databaseDriver, currentSchemaName, extensions, exportFormats],
-	);
+        // Export Section
+        exportSection,
+        // Modification Section
+        ...modificationSection,
+        modificationSection.length > 0 ? { separator: true } : undefined,
 
-	const listViewItems = useMemo(() => {
-		const r = sortTable(
-			Object.entries(schema).map(([s, tables]) => {
-				const maxTableSize = Math.max(
-					...tables.map((t) => t.tableSchema?.stats?.sizeInByte ?? 0),
-				);
+        { title: "Refresh", onClick: () => refresh() },
+      ].filter(Boolean) as OpenContextMenuList;
+    },
+    [refresh, databaseDriver, currentSchemaName, extensions, exportFormats],
+  );
 
-				return {
-					data: { type: "schema", schemaName: s },
-					icon: LucideDatabase,
-					name: s,
-					iconBadgeColor: s === currentSchemaName ? "bg-green-600" : undefined,
-					key: s.toString(),
-					children: sortTable(
-						groupByFtsTable(
-							groupTriggerByTable(prepareListViewItem(tables, maxTableSize)),
-						),
-					),
-				} as ListViewItem<DatabaseSchemaItem>;
-			}),
-		);
+  const listViewItems = useMemo(() => {
+    const r = sortTable(
+      Object.entries(schema).map(([s, tables]) => {
+        const maxTableSize = Math.max(
+          ...tables.map((t) => t.tableSchema?.stats?.sizeInByte ?? 0),
+        );
 
-		if (databaseDriver.getFlags().optionalSchema) {
-			// For SQLite, the default schema is main and
-			// it is optional.
-			return flattenSchemaGroup(r);
-		}
-		return r;
-	}, [schema, currentSchemaName, databaseDriver]);
+        return {
+          data: { type: "schema", schemaName: s },
+          icon: LucideDatabase,
+          name: s,
+          iconBadgeColor: s === currentSchemaName ? "bg-green-600" : undefined,
+          key: s.toString(),
+          children: sortTable(
+            groupByFtsTable(
+              groupTriggerByTable(
+                prepareListViewItem(tables, maxTableSize, tagsByTable),
+              ),
+            ),
+          ),
+        } as ListViewItem<DatabaseSchemaItem>;
+      }),
+    );
 
-	const filterCallback = useCallback(
-		(item: ListViewItem<DatabaseSchemaItem>) => {
-			if (!search) return true;
-			return item.name.toLowerCase().indexOf(search.toLowerCase()) >= 0;
-		},
-		[search],
-	);
+    if (databaseDriver.getFlags().optionalSchema) {
+      // For SQLite, the default schema is main and
+      // it is optional.
+      return flattenSchemaGroup(r);
+    }
+    return r;
+  }, [schema, currentSchemaName, databaseDriver, tagsByTable]);
 
-	return (
-		<>
-			{editSchema && (
-				<SchemaCreateDialog
-					schemaName={editSchema}
-					onClose={() => setEditSchema(null)}
-				/>
-			)}
-			<ListView
-				full
-				filter={filterCallback}
-				highlight={search}
-				items={listViewItems}
-				collapsedKeys={collapsed}
-				onCollapsedChange={setCollapsed}
-				onContextMenu={(item) => prepareContextMenu(item?.data)}
-				selectedKey={selected}
-				onSelectChange={setSelected}
-				onDoubleClick={(item) => {
-					if (item.data.type === "table" || item.data.type === "view") {
-						scc.tabs.openBuiltinTable({
-							schemaName: item.data.schemaName ?? "",
-							tableName: item.data.name,
-						});
-					} else if (item.data.type === "trigger") {
-						triggerEditorExtensionTab.open({
-							schemaName: item.data.schemaName ?? "",
-							name: item.name ?? "",
-							tableName: item.data.tableName ?? "",
-						});
-					} else if (item.data.type === "schema") {
-						if (databaseDriver.getFlags().supportUseStatement) {
-							// Val Town-only migration: Only SQLite is supported, which uses USE statement
-							const switch_keyword = "USE ";
-							const name = [databaseDriver.escapeId(item.name)];
-							databaseDriver.query(switch_keyword + name.join(",")).then(() => {
-								refresh();
-							});
-						}
-					}
-				}}
-			/>
-		</>
-	);
+  const filterCallback = useCallback(
+    (item: ListViewItem<DatabaseSchemaItem>) => {
+      // Search filter
+      if (search && item.name.toLowerCase().indexOf(search.toLowerCase()) < 0) {
+        return false;
+      }
+
+      // Tag filter - only apply to tables
+      if (
+        selectedTags.length > 0 &&
+        item.data.type === "table" &&
+        item.data.name
+      ) {
+        const tableTags = tagsByTable[item.data.name] || [];
+        const hasMatchingTag = tableTags.some((t) =>
+          selectedTags.includes(t.tag),
+        );
+        if (!hasMatchingTag) return false;
+      }
+
+      return true;
+    },
+    [search, selectedTags, tagsByTable],
+  );
+
+  return (
+    <>
+      {editSchema && (
+        <SchemaCreateDialog
+          schemaName={editSchema}
+          onClose={() => setEditSchema(null)}
+        />
+      )}
+      {tagManagerTable && (
+        <TagManagerDialog
+          tableName={tagManagerTable}
+          open={!!tagManagerTable}
+          onOpenChange={(open) => !open && setTagManagerTable(null)}
+        />
+      )}
+      <ListView
+        full
+        filter={filterCallback}
+        highlight={search}
+        items={listViewItems}
+        collapsedKeys={collapsed}
+        onCollapsedChange={setCollapsed}
+        onContextMenu={(item) => prepareContextMenu(item?.data)}
+        selectedKey={selected}
+        onSelectChange={setSelected}
+        onDoubleClick={(item) => {
+          if (item.data.type === "table" || item.data.type === "view") {
+            scc.tabs.openBuiltinTable({
+              schemaName: item.data.schemaName ?? "",
+              tableName: item.data.name,
+            });
+          } else if (item.data.type === "trigger") {
+            triggerEditorExtensionTab.open({
+              schemaName: item.data.schemaName ?? "",
+              name: item.name ?? "",
+              tableName: item.data.tableName ?? "",
+            });
+          } else if (item.data.type === "schema") {
+            if (databaseDriver.getFlags().supportUseStatement) {
+              // Val Town-only migration: Only SQLite is supported, which uses USE statement
+              const switch_keyword = "USE ";
+              const name = [databaseDriver.escapeId(item.name)];
+              databaseDriver.query(switch_keyword + name.join(",")).then(() => {
+                refresh();
+              });
+            }
+          }
+        }}
+      />
+    </>
+  );
 }
 
 function sortTable(arg0: ListViewItem<DatabaseSchemaItem>[]) {
-	const sorted = [...arg0].sort((a, b) => a.name.localeCompare(b.name));
-	for (const item of sorted) {
-		if (item.children && Array.isArray(item.children)) {
-			item.children = sortTable(item.children);
-		}
-	}
-	return sorted;
+  const sorted = [...arg0].sort((a, b) => a.name.localeCompare(b.name));
+  for (const item of sorted) {
+    if (item.children && Array.isArray(item.children)) {
+      item.children = sortTable(item.children);
+    }
+  }
+  return sorted;
 }

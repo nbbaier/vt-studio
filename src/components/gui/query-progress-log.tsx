@@ -5,82 +5,82 @@ import CodePreview from "./code-preview";
 import ResultStats from "./result-stat";
 
 function formatTimeAgo(ms: number) {
-	if (ms < 1000) {
-		return `${ms}ms`;
-	} else {
-		return `${(ms / 1000).toLocaleString(undefined, {
-			maximumFractionDigits: 2,
-			minimumFractionDigits: 2,
-		})}s`;
-	}
+  if (ms < 1000) {
+    return `${ms}ms`;
+  } else {
+    return `${(ms / 1000).toLocaleString(undefined, {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    })}s`;
+  }
 }
 
 export default function QueryProgressLog({
-	progress,
+  progress,
 }: {
-	progress: MultipleQueryProgress;
+  progress: MultipleQueryProgress;
 }) {
-	const [, setCurrentTime] = useState(() => Date.now());
+  const [, setCurrentTime] = useState(() => Date.now());
 
-	useEffect(() => {
-		if (progress.progress < progress.total) {
-			const intervalId = setInterval(() => setCurrentTime(Date.now()), 200);
-			return () => clearInterval(intervalId);
-		}
-	}, [progress]);
+  useEffect(() => {
+    if (progress.progress < progress.total) {
+      const intervalId = setInterval(() => setCurrentTime(Date.now()), 200);
+      return () => clearInterval(intervalId);
+    }
+  }, [progress]);
 
-	const last3 = progress.logs.slice(-3).reverse();
-	const value = progress.progress;
-	const total = progress.total;
-	const isEnded = total === value || !!progress.error;
+  const last3 = progress.logs.slice(-3).reverse();
+  const value = progress.progress;
+  const total = progress.total;
+  const isEnded = total === value || !!progress.error;
 
-	return (
-		<div className="overflow-hidden p-4">
-			<div>
-				{isEnded ? (
-					<strong>
-						Executed {value}/{total}
-					</strong>
-				) : (
-					<strong>
-						Executing {value}/{total}
-					</strong>
-				)}
-			</div>
+  return (
+    <div className="overflow-hidden p-4">
+      <div>
+        {isEnded ? (
+          <strong>
+            Executed {value}/{total}
+          </strong>
+        ) : (
+          <strong>
+            Executing {value}/{total}
+          </strong>
+        )}
+      </div>
 
-			<div className="mt-4 flex flex-col gap-4">
-				{last3.map((detail) => {
-					return (
-						<div key={detail.order}>
-							{!!detail.error && (
-								<div className="mt-2 mb-2 font-mono text-red-500">
-									{detail.error}
-								</div>
-							)}
+      <div className="mt-4 flex flex-col gap-4">
+        {last3.map((detail) => {
+          return (
+            <div key={detail.order}>
+              {!!detail.error && (
+                <div className="mt-2 mb-2 font-mono text-red-500">
+                  {detail.error}
+                </div>
+              )}
 
-							{!detail.end && (
-								<div className="text-sm">
-									Executing this query&nbsp;
-									<strong>{formatTimeAgo(Date.now() - detail.start)}</strong>{" "}
-									ago.
-								</div>
-							)}
+              {!detail.end && (
+                <div className="text-sm">
+                  Executing this query&nbsp;
+                  <strong>{formatTimeAgo(Date.now() - detail.start)}</strong>{" "}
+                  ago.
+                </div>
+              )}
 
-							<div className="mt-3" />
-							<CodePreview code={detail.sql} />
+              <div className="mt-3" />
+              <CodePreview code={detail.sql} />
 
-							{detail.end &&
-								!detail.error &&
-								detail.stats &&
-								!isEmptyResultStats(detail.stats) && (
-									<div className="-ml-4">
-										<ResultStats stats={detail.stats} />
-									</div>
-								)}
-						</div>
-					);
-				})}
-			</div>
-		</div>
-	);
+              {detail.end &&
+                !detail.error &&
+                detail.stats &&
+                !isEmptyResultStats(detail.stats) && (
+                  <div className="-ml-4">
+                    <ResultStats stats={detail.stats} />
+                  </div>
+                )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }

@@ -8,38 +8,38 @@ import { DialogProvider } from "@/components/create-dialog";
 import ThemeLayout from "@/components/theme-layout";
 
 export const metadata: Metadata = {
-	title: WEBSITE_NAME,
-	keywords: [
-		"valtown",
-		"val.town",
-		"sqlite",
-		"studio",
-		"browser",
-		"editor",
-		"gui",
-		"database",
-		"sql-editor",
-	],
-	description: WEBSITE_GENERAL_DESCRIPTION,
-	openGraph: {
-		siteName: WEBSITE_NAME,
-		description: WEBSITE_GENERAL_DESCRIPTION,
-	},
+  title: WEBSITE_NAME,
+  keywords: [
+    "valtown",
+    "val.town",
+    "sqlite",
+    "studio",
+    "browser",
+    "editor",
+    "gui",
+    "database",
+    "sql-editor",
+  ],
+  description: WEBSITE_GENERAL_DESCRIPTION,
+  openGraph: {
+    siteName: WEBSITE_NAME,
+    description: WEBSITE_GENERAL_DESCRIPTION,
+  },
 };
 
 export default async function RootLayout({
-	children,
+  children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-	return (
-		<html lang="en" suppressHydrationWarning>
-			<body>
-				<ThemeLayout>
-					{children}
-					<DialogProvider slot="default" />
-				</ThemeLayout>
-			</body>
-		</html>
-	);
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeLayout>
+          {children}
+          <DialogProvider slot="default" />
+        </ThemeLayout>
+      </body>
+    </html>
+  );
 }

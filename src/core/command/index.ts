@@ -11,15 +11,15 @@ import { builtinOpenTableTab } from "../builtin-tab/open-table-tab";
 import { tabCloseChannel } from "../extension-tab";
 
 export const scc = {
-	tabs: {
-		openBuiltinQuery: builtinOpenQueryTab.open,
-		openBuiltinTable: builtinOpenTableTab.open,
-		openBuiltinSchema: builtinOpenSchemaTab.open,
-		openBuiltinERD: builtinOpenERDTab.open,
-		openBuiltinMassDropTable: builtinMassDropTableTab.open,
+  tabs: {
+    openBuiltinQuery: builtinOpenQueryTab.open,
+    openBuiltinTable: builtinOpenTableTab.open,
+    openBuiltinSchema: builtinOpenSchemaTab.open,
+    openBuiltinERD: builtinOpenERDTab.open,
+    openBuiltinMassDropTable: builtinMassDropTableTab.open,
 
-		close: (keys: string[]) => {
-			tabCloseChannel.send(keys);
-		},
-	},
+    close: (keys: string[]) => {
+      tabCloseChannel.send(keys);
+    },
+  },
 };

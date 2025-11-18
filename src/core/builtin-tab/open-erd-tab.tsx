@@ -3,11 +3,11 @@ import RelationalDiagramTab from "@/components/gui/tabs/relational-diagram-tab";
 import { createTabExtension } from "../extension-tab";
 
 export const builtinOpenERDTab = createTabExtension({
-	name: "erd",
-	key: () => "",
-	generate: () => ({
-		title: "Relational Diagram",
-		component: <RelationalDiagramTab />,
-		icon: TreeStructure,
-	}),
+  name: "erd",
+  key: () => "",
+  generate: () => ({
+    title: "Relational Diagram",
+    component: <RelationalDiagramTab />,
+    icon: TreeStructure,
+  }),
 });
