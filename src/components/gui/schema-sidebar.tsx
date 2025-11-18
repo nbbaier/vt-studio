@@ -1,16 +1,20 @@
-import { Plus } from "@phosphor-icons/react";
+import { Funnel, Plus } from "@phosphor-icons/react";
 import { LucideSearch } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
 import { scc } from "@/core/command";
 import type { StudioExtensionMenuItem } from "@/core/extension-manager";
+import { useTags } from "@/hooks/use-table-tags";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import {
 	DropdownMenu,
+	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import SchemaCreateDialog from "./schema-editor/schema-create";
@@ -18,11 +22,13 @@ import SchemaList from "./schema-sidebar-list";
 
 export default function SchemaView() {
 	const [search, setSearch] = useState("");
+	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const { databaseDriver, extensions } = useStudioContext();
 	const { currentSchemaName } = useSchema();
 	const [isCreateSchema, setIsCreateSchema] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [showButton, setShowButton] = useState(true);
+	const { tags } = useTags(databaseDriver);
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -132,7 +138,59 @@ export default function SchemaView() {
 			<div className="flex flex-col p-4 pb-2">
 				<div className="mb-5 flex items-center justify-between">
 					<h1 className="text-primary text-xl font-medium">Tables</h1>
-					{activatorButton}
+					<div className="flex items-center gap-2">
+						{tags.length > 0 && (
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<button
+										type="button"
+										className={cn(
+											buttonVariants({
+												size: "icon",
+											}),
+											"h-8 w-8 rounded-full",
+											selectedTags.length > 0
+												? "bg-blue-600 text-white hover:bg-blue-700"
+												: "bg-neutral-200 dark:bg-neutral-800",
+										)}
+									>
+										<Funnel size={16} weight="bold" />
+									</button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-48">
+									<DropdownMenuLabel>Filter by Tags</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+									{tags.map((tag) => (
+										<DropdownMenuCheckboxItem
+											key={tag.tag}
+											checked={selectedTags.includes(tag.tag)}
+											onCheckedChange={(checked) => {
+												setSelectedTags((prev) =>
+													checked
+														? [...prev, tag.tag]
+														: prev.filter((t) => t !== tag.tag),
+												);
+											}}
+										>
+											{tag.tag}
+										</DropdownMenuCheckboxItem>
+									))}
+									{selectedTags.length > 0 && (
+										<>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem
+												onClick={() => setSelectedTags([])}
+												className="text-sm"
+											>
+												Clear filters
+											</DropdownMenuItem>
+										</>
+									)}
+								</DropdownMenuContent>
+							</DropdownMenu>
+						)}
+						{activatorButton}
+					</div>
 				</div>
 
 				<div className="flex h-[32px] w-full cursor-text items-center overflow-hidden rounded-md bg-white px-3 py-2.5 text-base text-neutral-900 outline outline-1 outline-neutral-200 focus:outline-neutral-400/70 disabled:cursor-not-allowed disabled:opacity-50 has-focus:outline-neutral-400/70 has-enabled:active:outline-neutral-400/70 has-disabled:cursor-not-allowed has-disabled:opacity-50 dark:bg-neutral-900 dark:text-white dark:outline-neutral-800 dark:focus:outline-neutral-600 dark:has-focus:outline-neutral-600 dark:has-enabled:active:outline-neutral-600">
@@ -154,7 +212,7 @@ export default function SchemaView() {
 				</div>
 			</div>
 
-			<SchemaList search={search} />
+			<SchemaList search={search} selectedTags={selectedTags} />
 		</div>
 	);
 }

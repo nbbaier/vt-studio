@@ -7,13 +7,16 @@ import type { OpenContextMenuList } from "@/core/channel-builtin";
 import { scc } from "@/core/command";
 import type { DatabaseSchemaItem } from "@/drivers/base-driver";
 import { triggerEditorExtensionTab } from "@/extensions/trigger-editor";
+import { useAllTableTags } from "@/hooks/use-table-tags";
 import { type ExportFormat, exportTableData } from "@/lib/export-helper";
 import { ListView, type ListViewItem } from "../listview";
 import { CloudflareIcon } from "../resource-card/icon";
 import SchemaCreateDialog from "./schema-editor/schema-create";
+import { TagManagerDialog } from "./tags/tag-manager-dialog";
 
 interface SchemaListProps {
 	search: string;
+	selectedTags?: string[];
 }
 
 function formatTableSize(byteCount?: number) {
@@ -35,12 +38,11 @@ function formatTableSize(byteCount?: number) {
 function prepareListViewItem(
 	schema: DatabaseSchemaItem[],
 	maxTableSize: number,
+	tagsByTable: Record<string, { tag: string; color?: string | null }[]>,
 ): ListViewItem<DatabaseSchemaItem>[] {
 	return schema.map((s) => {
 		let icon = Table;
 		let iconClassName = "";
-
-		console.log("ss", s);
 
 		if (s.type === "trigger") {
 			icon = LucideCog;
@@ -53,6 +55,11 @@ function prepareListViewItem(
 			iconClassName = "text-orange-500";
 		}
 
+		// Get tags for this table
+		const tableTags = tagsByTable[s.name] || [];
+		const tagContent =
+			tableTags.length > 0 ? tableTags.map((t) => t.tag).join(", ") : undefined;
+
 		return {
 			data: s,
 			icon: icon,
@@ -62,6 +69,7 @@ function prepareListViewItem(
 			progressBarMax: maxTableSize,
 			progressBarValue: s.tableSchema?.stats?.sizeInByte,
 			progressBarLabel: formatTableSize(s.tableSchema?.stats?.sizeInByte),
+			badgeContent: s.tableSchema?.fts5 ? "fts5" : tagContent,
 		};
 	});
 }
@@ -152,11 +160,18 @@ async function downloadExportTable(
 	}
 }
 
-export default function SchemaList({ search }: Readonly<SchemaListProps>) {
+export default function SchemaList({
+	search,
+	selectedTags = [],
+}: Readonly<SchemaListProps>) {
 	const { databaseDriver, extensions } = useStudioContext();
 	const [selected, setSelected] = useState("");
 	const { refresh, schema, currentSchemaName } = useSchema();
 	const [editSchema, setEditSchema] = useState<string | null>(null);
+	const [tagManagerTable, setTagManagerTable] = useState<string | null>(null);
+
+	// Fetch all table tags
+	const { tagsByTable } = useAllTableTags(databaseDriver);
 
 	const [collapsed, setCollapsed] = useState(() => {
 		return new Set<string>();
@@ -206,6 +221,14 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
 											schemaName: item?.schemaName ?? currentSchemaName,
 											tableName: item?.name,
 										});
+									},
+								}
+							: undefined,
+						isTable
+							? {
+									title: "Manage Tags",
+									onClick: () => {
+										setTagManagerTable(item.name);
 									},
 								}
 							: undefined,
@@ -271,7 +294,9 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
 					key: s.toString(),
 					children: sortTable(
 						groupByFtsTable(
-							groupTriggerByTable(prepareListViewItem(tables, maxTableSize)),
+							groupTriggerByTable(
+								prepareListViewItem(tables, maxTableSize, tagsByTable),
+							),
 						),
 					),
 				} as ListViewItem<DatabaseSchemaItem>;
@@ -284,14 +309,31 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
 			return flattenSchemaGroup(r);
 		}
 		return r;
-	}, [schema, currentSchemaName, databaseDriver]);
+	}, [schema, currentSchemaName, databaseDriver, tagsByTable]);
 
 	const filterCallback = useCallback(
 		(item: ListViewItem<DatabaseSchemaItem>) => {
-			if (!search) return true;
-			return item.name.toLowerCase().indexOf(search.toLowerCase()) >= 0;
+			// Search filter
+			if (search && item.name.toLowerCase().indexOf(search.toLowerCase()) < 0) {
+				return false;
+			}
+
+			// Tag filter - only apply to tables
+			if (
+				selectedTags.length > 0 &&
+				item.data.type === "table" &&
+				item.data.name
+			) {
+				const tableTags = tagsByTable[item.data.name] || [];
+				const hasMatchingTag = tableTags.some((t) =>
+					selectedTags.includes(t.tag),
+				);
+				if (!hasMatchingTag) return false;
+			}
+
+			return true;
 		},
-		[search],
+		[search, selectedTags, tagsByTable],
 	);
 
 	return (
@@ -300,6 +342,13 @@ export default function SchemaList({ search }: Readonly<SchemaListProps>) {
 				<SchemaCreateDialog
 					schemaName={editSchema}
 					onClose={() => setEditSchema(null)}
+				/>
+			)}
+			{tagManagerTable && (
+				<TagManagerDialog
+					tableName={tagManagerTable}
+					open={!!tagManagerTable}
+					onOpenChange={(open) => !open && setTagManagerTable(null)}
 				/>
 			)}
 			<ListView
