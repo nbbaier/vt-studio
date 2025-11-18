@@ -1,13 +1,5 @@
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { Funnel, LucideSearch, Plus } from "lucide-react";
+import { Funnel, Plus } from "@phosphor-icons/react";
+import { Search as LucideSearch } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useStudioContext } from "@/context/driver-provider";
 import { useSchema } from "@/context/schema-provider";
@@ -16,6 +8,15 @@ import type { StudioExtensionMenuItem } from "@/core/extension-manager";
 import { useTags } from "@/hooks/use-table-tags";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import SchemaCreateDialog from "./schema-editor/schema-create";
 import SchemaList from "./schema-sidebar-list";
 
