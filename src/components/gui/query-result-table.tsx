@@ -65,8 +65,7 @@ function Header({
 
 	return (
 		<div className={thClass}>
-			<th
-				scope="col"
+			<div
 				className={thClass}
 				tabIndex={0}
 				onMouseDown={(e) => {
@@ -95,7 +94,7 @@ function Header({
 					</div>
 				) : null}
 				<div className={textClass}>{header.display.text}</div>
-			</th>
+			</div>
 			<div>
 				<DropdownMenu modal={false} onOpenChange={setOpen} open={open}>
 					<DropdownMenuTrigger asChild>
