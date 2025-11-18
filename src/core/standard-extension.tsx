@@ -9,14 +9,14 @@ import TriggerEditorExtension from "@/extensions/trigger-editor";
 import ViewEditorExtension from "@/extensions/view-editor";
 
 export function createStandardExtensions() {
-	return [
-		new QueryHistoryConsoleLogExtension(),
-		new ViewEditorExtension(),
-		new ColumnDescriptorExtension(),
-		new DataDecoratorExtension(),
-	];
+  return [
+    new QueryHistoryConsoleLogExtension(),
+    new ViewEditorExtension(),
+    new ColumnDescriptorExtension(),
+    new DataDecoratorExtension(),
+  ];
 }
 
 export function createSQLiteExtensions() {
-	return [...createStandardExtensions(), new TriggerEditorExtension()];
+  return [...createStandardExtensions(), new TriggerEditorExtension()];
 }
