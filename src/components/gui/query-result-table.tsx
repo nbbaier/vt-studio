@@ -65,7 +65,9 @@ function Header({
 
 	return (
 		<div className={thClass}>
+			{/* biome-ignore lint/a11y/useSemanticElements: This element needs click handlers and focus management for table column selection */}
 			<div
+				role="button"
 				className={thClass}
 				tabIndex={0}
 				onMouseDown={(e) => {

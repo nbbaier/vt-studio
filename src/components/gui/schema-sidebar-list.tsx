@@ -12,6 +12,7 @@ import { type ExportFormat, exportTableData } from "@/lib/export-helper";
 import { ListView, type ListViewItem } from "../listview";
 import { CloudflareIcon } from "../resource-card/icon";
 import SchemaCreateDialog from "./schema-editor/schema-create";
+import { TagBadge } from "./tags/tag-badge";
 import { TagManagerDialog } from "./tags/tag-manager-dialog";
 
 interface SchemaListProps {
@@ -55,10 +56,22 @@ function prepareListViewItem(
 			iconClassName = "text-orange-500";
 		}
 
-		// Get tags for this table
+			// Get tags for this table
 		const tableTags = tagsByTable[s.name] || [];
-		const tagContent =
-			tableTags.length > 0 ? tableTags.map((t) => t.tag).join(", ") : undefined;
+
+		// Render tags as individual badges
+		let badgeContent: React.ReactNode | string | undefined;
+		if (s.tableSchema?.fts5) {
+			badgeContent = "fts5";
+		} else if (tableTags.length > 0) {
+			badgeContent = (
+				<>
+					{tableTags.map((t) => (
+						<TagBadge key={t.tag} tag={t.tag} color={t.color} size="sm" />
+					))}
+				</>
+			);
+		}
 
 		return {
 			data: s,
@@ -69,7 +82,7 @@ function prepareListViewItem(
 			progressBarMax: maxTableSize,
 			progressBarValue: s.tableSchema?.stats?.sizeInByte,
 			progressBarLabel: formatTableSize(s.tableSchema?.stats?.sizeInByte),
-			badgeContent: s.tableSchema?.fts5 ? "fts5" : tagContent,
+			badgeContent,
 		};
 	});
 }

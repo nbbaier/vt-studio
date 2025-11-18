@@ -25,7 +25,7 @@ export interface ListViewItem<T = unknown> {
 	iconColor?: string;
 	iconBadgeColor?: string;
 	data: T;
-	badgeContent?: string;
+	badgeContent?: string | React.ReactNode;
 	badgeClassName?: string;
 	children?: ListViewItem<T>[];
 	progressBarValue?: number;
@@ -222,17 +222,25 @@ function renderList<T>(props: ListViewRendererProps<T>): React.ReactElement {
 										</div>
 									)}
 
-									<div className="line-clamp-1 flex-1 text-sm">
-										<HighlightText text={item.name} highlight={highlight} />
+									<div className="flex flex-1 items-center gap-1 overflow-hidden">
+										<div className="line-clamp-1 text-sm">
+											<HighlightText text={item.name} highlight={highlight} />
+										</div>
 										{item.badgeContent && (
-											<span
-												className={cn(
-													"ml-1 rounded p-0.5 px-1 font-mono text-sm font-normal",
-													item.badgeClassName ?? "bg-red-500 text-white",
+											<div className="flex shrink-0 items-center gap-1">
+												{typeof item.badgeContent === "string" ? (
+													<span
+														className={cn(
+															"rounded p-0.5 px-1 font-mono text-sm font-normal",
+															item.badgeClassName ?? "bg-red-500 text-white",
+														)}
+													>
+														{item.badgeContent}
+													</span>
+												) : (
+													item.badgeContent
 												)}
-											>
-												{item.badgeContent}
-											</span>
+											</div>
 										)}
 									</div>
 
