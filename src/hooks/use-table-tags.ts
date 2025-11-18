@@ -46,7 +46,9 @@ export function useTags(driver: BaseDriver | null) {
 			);
 			// Invalidate all tag-related caches
 			await mutate();
-			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
+			await globalMutate(
+				(key) => Array.isArray(key) && key[0] === "all-table-tags",
+			);
 		},
 		[driver, mutate, globalMutate],
 	);
@@ -63,7 +65,9 @@ export function useTags(driver: BaseDriver | null) {
 			);
 			// Invalidate all tag-related caches
 			await mutate();
-			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
+			await globalMutate(
+				(key) => Array.isArray(key) && key[0] === "all-table-tags",
+			);
 		},
 		[driver, mutate, globalMutate],
 	);
@@ -77,8 +81,12 @@ export function useTags(driver: BaseDriver | null) {
 			);
 			// Invalidate all tag-related caches
 			await mutate();
-			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
-			await globalMutate((key) => Array.isArray(key) && key[0] === "table-tags");
+			await globalMutate(
+				(key) => Array.isArray(key) && key[0] === "all-table-tags",
+			);
+			await globalMutate(
+				(key) => Array.isArray(key) && key[0] === "table-tags",
+			);
 		},
 		[driver, mutate, globalMutate],
 	);
@@ -125,7 +133,9 @@ export function useTableTags(driver: BaseDriver | null, tableName?: string) {
 			);
 			// Invalidate both specific table tags and all table tags
 			await mutate();
-			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
+			await globalMutate(
+				(key) => Array.isArray(key) && key[0] === "all-table-tags",
+			);
 		},
 		[driver, tableName, mutate, globalMutate],
 	);
@@ -141,7 +151,9 @@ export function useTableTags(driver: BaseDriver | null, tableName?: string) {
 			);
 			// Invalidate both specific table tags and all table tags
 			await mutate();
-			await globalMutate((key) => Array.isArray(key) && key[0] === "all-table-tags");
+			await globalMutate(
+				(key) => Array.isArray(key) && key[0] === "all-table-tags",
+			);
 		},
 		[driver, tableName, mutate, globalMutate],
 	);

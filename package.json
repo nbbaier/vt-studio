@@ -30,8 +30,10 @@
 		"typecheck": "tsc --noEmit --skipLibCheck",
 		"format": "biome format .",
 		"format:write": "biome format --write .",
-		"lint": "biome check .",
-		"lint:write": "biome check --write .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome lint --check .",
+		"check:fix": "biome lint --check --write .",
 		"dialect": "node build-dialect.js",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"

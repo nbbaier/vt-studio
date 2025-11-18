@@ -1,35 +1,35 @@
 name: Check
 
 on:
-  push:
-    branches:
-      - develop
-  pull_request:
-  workflow_dispatch:
+   push:
+      branches:
+         - develop
+   pull_request:
+   workflow_dispatch:
 
 jobs:
-  quality-check:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+   quality-check:
+      runs-on: ubuntu-latest
+      steps:
+         - name: Checkout code
+           uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+         - name: Setup Bun
+           uses: oven-sh/setup-bun@v2
+           with:
+              bun-version: latest
 
-      - name: Install dependencies
-        run: bun install
+         - name: Install dependencies
+           run: bun install
 
-      - name: Run type check
-        run: bun run typecheck
+         - name: Run type check
+           run: bun run typecheck
 
-      - name: Run linter
-        run: bun run lint
+         - name: Run linter
+           run: bun run lint
 
-      - name: Run tests
-        run: bun run test
+         - name: Run tests
+           run: bun run test
 
-      - name: Log success
-        run: echo "✅ Success!"
+         - name: Log success
+           run: echo "✅ Success!"
