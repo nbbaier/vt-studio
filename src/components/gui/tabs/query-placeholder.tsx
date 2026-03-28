@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import type React from "react";
+import { useMemo } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import {
   Popover,

@@ -9,7 +9,8 @@ import {
   Square,
   Trash2,
 } from "lucide-react";
-import React, { useCallback } from "react";
+import type React from "react";
+import { useCallback } from "react";
 import RGL, { WidthProvider, type Layout } from "react-grid-layout/legacy";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
