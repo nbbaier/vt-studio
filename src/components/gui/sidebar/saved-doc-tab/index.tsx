@@ -1,6 +1,6 @@
 import { Binoculars, Folder, Plus } from "@phosphor-icons/react";
 import { LucideTrash } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ListView, type ListViewItem } from "@/components/listview";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -91,7 +91,7 @@ export default function SavedDocTab() {
     }
   }, [refresh, docDriver]);
 
-  let dialog: JSX.Element | null = null;
+  let dialog: React.JSX.Element | null = null;
 
   if (docToRemove) {
     dialog = (

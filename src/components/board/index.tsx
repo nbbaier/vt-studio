@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { BoardSourceDriver } from "@/drivers/board-source/base-source";
 import type { IBoardStorageDriver } from "@/drivers/board-storage/base";
+import type { Layout } from "react-grid-layout/legacy";
 import type { ChartValue } from "../chart/chart-type";
 import { BoardCanvas } from "./board-canvas";
 import BoardChartEditor from "./board-chart-editor";
@@ -11,7 +12,7 @@ import { BoardTool } from "./board-tool/board-tool";
 
 export interface DashboardProps {
   charts: ChartValue[];
-  layout: ReactGridLayout.Layout[];
+  layout: Layout;
   name: string;
   data: {
     filters: BoardFilterProps[];

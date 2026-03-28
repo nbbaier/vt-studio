@@ -337,7 +337,7 @@ export default function QueryWindow({
   );
 
   return (
-    <ResizablePanelGroup direction="vertical">
+    <ResizablePanelGroup orientation="vertical">
       <ResizablePanel style={{ position: "relative" }}>
         <div className="absolute top-0 right-0 bottom-0 left-0 flex flex-col">
           <div className="flex border-b bg-neutral-50 py-3 px-3 dark:bg-neutral-950">

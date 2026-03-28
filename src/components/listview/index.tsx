@@ -3,6 +3,7 @@ import { LucideChevronDown, LucideChevronRight } from "lucide-react";
 import React, {
   type Dispatch,
   Fragment,
+  type JSX,
   type MutableRefObject,
   type SetStateAction,
   useRef,

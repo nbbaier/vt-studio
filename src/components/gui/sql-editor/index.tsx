@@ -187,7 +187,7 @@ const SqlEditor = forwardRef<ReactCodeMirrorRef, SqlEditorProps>(
         highlightVariable
           ? createVariableHighlightPlugin({
               variables: variableList ?? "",
-              language: sqlDialect,
+              language: sqlDialect as unknown as LanguageSupport,
             })
           : undefined,
         sqlDialect,

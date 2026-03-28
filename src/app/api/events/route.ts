@@ -52,7 +52,7 @@ export const POST = async (req: NextRequest) => {
   if (!validate.success) {
     return NextResponse.json({
       success: false,
-      error: validate.error.formErrors,
+      error: validate.error.flatten().formErrors,
     });
   }
 

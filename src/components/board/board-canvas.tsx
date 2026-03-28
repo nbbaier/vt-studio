@@ -9,8 +9,8 @@ import {
   Square,
   Trash2,
 } from "lucide-react";
-import { useCallback } from "react";
-import RGL, { WidthProvider } from "react-grid-layout";
+import React, { useCallback } from "react";
+import RGL, { WidthProvider, type Layout } from "react-grid-layout/legacy";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "../ui/button";
 import {
@@ -35,7 +35,7 @@ export interface BoardChartLayout {
 
 interface BoardProps {
   value: DashboardProps;
-  onChange: (v: ReactGridLayout.Layout[]) => void;
+  onChange: (v: Layout) => void;
 }
 
 const ReactGridLayout = WidthProvider(RGL);
@@ -129,7 +129,7 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
     [onChange, value.layout],
   );
 
-  const mapItem: JSX.Element[] = value.layout
+  const mapItem: React.JSX.Element[] = value.layout
     .map((_, i) => {
       const chart = value.charts.find((chart) => chart.id === _.i);
       if (!chart) return null;
@@ -210,7 +210,7 @@ export function BoardCanvas({ value, onChange }: BoardProps) {
         </div>
       );
     })
-    .filter((item): item is JSX.Element => item !== null);
+    .filter((item): item is React.JSX.Element => item !== null);
 
   return (
     <div className="bg-neutral-100 dark:bg-neutral-950">

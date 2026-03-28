@@ -1,4 +1,4 @@
-import Dagre from "@dagrejs/dagre";
+import * as Dagre from "@dagrejs/dagre";
 import {
   AlignCenterHorizontalSimple,
   AlignCenterVerticalSimple,
@@ -198,7 +198,7 @@ function mapSchema(
     relationshipNodes,
     initialEdges,
     {
-      rankdir: rankdir ? rankdir : "LR",
+      rankdir: (rankdir || "LR") as "BT" | "LR" | "RL" | "TB",
       marginx: NODE_MARGIN,
       marginy: NODE_MARGIN,
     },

@@ -70,7 +70,10 @@ async function CodeBlock(props: MDXCodeBlockProps) {
     );
   }) as React.ReactElement | undefined;
 
-  if (codeElement && typeof codeElement.props.children === "string") {
+  if (
+    codeElement &&
+    typeof (codeElement.props as Record<string, unknown>).children === "string"
+  ) {
     return <CodeBlockInner {...(codeElement.props as CodeBlockProps)} />;
   }
 
