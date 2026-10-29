@@ -12,11 +12,13 @@
 ## 🏗️ Architecture Overview
 
 ### 1. **Studio-First Design Pattern**
+
 - **No connection management pages** - app launches directly into database interface
 - **Single authentication flow** via Val Town API token stored in localStorage
 - **Simplified UX** - users see token input screen only on first visit or after disconnect
 
 ### 2. **Driver Architecture** (`src/drivers/`)
+
 ```
 ┌─ Base Driver Interface (base-driver.ts)
 │   └─ Defines QueryableBaseDriver contract
@@ -25,11 +27,13 @@
 ```
 
 ### 3. **Core Components** (`src/components/`)
+
 - **`valtown-studio-wrapper.tsx`** - Main entry point, handles auth flow
-- **`gui/studio.tsx`** - Primary Studio interface component  
+- **`gui/studio.tsx`** - Primary Studio interface component
 - **`gui/`** - Contains all database GUI components (tables, query editor, schema browser)
 
 ### 4. **Authentication Flow**
+
 1. User visits `/` → `ValtownStudioWrapper` checks localStorage for token
 2. No token → Shows inline token configuration UI
 3. Valid token → Creates `ValtownQueryable` driver → Renders Studio
@@ -38,6 +42,7 @@
 ## 🚀 Current Status: Ready for Manual Testing
 
 ### ✅ Completed (Automated)
+
 - All 93 unit tests passing
 - TypeScript compilation clean
 - Production build successful (682kB First Load JS)
@@ -45,6 +50,7 @@
 - Studio-First UI implemented
 
 ### 📋 Next: Manual Testing Phase
+
 **You are here**: Phase 8 - Manual Testing & Deployment
 
 **Immediate tasks**:
@@ -56,16 +62,19 @@
 ## 🛠️ Key Files to Understand
 
 ### Authentication & Entry Points
+
 - `src/app/page.tsx` - Root route, renders Studio wrapper
 - `src/components/valtown-studio-wrapper.tsx` - Token UI + Studio orchestration
 - `src/lib/valtown-token-storage.ts` - localStorage token management
 
-### Database Layer  
+### Database Layer
+
 - `src/drivers/base-driver.ts` - Driver interface definitions
 - `src/drivers/database/valtown.ts` - Val Town API implementation
 - `src/drivers/sqlite/` - SQLite parsing utilities (schema management)
 
 ### Core Studio
+
 - `src/components/gui/studio.tsx` - Main Studio component
 - `src/core/` - Extension system and query pipeline
 - `src/outerbase-cloud/` - API client utilities (legacy naming)
@@ -100,10 +109,10 @@ bun run build       # Production build
 
 ## 📚 Reference Documents
 
-- `MANUAL_TESTING_CHECKLIST.md` - Complete testing checklist  
+- `MANUAL_TESTING_CHECKLIST.md` - Complete testing checklist
 - `VALTOWN_MIGRATION_PLAN.md` - Migration history and details
-- `AGENTS.md` - Development commands and conventions
-- `CLAUDE.md` - Comprehensive development guide
+- `AGENTS.md` - Agent entry point: commands, rules, driver invariants
+- `CODING_STANDARDS.md` - Code rules for `src/`
 
 ---
 

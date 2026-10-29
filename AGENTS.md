@@ -1,20 +1,38 @@
-# Val Town Studio Agent Guide
+# Val Town Studio
+
+Browser-based SQLite GUI for Val Town databases. Next.js 15, React 19,
+Tailwind 4, Biome. Imports from `src/` use the `@/*` alias.
 
 ## Commands
-- **Run**: `bun run dev` (port 3008) | **Build**: `bun run build`
-- **Test**: `bun test` | **Single Test**: `bun test <path/to/file>`
-- **Check**: `bun run tsc` (Types) | `bun run lint` (Biome) | `bun run format`
 
-## Code Style & Conventions
-- **Stack**: Next.js 15, React 19, Tailwind 4, Bun, Biome.
-- **Imports**: Use `@/*` aliases (maps to `src/*`). Avoid relative paths for distant files.
-- **Formatting**: Use Biome (tabs, double quotes). Run `bun run format:write` before committing.
-- **Styling**: Prefer Tailwind utility classes. Use `ob-*` (Orbit) for settings, `shadcn` for GUI.
-- **Database**: ONLY support "valtown" (SQLite). Use `createValtownDriver(token)`.
-- **Architecture**: "Studio-First" UI. `src/drivers` abstracts DB ops. `ValtownQueryable` implements `QueryableBaseDriver`.
-- **Testing**: Vitest for unit, Playwright for E2E. Test driver/parsing logic heavily.
+- `bun run dev` (port 3008), `bun run build`
+- `bun run test` runs Vitest; `bun run test <path>` runs one file. Plain
+  `bun test` is Bun's own runner and skips the jsdom setup.
+- `bun run test:e2e` runs Playwright against `tests/e2e/`.
+- `bun run tsc`, `bun run lint`, `bun run format:write`
 
 ## Rules
-- **No new drivers**: Do not add Postgres/MySQL support.
-- **Security**: No secrets in code. `localStorage` handles tokens.
-- **Files**: Use `bun` for all package commands.
+
+- **Val Town only**: Do not add Postgres/MySQL/Turso support or reference
+  removed drivers.
+- **Security**: No secrets in code. Tokens live in `localStorage` via
+  `src/lib/valtown-token-storage.ts`.
+- **Tooling**: Use `bun` for all package commands.
+
+## Connections and drivers
+
+- One Val Town token, one active connection. `ValtownStudioWrapper` reads the
+  stored token, builds the driver with `createValtownDriver(token)`, and
+  renders Studio directly; disconnect removes the token.
+- `createValtownDriver` wraps `ValtownQueryable` in `SqliteLikeBaseDriver`.
+- `Studio` wraps the driver in a Proxy that routes `query` and `transaction`
+  through the extensions' `beforeQuery` pipeline. Every query goes through it.
+
+## Before editing `src/`
+
+Read `CODING_STANDARDS.md`.
+
+## Done means
+
+`bun run tsc`, `bun run lint`, and `bun run test` pass. Run `bun run tsc`
+before every commit.
